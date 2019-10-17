@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import React, { PureComponent } from 'react';
 import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import SearchForm from './../../components/Form/SearchForm';
-import {unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisKeysCleaning, FormatDataForDataTable, getUserRole, getUserType, replaceCharacters, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
+import {unique_437_colors, getAuthHeader, errors, getUniqueKeys, yAxisKeysCleaning, FormatDataForDataTable, getUserRole, getUserType, replaceCharacters, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
 import Barchart from './../../components/Charts/Commons/Barchart';
 import Linechart from './../../components/Charts/Commons/Linechart';
 import DataTable from './../../components/DataTable/DataTable';
@@ -40,6 +40,7 @@ import { regListTopModel, topModelDetails, noOfbListIMEI, networkNotificationLis
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import _ from 'lodash';
+import { axioGet, axioPost } from './../../utilities/services'
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 class Trends extends PureComponent {
@@ -160,7 +161,7 @@ class Trends extends PureComponent {
   
   getChartConfigFromServer = () => 
   {
-    instance.get('/get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
+    axioGet('get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
     .then(response => {
         if(response.data.message) {
         } else {
@@ -204,7 +205,7 @@ class Trends extends PureComponent {
     setChartObj.user_id = this.props.kc.userInfo.preferred_username;
     setChartObj.subsystem = this.state.subSystem;
     setChartObj.config = this.state.layout
-          instance.post('/set-user-dashboard', setChartObj, config)
+          axioPost('set-user-dashboard', setChartObj, config)
         .then(response => {
             if(response.data.message) {
             } else {
@@ -323,7 +324,7 @@ class Trends extends PureComponent {
   getGraphDataFromServer(config) {
 
 
-      instance.post('/core-graphs', this.getCallParams('core_17'), config)
+      axioPost('core-graphs', this.getCallParams('core_17'), config)
         .then(response => {
           if(response.data.core_boxes){
             const data = Object.assign({}, ...response.data.core_boxes);
@@ -343,7 +344,7 @@ class Trends extends PureComponent {
 
 //Here API is being called to get No of Blacklisted IMEIs. In response we are setting the state with the recieved data
 
-      instance.post('/core-graphs', this.getCallParams('core_01'), config)
+      axioPost('core-graphs', this.getCallParams('core_01'), config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ rCoreNumOfIMEIsLoading: false });
@@ -359,7 +360,7 @@ class Trends extends PureComponent {
 const exceptionListOrder = ["MNO", "UNIQUE_IMEIS", "UNIQUE_IMSIS", "IMEI_IMSI_PAIR", "TOTAL_IMEIS"];
 const displayExceptionListOrder = ["Network Operator", "IMEIs", "IMSIs", "IMEI IMSI Pairs", "Total IMEIs"];
 
-      instance.post('/core-graphs', this.getCallParams('core_02'), config)
+      axioPost('core-graphs', this.getCallParams('core_02'), config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ rCoreNetworOpLoading: false });
@@ -398,7 +399,7 @@ const displayNotificationListOrder = [
   "Total IMEIs",
  ];
 
-          instance.post('/core-graphs', this.getCallParams('core_03'), config)
+          axioPost('core-graphs', this.getCallParams('core_03'), config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ rCoreNetworOpNotifcationLoading: false });
@@ -415,7 +416,7 @@ const displayNotificationListOrder = [
 
  //Here API is being called to get No. of Blacklisted IMEIs. In response we are setting the state with the recieved data         
 
-          instance.post('/core-graphs', this.getCallParams('core_06'), config)
+          axioPost('core-graphs', this.getCallParams('core_06'), config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ rCoreRegistrationLoading: false });
@@ -434,7 +435,7 @@ const displayNotificationListOrder = [
   const topModelDetailsOrder = ["MODEL", "MAKE", "DEVICE_TYPE", "BRAND", "RAT", "COUNT"];
   const displayTopModelDetailsOrder = ["Model", "Make", "Device Type", "Brand", "RAT", "Count"];
 
-          instance.post('/core-graphs', this.getCallParams('core_07'), config)
+          axioPost('core-graphs', this.getCallParams('core_07'), config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ rCoreTopModelDetailLoading: false });
@@ -452,7 +453,7 @@ const displayNotificationListOrder = [
 
   //Here API is being called to get data based on Registration Status Details. In response we are setting the state with the recieved data
 
-          // instance.post('/core-graphs', this.getCallParams('core_08'), config)
+          // axioPost('core-graphs', this.getCallParams('core_08'), config)
           // .then(response => {
           //     if(response.data.message) {
           //       this.setState({ loading6: false });

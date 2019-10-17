@@ -30,7 +30,7 @@ import "react-dates/initialize";
 import RenderMonthRangePicker from './RenderMonthRangePicker';
 import renderError from './RenderError';
 import { Field, withFormik } from 'formik';
-import {instance} from "./../../utilities/helpers";
+import { axioGet } from './../../utilities/services'
 
 class SearchForm extends PureComponent {
     constructor(props) {
@@ -92,7 +92,7 @@ class SearchForm extends PureComponent {
 
     populateMNODropDown = () =>
     {
-      instance.get('/mno-names')
+      axioGet('mno-names')
       .then(response => {
         const data = response.data.MNO_Details
         let newArr = []

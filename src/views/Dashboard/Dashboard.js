@@ -27,12 +27,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import React, { PureComponent } from 'react';
 import {Container, Row, Col, Progress } from 'reactstrap';
-import { getAuthHeader, instance, errors, getUniqueKeys, yAxisFormatter, formateBackEndString, getMappedColors} from "./../../utilities/helpers";
+import { getAuthHeader, errors, getUniqueKeys, yAxisFormatter, formateBackEndString, getMappedColors} from "./../../utilities/helpers";
 import Linechart from './../../components/Charts/Commons/Linechart';
 import DashboardPiechart from './../../components/Charts/Commons/DashboardPiechart';
 import RadialBarchart from './../../components/Charts/Commons/RadialBarChart';
 import { barBgColors, colorIMEIsPairing, progressBarColors, statusColorsForBlueBG, statusColorArray } from './../../utilities/chart_colors';
 import HeaderCards from '../../components/Cards/HeaderCards';
+import { axioGet } from './../../utilities/services'
 
 class Dashboard extends PureComponent {
   constructor(props) {
@@ -139,7 +140,7 @@ class Dashboard extends PureComponent {
 
   getDashBoardDataFromServer(config) {
 
-      instance.get('/view-dashboard')
+      axioGet('view-dashboard')
           .then(response => {
               if(response.data.message) {
               } else {
@@ -193,7 +194,7 @@ class Dashboard extends PureComponent {
 
   UNSAFE_componentWillMount()
   {
-    instance.get('/mno-names')
+    axioGet('mno-names')
     .then(response => {
       const data = response.data.MNO_Details
        this.setState({operatorsArray: data});         

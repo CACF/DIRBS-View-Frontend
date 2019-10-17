@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import React, { PureComponent } from 'react';
 import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import DateSearchForm from './../../components/Form/DateSearchForm';
-import {unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisKeysCleaning, getUserType, getUserRole, yAxisToCount, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
+import {unique_437_colors, getAuthHeader, errors, getUniqueKeys, yAxisKeysCleaning, getUserType, getUserRole, yAxisToCount, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
 import Barchart from './../../components/Charts/Commons/Barchart'
 import Piechart from '../../components/Charts/Commons/Piechart';
 import Areachart from '../../components/Charts/Commons/AreaChart';
@@ -40,6 +40,7 @@ import { deviceRegistrationStatus, registeredDevicesCount, deviceOS, deviceTechn
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import _ from 'lodash';
+import { axioGet, axioPost } from './../../utilities/services'
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 class Trends extends PureComponent {
@@ -176,7 +177,7 @@ class Trends extends PureComponent {
   
   getChartConfigFromServer = () => 
   {
-    instance.get('/get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
+    axioGet('get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
     .then(response => {
         if(response.data.message) {
         } else {
@@ -220,7 +221,7 @@ class Trends extends PureComponent {
     setChartObj.user_id = this.props.kc.userInfo.preferred_username;
     setChartObj.subsystem = this.state.subSystem;
     setChartObj.config = this.state.layout
-          instance.post('/set-user-dashboard', setChartObj, config)
+          axioPost('set-user-dashboard', setChartObj, config)
         .then(response => {
             if(response.data.message) {
             } else {
@@ -336,7 +337,7 @@ showHideFilters = () =>
         role
       }
 
-      instance.post('/drs-reg-13-main-counters',postData, config)
+      axioPost('drs-reg-13-main-counters',postData, config)
         .then(response => {
           const data = Object.assign({}, ...response.data.drs_boxes);
           const includeDashes = JSON.parse(JSON.stringify(data).replace(/ /g, '_'))
@@ -353,7 +354,7 @@ showHideFilters = () =>
           window.dispatchEvent(resizeEvent);
         })
       
-      instance.post('/drs-reg-01-manufacturing_location', postData, config)
+      axioPost('drs-reg-01-manufacturing_location', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ drsManufacturingLoading: false });
@@ -367,7 +368,7 @@ showHideFilters = () =>
               errors(this, error);
           })
       
-      instance.post('/drs-reg-02-num-of-sims', postData, config)
+      axioPost('drs-reg-02-num-of-sims', postData, config)
           .then(response => {
             let cleanData = yAxisKeysCleaning(response.data.results)
             let uniqueSims = getUniqueKeys(cleanData);
@@ -378,7 +379,7 @@ showHideFilters = () =>
           })
       
       
-      instance.post('/drs-reg-03-registered-imeis-approved', postData, config)
+      axioPost('drs-reg-03-registered-imeis-approved', postData, config)
           .then(response => {
             let cleanData = yAxisToCount(response.data.results)
             let uniqueImie = getUniqueKeys(cleanData);
@@ -388,7 +389,7 @@ showHideFilters = () =>
               errors(this, error);
           })
 
-      instance.post('/drs-reg-04-count-of-statuses', postData, config)
+      axioPost('drs-reg-04-count-of-statuses', postData, config)
           .then(response => {
             let cleanData = yAxisKeysCleaning(response.data.results)
             let uniqueStatusCount = getUniqueKeys(cleanData);
@@ -398,7 +399,7 @@ showHideFilters = () =>
               errors(this, error);
           })  
 
-      instance.post('/drs-reg-05-top-device-importers', postData, config)
+      axioPost('drs-reg-05-top-device-importers', postData, config)
           .then(response => {
                 this.setState({ drsTopDeviceImporterData: response.data.top_importers, drsTopDeviceImporterLoading: false, granularity: searchQuery.granularity});
           })
@@ -406,7 +407,7 @@ showHideFilters = () =>
               errors(this, error);
           })  
 
-      instance.post('/drs-reg-07-input-type', postData, config)
+      axioPost('drs-reg-07-input-type', postData, config)
           .then(response => {
             let cleanData = yAxisKeysCleaning(response.data.results)
             let uniqueInputType = getUniqueKeys(cleanData);
@@ -415,7 +416,7 @@ showHideFilters = () =>
           .catch(error => {
               errors(this, error);
           })
-      instance.post('/drs-reg-08-os-type', postData, config)
+      axioPost('drs-reg-08-os-type', postData, config)
           .then(response => {
                 let cleanData = yAxisKeysCleaning(response.data.results)
                 let uniqueTests = getUniqueKeys(cleanData);
@@ -424,7 +425,7 @@ showHideFilters = () =>
           .catch(error => {
               errors(this, error);
           })
-      instance.post('/drs-reg-09-device-type', postData, config)
+      axioPost('drs-reg-09-device-type', postData, config)
           .then(response => {
                 let cleanData = yAxisKeysCleaning(response.data.results)
                 let uniqueType = getUniqueKeys(cleanData);
@@ -433,7 +434,7 @@ showHideFilters = () =>
           .catch(error => {
               errors(this, error);
           })    
-      instance.post('/drs-reg-10-rat-type', postData, config)
+      axioPost('drs-reg-10-rat-type', postData, config)
           .then(response => {
                 let cleanData = yAxisKeysCleaning(response.data.results)
                 let uniqueTech = getUniqueKeys(cleanData);
@@ -442,7 +443,7 @@ showHideFilters = () =>
           .catch(error => {
               errors(this, error);
           })  
-      instance.post('/drs-reg-11-top-brands', postData, config)
+      axioPost('drs-reg-11-top-brands', postData, config)
           .then(response => {
                 let cleanData = yAxisKeysCleaning(response.data.results)
                 let uniqueBrands = getUniqueKeys(cleanData);
@@ -451,7 +452,7 @@ showHideFilters = () =>
           .catch(error => {
               errors(this, error);
           })    
-      instance.post('/drs-reg-12-top-models', postData, config)
+      axioPost('drs-reg-12-top-models', postData, config)
           .then(response => {
                 let cleanData = yAxisKeysCleaning(response.data.results)
                 let uniqueModels = getUniqueKeys(cleanData);

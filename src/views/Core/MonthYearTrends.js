@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import React, { PureComponent } from 'react';
 import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import SearchForm from './../../components/Form/SearchForm';
-import { unique_437_colors, getAuthHeader, instance, errors, FormatDataForDataTable, getUserType, getUserRole, reorderData, verticleDataTableFormat, ConditionalBreakdownFormat, scrollOsetTopPlus, fixFilOsetHeightMinus } from "./../../utilities/helpers";
+import { unique_437_colors, getAuthHeader, errors, FormatDataForDataTable, getUserType, getUserRole, reorderData, verticleDataTableFormat, ConditionalBreakdownFormat, scrollOsetTopPlus, fixFilOsetHeightMinus } from "./../../utilities/helpers";
 import Piechart from './../../components/Charts/Commons/Piechart';
 import Linechart from './../../components/Charts/Commons/Linechart';
 import HorizontalBarSegregateChart from './../../components/Charts/Commons/HorizontalBarSegregateChart';
@@ -44,6 +44,7 @@ import moment from "moment";
 import { Date_Format } from './../../utilities/constants';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import _ from 'lodash';
+import { axioGet, axioPost } from './../../utilities/services'
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 class MonthYearTrends extends PureComponent {
@@ -174,7 +175,7 @@ class MonthYearTrends extends PureComponent {
   
   getChartConfigFromServer = () => 
   {
-    instance.get('/get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
+    axioGet('get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
     .then(response => {
         if(response.data.message) {
         } else {
@@ -218,7 +219,7 @@ class MonthYearTrends extends PureComponent {
     setChartObj.user_id = this.props.kc.userInfo.preferred_username;
     setChartObj.subsystem = this.state.subSystem;
     setChartObj.config = this.state.layout
-          instance.post('/set-user-dashboard', setChartObj, config)
+          axioPost('set-user-dashboard', setChartObj, config)
         .then(response => {
             if(response.data.message) {
             } else {
@@ -337,7 +338,7 @@ class MonthYearTrends extends PureComponent {
   getGraphDataFromServer(config) {
 
 
-    instance.post('/core-graphs', this.getCallParams('core_17'), config)
+    axioPost('core-graphs', this.getCallParams('core_17'), config)
         .then(response => {
           if(response.data.core_boxes){
             const data = Object.assign({}, ...response.data.core_boxes);
@@ -380,7 +381,7 @@ class MonthYearTrends extends PureComponent {
       "Total IMEIs",
      ];
 
-    instance.post('/core-graphs', this.getCallParams('core_04'), config)
+    axioPost('core-graphs', this.getCallParams('core_04'), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ mCoreIdentifierCountLoading: false });
@@ -396,7 +397,7 @@ class MonthYearTrends extends PureComponent {
 
     //Here API is being called to get No. of Unique IMEIs, IMSI and IMEIs_IMSI_pairs in Exceptionlist.
 
-    instance.post('/core-graphs', this.getCallParams('core_05'), config)
+    axioPost('core-graphs', this.getCallParams('core_05'), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ mCoreIdentifierTrendUniqueLoading: false });
@@ -410,7 +411,7 @@ class MonthYearTrends extends PureComponent {
 
     //Here API is being called to get No. of stolen/lost imeis reported in lsds seen on network.
 
-    instance.post('/core-graphs', this.getCallParams('core_09'), config)
+    axioPost('core-graphs', this.getCallParams('core_09'), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ mCoreLostStolenIMEILoading: false });
@@ -443,7 +444,7 @@ class MonthYearTrends extends PureComponent {
       "Total IMEI",
      ];
 
-    instance.post('/core-graphs', this.getCallParams('core_10'), config)
+    axioPost('core-graphs', this.getCallParams('core_10'), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ mCoreBlacklistedLoading: false });
@@ -459,7 +460,7 @@ class MonthYearTrends extends PureComponent {
 
     //Here API is being called to get Count of nationwide blacklist violations segregated by day-ranges.
 
-    instance.post('/core-graphs', this.getCallParams('core_11'), config)
+    axioPost('core-graphs', this.getCallParams('core_11'), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ mCoreBlacklistViolationLoading: false });
@@ -474,7 +475,7 @@ class MonthYearTrends extends PureComponent {
     //Here API is being called to get Count of Operator wise blacklist violations segregated.
       if(this.state.searchQuery.mno !== "all")
       {
-    instance.post('/core-graphs', this.getCallParams('core_12'), config)
+    axioPost('core-graphs', this.getCallParams('core_12'), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ mCoreViolationBySeletedLoading: false });
@@ -499,7 +500,7 @@ class MonthYearTrends extends PureComponent {
     //   "non-compliant_triplets %",
     //  ];
 
-    instance.post('/core-graphs', this.getCallParams('core_13'), config)
+    axioPost('core-graphs', this.getCallParams('core_13'), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ mCoreComplianceBreakdownLoading: false });
@@ -515,7 +516,7 @@ class MonthYearTrends extends PureComponent {
 
     //Here API is being called to get Compliance breakdown of imeis count and age which do not meet any condition .
 
-    instance.post('/core-graphs', this.getCallParams('core_14'), config)
+    axioPost('core-graphs', this.getCallParams('core_14'), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ mCoreIdentifierTrendLoading: false });
@@ -553,7 +554,7 @@ class MonthYearTrends extends PureComponent {
       "Triplets",
      ];
 
-    instance.post('/core-graphs', this.getCallParams('core_16'), config)
+    axioPost('core-graphs', this.getCallParams('core_16'), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ mCoreClassificationLoading: false });
@@ -574,7 +575,7 @@ class MonthYearTrends extends PureComponent {
         core15Params.end_date = moment(core15Params.trend_year + '-' + core15Params.trend_month + '-01').format(Date_Format);
         delete core15Params.trend_month ;
         delete core15Params.trend_year ;
-        instance.post('/core-graphs', core15Params, config)
+        axioPost('core-graphs', core15Params, config)
         .then(response => {
             if(response.data.message) {
               this.setState({ mCoreConditionsBreakdownLoading: false });

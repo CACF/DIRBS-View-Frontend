@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import React, { PureComponent } from 'react';
 import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import DateSearchForm from './../../components/Form/DateSearchForm';
-import {unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisKeysCleaning, FormatDataForDataTable, getUserRole, getUserType, secondaryPrimary, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
+import {unique_437_colors, getAuthHeader, errors, getUniqueKeys, yAxisKeysCleaning, FormatDataForDataTable, getUserRole, getUserType, secondaryPrimary, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
 import Barchart from './../../components/Charts/Commons/Barchart';
 import Linechart from './../../components/Charts/Commons/Linechart';
 import DataTable from './../../components/DataTable/DataTable';
@@ -40,6 +40,7 @@ import { numberOfPermanentPairs, topModelsbyPairedDevices, numOfDevicesPaired, t
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import _ from 'lodash';
+import { axioGet, axioPost } from './../../utilities/services'
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 class Trends extends PureComponent {
@@ -171,7 +172,7 @@ class Trends extends PureComponent {
   
   getChartConfigFromServer = () => 
   {
-    instance.get('/get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
+    axioGet('get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
     .then(response => {
         if(response.data.message) {
         } else {
@@ -215,7 +216,7 @@ class Trends extends PureComponent {
     setChartObj.user_id = this.props.kc.userInfo.preferred_username;
     setChartObj.subsystem = this.state.subSystem;
     setChartObj.config = this.state.layout
-          instance.post('/set-user-dashboard', setChartObj, config)
+          axioPost('set-user-dashboard', setChartObj, config)
         .then(response => {
             if(response.data.message) {
             } else {
@@ -328,7 +329,7 @@ showHideFilters = () =>
         role
       }
 
-      instance.post('/dps-11-main-counters',postData, config)
+      axioPost('dps-11-main-counters',postData, config)
         .then(response => {
           if(response.data.dps_boxes){
           const data =  Object.assign({}, ...response.data.dps_boxes);
@@ -349,7 +350,7 @@ showHideFilters = () =>
 
 //Here API is being called to get Top paired brands data. In response we are setting the state with the recieved data
 
-      instance.post('/dps-01-top-brands', postData, config)
+      axioPost('dps-01-top-brands', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsTopBrandsLoading: false });
@@ -365,7 +366,7 @@ showHideFilters = () =>
 
 //Here API is being called to get Top paired mdoels data. In response we are setting the state with the recieved data
 
-      instance.post('/dps-02-top-models', postData, config)
+      axioPost('dps-02-top-models', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsTopModelsLoading: false });
@@ -383,7 +384,7 @@ showHideFilters = () =>
 
 //Here API is being called to get number of devices based on thier technology (2G/3G/4G). In response we are setting the state with the recieved data
 
-          instance.post('/dps-03-rat-types', postData, config)
+          axioPost('dps-03-rat-types', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsRatTypesLoading: false });
@@ -400,7 +401,7 @@ showHideFilters = () =>
 
  //Here API is being called to get data for primary and secondary pairs. In response we are setting the state with the recieved data         
 
-          instance.post('/dps-04a-active-primary-secondary-pairs', postData, config)
+          axioPost('dps-04a-active-primary-secondary-pairs', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsActivePSPairsLoading: false });
@@ -416,7 +417,7 @@ showHideFilters = () =>
 
  //Here API is being called to get data for primary and secondary pairs. In response we are setting the state with the recieved data         
 
-          instance.post('/dps-04b-deleted-primary-secondary-pairs', postData, config)
+          axioPost('dps-04b-deleted-primary-secondary-pairs', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsDeletedPSPairsLoading: false });
@@ -432,7 +433,7 @@ showHideFilters = () =>
 
   //Here API is being called to get data based on number of IMSI and MSISDN. In response we are setting the state with the recieved data
 
-          instance.post('/dps-05-num-of-connections', postData, config)
+          axioPost('dps-05-num-of-connections', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsNoOfConnectionsLoading: false });
@@ -447,7 +448,7 @@ showHideFilters = () =>
 
   //Here API is being called to get data for number of devices. In response we are setting the state with the recieved data
 
-          instance.post('/dps-06-num-of-devices', postData, config)
+          axioPost('dps-06-num-of-devices', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsNoOfDevicesLoading: false });
@@ -462,7 +463,7 @@ showHideFilters = () =>
 
   //Here API is being called to get data showing total number of pairs created. In response we are setting the state with the recieved data
 
-          instance.post('/dps-07-total-created-pairs', postData, config)
+          axioPost('dps-07-total-created-pairs', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsTotalCreatedPairsLoading: false });
@@ -476,7 +477,7 @@ showHideFilters = () =>
 
   //Here API is being called to get data showing total number of pairs deleted. In response we are setting the state with the recieved data
 
-          instance.post('/dps-08-total-deleted-pairs', postData, config)
+          axioPost('dps-08-total-deleted-pairs', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsTotalDeletedPairsLoading: false });
@@ -490,7 +491,7 @@ showHideFilters = () =>
 
   //Here API is being called to get data showing total number of permanent pairs. In response we are setting the state with the recieved data
 
-          instance.post('/dps-09-total-permanent-pairs', postData, config)
+          axioPost('dps-09-total-permanent-pairs', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsTotalPermanentPairsLoading: false });
@@ -525,7 +526,7 @@ showHideFilters = () =>
     "Triplets (IMEI-IMSI-MSISDN)",
    ];
 
-          instance.post('/dps-10-unique-pairs-triplets', postData, config)
+          axioPost('dps-10-unique-pairs-triplets', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ dpsUniquePairsTripletsLoading: false });

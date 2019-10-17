@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import React, { PureComponent } from 'react';
 import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import DateSearchForm from './../../components/Form/DateSearchForm';
-import {unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisKeysCleaning, getUserRole, getUserType, removeDevicesLabel, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
+import {unique_437_colors, getAuthHeader, errors, getUniqueKeys, yAxisKeysCleaning, getUserRole, getUserType, removeDevicesLabel, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
 import Barchart from './../../components/Charts/Commons/Barchart';
 import Linechart from './../../components/Charts/Commons/Linechart';
 import Areachart from './../../components/Charts/Commons/AreaChart';
@@ -39,6 +39,7 @@ import HeaderCards from '../../components/Cards/HeaderCards';
 import { noOfReportedDevices, noOfTopStolenBrands, statusOfReportedDevices, topModelsbyReportedDevices, noOfLostStolenDevices } from './../../utilities/reportsInfo';
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
+import { axioGet, axioPost } from './../../utilities/services'
 import _ from 'lodash';
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -152,8 +153,7 @@ class Trends extends PureComponent {
   
   getChartConfigFromServer = () => 
   {
-    instance.get('/get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
-    .then(response => {
+    axioGet('get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem ).then(response => {
         if(response.data.message) {
         } else {
           const retrievedChartConfig = response.data.config;
@@ -180,7 +180,7 @@ class Trends extends PureComponent {
             }
           }   
          }
-    })
+    });
   }
 
   setChartConfigToServer = (config) => 
@@ -196,7 +196,7 @@ class Trends extends PureComponent {
     setChartObj.user_id = this.props.kc.userInfo.preferred_username;
     setChartObj.subsystem = this.state.subSystem;
     setChartObj.config = this.state.layout
-          instance.post('/set-user-dashboard', setChartObj, config)
+          axioPost('set-user-dashboard', setChartObj, config)
         .then(response => {
             if(response.data.message) {
             } else {
@@ -304,7 +304,7 @@ showHideFilters = () =>
         role
       }
 
-      instance.post('/lsds-06-main-counters',postData, config)
+      axioPost('lsds-06-main-counters',postData, config)
         .then(response => {
           const data = Object.assign({}, ...response.data.lsds_boxes);
           this.setState({
@@ -320,7 +320,7 @@ showHideFilters = () =>
           window.dispatchEvent(resizeEvent);
         })
 
-      instance.post('/lsds-01-total-reported-devices', postData, config)
+        axioPost('lsds-01-total-reported-devices', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ lsdsTotalReportedDevicesLoading: false });
@@ -332,7 +332,7 @@ showHideFilters = () =>
               errors(this, error);
           })
       
-      instance.post('/lsds-02-incident-types-chart', postData, config)
+      axioPost('lsds-02-incident-types-chart', postData, config)
           .then(response => {
                 let cleanData = removeDevicesLabel(response.data.results);
                 let uniqueIncidents = getUniqueKeys(cleanData);
@@ -342,7 +342,7 @@ showHideFilters = () =>
               errors(this, error);
           })
       
-      instance.post('/lsds-03-case-status-chart', postData, config)
+      axioPost('lsds-03-case-status-chart', postData, config)
           .then(response => {
               if(response.data.message) {
                 this.setState({ lsdsCaseStatusLoading: false });
@@ -356,7 +356,7 @@ showHideFilters = () =>
               errors(this, error);
           })
       
-      instance.post('/lsds-04-top-stolen-brands', postData, config)
+      axioPost('lsds-04-top-stolen-brands', postData, config)
           .then(response => {
               let cleanData = yAxisKeysCleaning(response.data.results);
               let uniqueBrands = getUniqueKeys(cleanData);
@@ -366,7 +366,7 @@ showHideFilters = () =>
               errors(this, error);
           })
 
-      instance.post('/lsds-05-top-stolen-models', postData, config)
+      axioPost('lsds-05-top-stolen-models', postData, config)
           .then(response => {
               let cleanData = yAxisKeysCleaning(response.data.results);
               let uniqueModels = getUniqueKeys(cleanData);
