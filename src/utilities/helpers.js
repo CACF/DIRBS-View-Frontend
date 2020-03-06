@@ -189,8 +189,6 @@ export const unique_437_colors = [
  * @param {collections} collections 
  */
 export function getUniqueKeys(collections) {
-  console.log("Changes",collections);
-  
   let newCollection = [];
   collections.map((items, index) => {
     return Object.keys(items).map((item, index) => {
