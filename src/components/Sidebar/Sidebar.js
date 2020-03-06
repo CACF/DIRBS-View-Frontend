@@ -32,7 +32,9 @@ import classNames from 'classnames';
 import nav from './_nav';
 import SidebarMinimizer from './../SidebarMinimizer';
 import svgSymbol from './../../images/svg_symbol.svg';
+import settings  from '../.././settings'
 
+const {subSystemArray} =settings.appDetails
 class Sidebar extends PureComponent {
 
   constructor(props) {
@@ -67,7 +69,7 @@ class Sidebar extends PureComponent {
 
 
   render() {
-
+    
     // badge addon to NavItem
     const badge = (badge) => {
       if (badge) {
@@ -148,9 +150,8 @@ class Sidebar extends PureComponent {
             </NavItem>
       )
     };
-
     // nav dropdown
-    const navDropdown = (item, key) => {
+    const navDropdown = (item, key) => {        
       return (
         <li key={key} className={this.activeRoute(item.url, this.props)}>
           <button className="btn btn-link btn-sm nav-link nav-dropdown-toggle" onClick={this.handleClick}>
@@ -174,10 +175,9 @@ class Sidebar extends PureComponent {
                     : navItem(item, idx) ;
 
     // nav list
-    const navList = (items) => {
-      return items.map( (item, index) => navType(item, index) );
-    };
-
+     const navList = (items) => {
+     return items.map( (item, index) => (subSystemArray.includes(item.name) || item.name==="Monthly Graphs" || item.name==="Range Graphs" || item.name==="Dashboard") ? navType(item, index) : null );
+    }    
     const isExternal = (url) => {
       const link = url ? url.substring(0, 4) : '';
       return link === 'http';

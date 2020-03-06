@@ -33,7 +33,8 @@ import DashboardPiechart from './../../components/Charts/Commons/DashboardPiecha
 import RadialBarchart from './../../components/Charts/Commons/RadialBarChart';
 import { barBgColors, colorIMEIsPairing, progressBarColors, statusColorsForBlueBG, statusColorArray } from './../../utilities/chart_colors';
 import HeaderCards from '../../components/Cards/HeaderCards';
-
+import settings from '../.././settings.json';
+const {subSystemArray}=settings.appDetails;
 class Dashboard extends PureComponent {
   constructor(props) {
     super(props);
@@ -225,6 +226,8 @@ class Dashboard extends PureComponent {
             ? <React.Fragment>
               {/* <div className="column-row"> */}
               <Row>
+                {/* If CORE Found in Setting.json then Run */}
+                {subSystemArray.includes("Core") && 
                 <Col xl={3} lg={4} md={6}>
                   <div className="column-header" style={{ backgroundColor: '#ED6364' }}>
                     <h6>DIRBS Core</h6>
@@ -309,6 +312,8 @@ class Dashboard extends PureComponent {
 
                   </div>
                 </Col>
+                }
+                {subSystemArray.includes("DRS") && 
                 <Col xl={3} lg={4} md={6}>
                   <div className="column-header" style={{ backgroundColor: '#0093C7' }}>
                     <h6>Device Registration Subsystem</h6>
@@ -406,6 +411,8 @@ class Dashboard extends PureComponent {
 
                   </div>
                 </Col>
+                }
+                {subSystemArray.includes("DPS") && 
                 <Col xl={3} lg={4} md={6}>
                   <div className="column-header" style={{ backgroundColor: '#0BD49C' }}>
                     <h6>Device Pairing Subsystem</h6>
@@ -492,6 +499,8 @@ class Dashboard extends PureComponent {
 
                   </div>
                 </Col>
+                }
+                {subSystemArray.includes("LSDS") && 
                 <Col xl={3} lg={4} md={6}>
                   <div className="column-header" style={{ backgroundColor: '#FEAC55' }}>
                     <h6>Lost/Stolen Device Subsystem</h6>
@@ -584,6 +593,7 @@ class Dashboard extends PureComponent {
 
                   </div>
                 </Col>
+                }
               </Row>
             </React.Fragment>
             : null
