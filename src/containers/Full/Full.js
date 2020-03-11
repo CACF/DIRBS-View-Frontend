@@ -33,12 +33,9 @@ import Sidebar from '../../components/Sidebar/Sidebar.js';
 import Breadcrumb from '../../components/Breadcrumb/Breadcrumb.js';
 
 import CrossSystemAnalysis from '../../views/CrossSystemAnalysis/CrossSystemAnalysis.js';
-import Dashboard from '../../views/Dashboard/Dashboard.js';
-import CoreRangeTrends from '../../views/Core/RangeTrends.js';
-import CoreMonthYearTrends from '../../views/Core/MonthYearTrends.js';
+import CoreTrends from '../../views/Core/Trends.js';
 import LSDSTrends from '../../views/LSDS/Trends.js';
 import DRSTrends from '../../views/DRS/Trends.js';
-import DPSTrends from '../../views/DPS/Trends.js';
 import Page401 from '../../views/Errors/Page401';
 
 class Full extends PureComponent {
@@ -68,15 +65,12 @@ class Full extends PureComponent {
             <main className="main">
               {this.state.breadcrumbOnOff ? <Breadcrumb {...this.props} /> : null}
               <Switch>
-                <Route path="/dashboard" name="Dashboard" render={(props) => <Dashboard breadcrumbSwitch={this.breadcrumbSwitch} {...this.props} />}/>
                 <Route path="/cross-system-analysis" name="CSA" render={(props) => <CrossSystemAnalysis {...this.props} />}/>
-                <Route path="/core/rangetrends" name="CoreRangeTrends" render={(props) => <CoreRangeTrends {...this.props} />}/>
-                <Route path="/core/monthyeartrends" name="CoreMonthYearTrends" render={(props) => <CoreMonthYearTrends {...this.props} />}/>
+                <Route path="/core" name="CoreTrends" render={(props) => <CoreTrends {...this.props} />}/>
                 <Route path="/lsds" name="LSDSTrends" render={(props) => <LSDSTrends {...this.props} />}/>
                 <Route path="/drs" name="DRSTrends" render={(props) => <DRSTrends {...this.props} />}/>
-                <Route path="/dps" name="DPSTrends" render={(props) => <DPSTrends {...this.props} />}/>
                 <Route path="/unauthorized-access" name="Page401" component={Page401}/>
-                <Redirect from="/" to="/dashboard"/>
+                <Redirect from="/" to="/core"/>
               </Switch>
             </main>
           </div>

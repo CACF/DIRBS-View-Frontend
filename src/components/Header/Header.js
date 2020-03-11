@@ -52,8 +52,8 @@ class Header extends PureComponent {
           <span className="navbar-toggler-icon"></span>
         </NavbarToggler>
         <NavbarBrand href="#">
-          <h5 className="navbar-brand-minimized">DV</h5>
-          <h5 className="navbar-brand-full">DIRBS View</h5>
+          <h5 className="navbar-brand-minimized">DV PTA</h5>
+          <h5 className="navbar-brand-full">DIRBS View PTA</h5>
         </NavbarBrand>
         <NavbarToggler className="d-none mr-auto" onClick={this.sidebarToggle}>
           <span className="navbar-toggler-icon"></span>

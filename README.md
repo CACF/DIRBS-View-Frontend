@@ -1,4 +1,4 @@
-# DIRBS View Front-end
+# DIRBS View PTA Front-end
 ## License
 Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
 

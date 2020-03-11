@@ -26,17 +26,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 import React, { PureComponent } from 'react';
-import {HashRouter, Route, Switch} from 'react-router-dom';
+import { HashRouter, Route, Switch } from 'react-router-dom';
 // Containers
 import Full from './containers/Full/Full.js'
 
-import {getUserGroups, isPage401} from "./utilities/helpers";
+import { getUserGroups, isPage401 } from "./utilities/helpers";
 import Keycloak from 'keycloak-js';
 import decode from 'jwt-decode'
 import Base64 from 'base-64';
 import Page401 from "./views/Errors/Page401";
 import settings from './settings.json'
-import {KC_URL} from './utilities/constants';
+import { KC_URL } from './utilities/constants';
 import saveAs from 'file-saver';
 
 const { clientId, realm } = settings.keycloak;
@@ -49,7 +49,7 @@ class Auth extends PureComponent {
       keycloak: null,
       authenticated: false,
       readyToRedirect: false,
-      redirectToFull : false,
+      redirectToFull: false,
       userDetails: null,
       tokenDetails: null
     };
@@ -57,13 +57,13 @@ class Auth extends PureComponent {
 
   componentDidMount() {
     const keycloak = Keycloak({
-			url:KC_URL,
-			realm:realm,
-			clientId:clientId
-		});
-    keycloak.init({onLoad: 'login-required'}).success(authenticated => {
-      if(authenticated){
-        this.setState({keycloak: keycloak, authenticated: authenticated})
+      url: KC_URL,
+      realm: realm,
+      clientId: clientId
+    });
+    keycloak.init({ onLoad: 'login-required' }).success(authenticated => {
+      if (authenticated) {
+        this.setState({ keycloak: keycloak, authenticated: authenticated })
         //Set token in local storage
         localStorage.setItem('token', keycloak.token);
         const tokenDetails = decode(keycloak.token)
@@ -71,25 +71,25 @@ class Auth extends PureComponent {
         const pageStatus = isPage401(groups);
         if (pageStatus) { // is Page401 then show page401
           keycloak.loadUserInfo().success((userInfo) => {
+            this.setState({
+              redirectTo404: true,
+              userDetails: userInfo,
+              keycloak: keycloak
+            }, () => {
               this.setState({
-                redirectTo404: true,
-                userDetails: userInfo,
-                keycloak: keycloak
-              },()=>{
-                this.setState({
-                  readyToRedirect: true
-                })
+                readyToRedirect: true
               })
+            })
           });
         } else { // User has permission and therefore, allowed to access it.
-          keycloak.loadUserInfo().success( (userInfo)=> {
+          keycloak.loadUserInfo().success((userInfo) => {
             localStorage.setItem('userInfo', Base64.encode(JSON.stringify(userInfo)))
             this.setState({
-              redirectToFull : true,
+              redirectToFull: true,
               keycloak: keycloak,
               userDetails: userInfo,
-              tokenDetails:tokenDetails
-            },()=>{
+              tokenDetails: tokenDetails
+            }, () => {
               this.setState({
                 readyToRedirect: true
               })
@@ -103,18 +103,18 @@ class Auth extends PureComponent {
   }
   render() {
     if (this.state.keycloak) {
-      if (this.state.authenticated){
-        if(this.state.redirectTo404 && this.state.readyToRedirect){
+      if (this.state.authenticated) {
+        if (this.state.redirectTo404 && this.state.readyToRedirect) {
           return (
             <HashRouter>
               <Switch>
                 <Route path="/" render={(props) => <Page401 kc={this.state.keycloak}
-                                                            userDetails={this.state.userDetails}
-                                                            {...props} /> } />
+                  userDetails={this.state.userDetails}
+                  {...props} />} />
               </Switch>
             </HashRouter>
           );
-        } else if(this.state.redirectToFull && this.state.readyToRedirect){
+        } else if (this.state.redirectToFull && this.state.readyToRedirect) {
           return (
             <HashRouter>
               <Switch>
@@ -122,7 +122,7 @@ class Auth extends PureComponent {
                   fileSaver={saveAs}
                   kc={this.state.keycloak}
                   userDetails={this.state.userDetails}
-                  resources={this.state.tokenDetails} {...props} /> } />
+                  resources={this.state.tokenDetails} {...props} />} />
               </Switch>
             </HashRouter>
           );
@@ -131,7 +131,7 @@ class Auth extends PureComponent {
     }
     return (
       <div className="page-loader">
-        <div className="loading" data-app-name="DIRBS View">
+        <div className="loading" data-app-name="DIRBS View PTA">
           <div></div>
           <div></div>
           <div></div>

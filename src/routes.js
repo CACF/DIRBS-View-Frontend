@@ -26,13 +26,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 const routes = {
-  '/': 'Dashboard',
   '/lsds': 'LSDS',
   '/drs': 'DRS',
-  '/dps': 'DPS',
   '/core': 'Core',
-  '/core/rangetrends': 'Range Graphs',
-  '/core/monthyeartrends': 'Monthly Graphs',
   '/cross-system-analysis': 'Cross System Analysis'
 };
 export default routes;

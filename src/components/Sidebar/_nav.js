@@ -37,31 +37,11 @@ export default {
       class: ''             // optional class names space delimited list for title item ex: "text-center"
     },
     {
-      id: 3,
-      name: 'Dashboard',
-      url: '/dashboard',
-      icon: 'fa fa-dashboard'
-    },
-    {
       id: 1,
       name: 'Core',
       url: '/core',
       // icon: 'fa fa-cog',
       symbol: '#core',
-      children: [
-        {
-          id: 2,
-          name: 'Range Graphs',
-          url: '/core/rangetrends',
-          icon: 'fa fa-line-chart'
-        },
-        {
-          id: 18,
-          name: 'Monthly Graphs',
-          url: '/core/monthyeartrends',
-          icon: 'fa fa-line-chart'
-        }
-      ]
     },
     {
       id: 5,
@@ -74,12 +54,6 @@ export default {
       name: 'LSDS',
       url: '/lsds',
       symbol: '#lsds'
-    },
-    {
-      id: 14,
-      name: 'DPS',
-      url: '/dps',
-      symbol: '#dps'
     }
   ]
 };

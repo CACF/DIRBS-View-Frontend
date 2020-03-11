@@ -183,9 +183,6 @@ class Sidebar extends PureComponent {
       return link === 'http';
     };
 
-    let dashboardURL = window.location.href
-   dashboardURL = dashboardURL.substr(dashboardURL.length - 9); 
-
     // sidebar-nav root
     return (
       <div className="sidebar">
@@ -194,9 +191,7 @@ class Sidebar extends PureComponent {
             {navList(nav.items)}
           </Nav>
         </nav>
-        {dashboardURL !== 'dashboard' &&
         <SidebarMinimizer/>
-        }
       </div>
     )
   }
