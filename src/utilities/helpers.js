@@ -465,8 +465,24 @@ export const yAxisKeysCleaning = (data) => {
   data.map((items, index) => {
     newDataObj = {};
     Object.keys(items).map((item, index) => {
-      if (item === 'x_axis') {
+      if (item === 'x_axis' || item ==='rat') {
         newDataObj[(item)] = items[item];
+      }
+      else if (item === "y_axis_fiveg" || item === "y_axis_five_g")
+      {
+        newDataObj["5G"] = items[item];
+      }
+      else if (item === "y_axis_fourg" || item === "y_axis_four_g")
+      {
+        newDataObj["4G"] = items[item];
+      }
+      else if (item === "y_axis_threeg" || item === "y_axis_three_g")
+      {
+        newDataObj["3G"] = items[item];
+      }
+      else if (item === "y_axis_twog" || item === "y_axis_two_g")
+      {
+        newDataObj["2G"] = items[item];
       }
       else {
         newDataObj[(item.substring(7))] = items[item];
@@ -737,3 +753,61 @@ export const operatorThree = '#ED1C24';
 export const operatorFour = '#06BDE9';
 export const operatorFive = '#F68121';
 export const operatorSix = 'rgb(255, 178, 71)';
+
+/**
+ * This method return object of array of data for two leve pie charts
+ *
+ * @param  [Data]
+ * @returns [string]
+ */
+export const getTwoLevelPieChartData = (data) =>{
+  let resultObj = {};
+  let newArrGOne = [];
+  let newArrGTwo = [];
+  data.map((elem, i) => {
+    let objOne = {};
+    let valueSum = 0;  
+    Object.keys(elem).map(item => {
+      if(item==="rat"){
+       objOne.name = elem[item];
+      }else {
+       valueSum = elem[item];
+       newArrGTwo.push({name: item, value: elem[item]})
+      }
+    })
+    objOne.value = valueSum      
+    newArrGOne.push(objOne)     
+  })
+  // data.map(items => {
+  //   let obj = { Group: "", Value: [] }
+  //   Object.keys(items).map(item => {
+  //     if(item==="rat"){
+  //      obj.Group = items[item];
+  //     }else {
+  //      obj.Value.push(items[item])
+  //     }
+  //   })
+  //   let total = obj.Value.reduce((a, b) => a + b)
+  //   obj.Value = total
+  //   newArrGOne.push(obj)
+  // })
+  // data.map(items => {
+  //   let obj = { Name: [], Value: [] }
+  //   Object.keys(items).map(item => {
+  //     if(item==='rat'){
+  //     }else{
+  //       obj.Value.push(items[item])
+  //     } 
+  //   })
+  //   let dataSet=['A1','A2','B1','B2','B3','B4','B5','C1','C2','D1']   
+  //   for(let i=0;i<obj.Value.length;i++){     
+  //       obj.Name.push(dataSet[i])
+  //   }
+  //   let Value = obj.Value
+  //   obj.Value = Value
+  //   newArrGTwo.push(obj)
+  // })
+  resultObj.firstDataGroup = newArrGOne;
+  resultObj.secondDataGroup = newArrGTwo;
+  return resultObj;
+ }

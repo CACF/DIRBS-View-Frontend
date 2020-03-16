@@ -28,17 +28,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import React, { PureComponent } from 'react';
 import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import DateSearchForm from './../../components/Form/DateSearchForm';
-import {unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisKeysCleaning, getUserType, getUserRole, yAxisToCount, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
+import { unique_437_colors, getAuthHeader, instance, getTwoLevelPieChartData, errors, getUniqueKeys, yAxisKeysCleaning, getUserType, getUserRole, yAxisToCount, scrollOsetTopPlus, fixFilOsetHeightMinus } from "./../../utilities/helpers";
 import Barchart from './../../components/Charts/Commons/Barchart'
 import Piechart from '../../components/Charts/Commons/Piechart';
 import Areachart from '../../components/Charts/Commons/AreaChart';
+import Linechart from '../../components/Charts/Commons/Linechart';
 import SearchFilters from "./../../components/Form/SearchFilters";
-import {SearchInfo} from "./../../components/Help/SearchInfo";
-import { blueColors, stackBarTwentyColors, stackBarTetrade,multiColorStack, multiColors, BoxesColors } from './../../utilities/chart_colors';
+import { SearchInfo } from "./../../components/Help/SearchInfo";
+import { blueColors, stackBarTwentyColors, stackBarTetrade, multiColorStack, multiColors, BoxesColors } from './../../utilities/chart_colors';
 import HeaderCards from './../../components/Cards/HeaderCards';
-import { deviceRegistrationStatus, registeredDevicesCount, deviceOS, deviceTechnology, deviceManufacturingLocation, deviceTopImporters, typeOfRegeisteredDevices, topRegisteredBrands, deviceRegistrationMethod, topRegisteredModels, devicesByIMEISlot } from './../../utilities/reportsInfo';
+import { dRSImportTrend, grossAddIMEIsVsDRSVsNotification, dRSTop10overAllBrands, dRSTop2G3G4GBrands } from './../../utilities/reportsInfo';
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
+import HorizontalBarSegregateChart from './../../components/Charts/Commons/HorizontalBarSegregateChart';
+
 import _ from 'lodash';
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -48,51 +51,30 @@ class Trends extends PureComponent {
     this.state = {
       active: false,
       fading: false,
-      isShowingFilters: true,      
-      disableSaveButton: true,      
-      uniqueLocation: [],
-      uniqueSims: [],
-      uniqueBrands: [],
-      uniqueImie: [],
-      uniqueSingleImporter: [],
-      uniqueModels: [],
-      uniqueTests: [],
-      uniqueType: [],
-      uniqueTech: [],
-      uniqueInputType: [],
-      yAxis:[],
-      uniqueStatusCount: [],
-      drsManufacturingData: null,
-      drsNumOfSimsData: null,
-      drsRegisteredApprovedIMEIsData: null,
-      drsTopDeviceImporterData: null,
-      drsInputTypeData: null,
-      drsOSTypeData: null,
-      drsDeviceTypeData: null,
-      drsRatTypeData: null,
+      isShowingFilters: true,
+      disableSaveButton: true,
+      drsImportTrendData: null,
+      uniqueImportTrendData: [],
+      drsImportTrendLoading: false,
       drsTopBrandsData: null,
-      drsTopModelsData: null,
-      drsCountOfStatusData: null,
-      drsManufacturingLoading: false,
-      drsNumOfSimsLoading: false,
-      drsRegisteredApprovedIMEIsLoading: false,
-      drsTopDeviceImporterLoading: false,
-      drsInputTypeLoading: false,
-      drsOSTypeLoading: false,
-      drsDeviceTypeLoading: false,
-      drsRatTypeLoading: false,
       drsTopBrandsLoading: false,
-      drsTopModelsLoading: false,
-      drsCountOfStatusLoading: false,
+      drsTopBrandsByRatData: null,
+      uniqueTopBrandsByRatData: [],
+      drsTopBrandsByRatLoading: false,
+
+      drsComboGrossData: null,
+      uniqueComboGrossData: [],
+      drsComboGrossLoading: false,
+
+      totalImies: '',
+      totalDrsImies: '',
+      totalPairedImies: '',
+      totalStolenImies: '',
+      totalDvsImies: '',
+      totalBlocking:  '',
       apiFetched: false,
       searchQuery: {},
       granularity: "",
-      approved: '',
-      rejected: '',
-      inReview: '',
-      totalRegDev: '',
-      smartphone: '',
-      featPhone: '',
       subSystem: 'drs',
       currentBreakpoint: "lg",
       compactType: "vertical",
@@ -100,7 +82,7 @@ class Trends extends PureComponent {
       layouts: { lg: props.initialLayout },
       layout: [],
       rowHeight: window.innerWidth < 1300 ? 3.7 : 10.6,
-      deletedObj: { drsRegisteredApprovedIMEIsKey: false, drsCountOfStatusKey: false, drsTopBrandsChartKey: false, drsTopModelsKey: false, drsRatTypeKey: false, drsOSTypeKey: false, drsManufacturingKey: false, drsDeviceTypeKey: false, drsTopDeviceImporterKey: false, drsInputTypeKey: false, drsNumOfSimsKey: false}
+      deletedObj: { drsImportTrendKey: false, drsTopBrandsKey: false, drsTopBrandsByRatKey: false, drsComboGrossKey: false }
     }
     this.getGraphDataFromServer = this.getGraphDataFromServer.bind(this);
     this.saveSearchQuery = this.saveSearchQuery.bind(this);
@@ -114,7 +96,7 @@ class Trends extends PureComponent {
 
   componentDidMount() {
     const el = document.getElementById('fixFilter');
-    this.setState({top: el.offsetTop+scrollOsetTopPlus, height: el.offsetHeight-fixFilOsetHeightMinus});
+    this.setState({ top: el.offsetTop + scrollOsetTopPlus, height: el.offsetHeight - fixFilOsetHeightMinus });
     window.addEventListener('scroll', this.handleScroll);
     this.setState({ mounted: true });
     this.getChartConfigFromServer();
@@ -122,9 +104,9 @@ class Trends extends PureComponent {
 
   componentDidUpdate() {
     const paddDiv = document.getElementById('filterData');
-    this.state.scroll > this.state.top ? 
-    paddDiv.style.paddingTop = `${this.state.height}px` :
-    paddDiv.style.paddingTop = 0;
+    this.state.scroll > this.state.top ?
+      paddDiv.style.paddingTop = `${this.state.height}px` :
+      paddDiv.style.paddingTop = 0;
   }
 
   componentWillUnmount() {
@@ -132,9 +114,20 @@ class Trends extends PureComponent {
   }
 
   _onClick = () => {
-    this.setState({ 
-      active: !this.state.active 
+    this.setState({
+      active: !this.state.active
     });
+  }
+
+  //Here we are getting parameters for get APi calls.
+
+  getCallParamsGetMethods = () => {
+    let searchQueryString = "";
+    const searchQuery = this.state.searchQuery;
+    let type = getUserType(this.props.resources);
+    let role = getUserRole(this.props.resources);
+    searchQueryString = `?role=${role}&type=${type}&start_date=${searchQuery.start_date}&end_date=${searchQuery.end_date}&granularity=${searchQuery.granularity}&trend_qty=${searchQuery.trend_qty}`
+    return searchQueryString;
   }
 
   onBreakpointChange(breakpoint) {
@@ -153,82 +146,74 @@ class Trends extends PureComponent {
 
   onWidthChangeMethod = (width, margin, cols) => {
     var height = this.state.rowHeight;
-    if(width > 1300)
-    {
-     height = width * 1/(cols + 75);
+    if (width > 1300) {
+      height = width * 1 / (cols + 75);
     }
-    else if(width <= 1300) {
-      height = width * 1/(cols + 195);
+    else if (width <= 1300) {
+      height = width * 1 / (cols + 195);
     }
     this.setState({
-        rowHeight: height
+      rowHeight: height
     });
   }
 
   onRemoveItem(i) {
-     this.setState({ layouts: { lg: _.reject(this.state.layout, { i: i })} }, () => {
+    this.setState({ layouts: { lg: _.reject(this.state.layout, { i: i }) } }, () => {
       let { deletedObj } = this.state;
       deletedObj[i] = true;
       this.setState({ deletedObj: deletedObj });
     })
 
   }
-  
-  getChartConfigFromServer = () => 
-  {
-    instance.get('/get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
-    .then(response => {
-        if(response.data.message) {
+
+  getChartConfigFromServer = () => {
+    instance.get('/get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem)
+      .then(response => {
+        if (response.data.message) {
         } else {
           const retrievedChartConfig = response.data.config;
-                if(retrievedChartConfig !== undefined && retrievedChartConfig !== null)
-          {
-            if(retrievedChartConfig.length !== 0)
-            {
-            let { deletedObj } = this.state;
-            Object.keys(deletedObj).map((key, j) => 
-            {
-              let isDeleted = true;
-              retrievedChartConfig.map((ele, k) =>
-              {
-                if(key === retrievedChartConfig[k].i && retrievedChartConfig[k].w !== 1)
-                {
-                  isDeleted = false
-                }
+          if (retrievedChartConfig !== undefined && retrievedChartConfig !== null) {
+            if (retrievedChartConfig.length !== 0) {
+              let { deletedObj } = this.state;
+              Object.keys(deletedObj).map((key, j) => {
+                let isDeleted = true;
+                retrievedChartConfig.map((ele, k) => {
+                  if (key === retrievedChartConfig[k].i && retrievedChartConfig[k].w !== 1) {
+                    isDeleted = false
+                  }
+                  return null;
+                })
+                deletedObj[key] = isDeleted;
                 return null;
               })
-              deletedObj[key] = isDeleted;
-              return null;
-            })
-            this.setState({ layouts: { lg: retrievedChartConfig }, deletedObj: deletedObj  });
+              this.setState({ layouts: { lg: retrievedChartConfig }, deletedObj: deletedObj });
             }
-          }   
-         }
-    })
+          }
+        }
+      })
   }
 
-  setChartConfigToServer = (config) => 
-  {
-    this.setState({fading: true})
+  setChartConfigToServer = (config) => {
+    this.setState({ fading: true })
     this.change = setTimeout(() => {
-      this.setState({fading: false})
+      this.setState({ fading: false })
     }, 2000);
-    this.setState({ 
+    this.setState({
       active: false
     });
     let setChartObj = {};
     setChartObj.user_id = this.props.kc.userInfo.preferred_username;
     setChartObj.subsystem = this.state.subSystem;
     setChartObj.config = this.state.layout
-          instance.post('/set-user-dashboard', setChartObj, config)
-        .then(response => {
-            if(response.data.message) {
-            } else {
-            }
-        })
-        .catch(error => {
-            errors(this, error);
-        })
+    instance.post('/set-user-dashboard', setChartObj, config)
+      .then(response => {
+        if (response.data.message) {
+        } else {
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
   }
 
   getElementHeight = (e) => {
@@ -238,257 +223,179 @@ class Trends extends PureComponent {
     return 400
   }
 
-   resetChartConfig()
-   {
-    this.setState({fading: true})
+  resetChartConfig() {
+    this.setState({ fading: true })
     this.change = setTimeout(() => {
-      this.setState({fading: false})
+      this.setState({ fading: false })
     }, 2000);
-    this.setState({ layouts: { lg: _.reject(this.state.layout, { i: 'drsTopModelsKey' })} }, () => {
-    let { deletedObj } = this.state;
-    deletedObj.drsRegisteredApprovedIMEIsKey = false;
-    deletedObj.drsCountOfStatusKey = false;
-    deletedObj.drsTopBrandsChartKey = false;
-    deletedObj.drsTopModelsKey = false;
-    deletedObj.drsRatTypeKey = false;
-    deletedObj.drsOSTypeKey = false;
-    deletedObj.drsManufacturingKey = false;
-    deletedObj.drsDeviceTypeKey = false;
-    deletedObj.drsTopDeviceImporterKey = false;
-    deletedObj.drsInputTypeKey = false;
-    deletedObj.drsNumOfSimsKey = false;
-    this.setState({ deletedObj: deletedObj, layouts: { lg: this.props.initialLayout } });
+    this.setState({ layouts: { lg: _.reject(this.state.layout, { i: 'drsTopModelsKey' }) } }, () => {
+      let { deletedObj } = this.state;
+      deletedObj.drsImportTrendKey = false;
+      deletedObj.drsTopBrandsKey = false;
+      deletedObj.drsTopBrandsByRatKey = false;
+      deletedObj.drsComboGrossKey = false;
+      this.setState({ deletedObj: deletedObj, layouts: { lg: this.props.initialLayout } });
     })
   }
 
-
   handleScroll() {
-    this.setState({scroll: window.scrollY});
+    this.setState({ scroll: window.scrollY });
   }
-
   //returns randomized color array from single array of colors.
 
   getColorArray = (n) => unique_437_colors.slice(n);
 
   updateTokenHOC(callingFunc) {
-      let config = null;
-      if(this.props.kc.isTokenExpired(0)) {
-          this.props.kc.updateToken(0)
-              .success(() => {
-                  localStorage.setItem('token', this.props.kc.token)
-                  config = {
-                    headers: getAuthHeader(this.props.kc.token)
-                  }
-                  callingFunc(config);
-              })
-              .error(() => this.props.kc.logout());
-      } else {
+    let config = null;
+    if (this.props.kc.isTokenExpired(0)) {
+      this.props.kc.updateToken(0)
+        .success(() => {
+          localStorage.setItem('token', this.props.kc.token)
           config = {
-            headers: getAuthHeader()
+            headers: getAuthHeader(this.props.kc.token)
           }
           callingFunc(config);
+        })
+        .error(() => this.props.kc.logout());
+    } else {
+      config = {
+        headers: getAuthHeader()
       }
+      callingFunc(config);
+    }
   }
-// Next two function are responsible for toggeling sidebar and filter component
-  
-filtersSidebarDisplay = () =>
-{
+  // Next two function are responsible for toggeling sidebar and filter component
+
+  filtersSidebarDisplay = () => {
     this.showHideFilters();
     document.body.classList.add('brand-minimized');
     document.body.classList.add('sidebar-minimized');
-}
+  }
 
-showHideFilters = () =>
-{
-  const div = document.getElementById('searchFormDiv');
-    if(this.state.isShowingFilters)
-    {
-      div.style.display= 'none';  
+  showHideFilters = () => {
+    const div = document.getElementById('searchFormDiv');
+    if (this.state.isShowingFilters) {
+      div.style.display = 'none';
     }
-    else if(!this.state.isShowingFilters)
-    {
-      div.style.display= 'block';  
+    else if (!this.state.isShowingFilters) {
+      div.style.display = 'block';
     }
     this.setState((prevState) => ({
       isShowingFilters: !prevState.isShowingFilters
-      })); 
-} 
+    }));
+  }
 
   saveSearchQuery(values) {
-    this.setState({ searchQuery: values, drsManufacturingLoading: true, drsNumOfSimsLoading: true, drsRegisteredApprovedIMEIsLoading: true, drsTopDeviceImporterLoading: true, drsInputTypeLoading: true, drsOSTypeLoading: true, drsDeviceTypeLoading: true, drsRatTypeLoading: true, drsTopBrandsLoading: true, drsTopModelsLoading: true, drsCountOfStatusLoading: true, drsManufacturingData: [], drsNumOfSimsData: [], drsRegisteredApprovedIMEIsData: [], drsTopDeviceImporterData: [], drsInputTypeData: [], drsOSTypeData: [], drsDeviceTypeData: [], drsRatTypeData: [], drsTopBrandsData: [], drsTopModelsData: [], drsCountOfStatusData: [], apiFetched: true} , () => {
+    this.setState({ searchQuery: values, drsTopBrandsLoading: true, drsImportTrendLoading: true, drsTopBrandsByRatLoading: true, drsComboGrossLoading: false, drsComboGrossData: [], drsTopBrandsByRatData: [], drsImportTrendData: [], drsTopBrandsData: [], apiFetched: true, granularity: values.granularity }, () => {
       this.updateTokenHOC(this.getGraphDataFromServer);
-	  })
+    })
   }
   dataFormatter = (array) => {
-    let newArr= [];
-    array.map(item => 
-      newArr.push({"name": Object.keys(item)[0], "value":item[Object.keys(item)[0]]})
+    let newArr = [];
+    array.map(item =>
+      newArr.push({ "name": Object.keys(item)[0], "value": item[Object.keys(item)[0]] })
     )
-  return newArr;
-}
+    return newArr;
+  }
   getGraphDataFromServer(config) {
-      const searchQuery = this.state.searchQuery;
-      let type = getUserType(this.props.resources)
-      let role = getUserRole(this.props.resources)
-      let postData = {
-        ...searchQuery,
-        type,
-        role
-      }
 
-      instance.post('/drs-reg-13-main-counters',postData, config)
-        .then(response => {
-          const data = Object.assign({}, ...response.data.drs_boxes);
-          const includeDashes = JSON.parse(JSON.stringify(data).replace(/ /g, '_'))
-          this.setState({
-              approved: includeDashes.Approved,
-              rejected: includeDashes.Rejected,
-              inReview: includeDashes.Pending_Review,
-              totalRegDev: includeDashes.Total_Registered_Devices,
-              smartphone: includeDashes.Smartphone,
-              featPhone: includeDashes.Feature_phone
-          })
-          var resizeEvent = window.document.createEvent('UIEvents'); 
-          resizeEvent.initUIEvent('resize', true, false, window, 0); 
-          window.dispatchEvent(resizeEvent);
-        })
-      
-      instance.post('/drs-reg-01-manufacturing_location', postData, config)
-          .then(response => {
-              if(response.data.message) {
-                this.setState({ drsManufacturingLoading: false });
-              } else {
-                let cleanData = yAxisKeysCleaning(response.data.results)
-                let uniqueLocation = getUniqueKeys(cleanData);
-                this.setState({ drsManufacturingData: cleanData, uniqueLocation: uniqueLocation, drsManufacturingLoading: false, granularity: searchQuery.granularity});
-              }
-          })
-          .catch(error => {
-              errors(this, error);
-          })
-      
-      instance.post('/drs-reg-02-num-of-sims', postData, config)
-          .then(response => {
-            let cleanData = yAxisKeysCleaning(response.data.results)
-            let uniqueSims = getUniqueKeys(cleanData);
-            this.setState({ drsNumOfSimsData: cleanData, uniqueSims: uniqueSims, drsNumOfSimsLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })
-      
-      
-      instance.post('/drs-reg-03-registered-imeis-approved', postData, config)
-          .then(response => {
-            let cleanData = yAxisToCount(response.data.results)
-            let uniqueImie = getUniqueKeys(cleanData);
-            this.setState({ drsRegisteredApprovedIMEIsData: cleanData, uniqueImie: uniqueImie, drsRegisteredApprovedIMEIsLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })
+    //Here API is being called to get Operator wise IMEIs. In response we are setting the state with the recieved data
 
-      instance.post('/drs-reg-04-count-of-statuses', postData, config)
-          .then(response => {
-            let cleanData = yAxisKeysCleaning(response.data.results)
-            let uniqueStatusCount = getUniqueKeys(cleanData);
-            this.setState({ drsCountOfStatusData: cleanData, uniqueStatusCount: uniqueStatusCount, drsCountOfStatusLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })  
+    instance.get('/pta-core-01-total-imeis' + this.getCallParamsGetMethods(), config).then(response => this.setState({ totalImies: response.data["Total-Core-IMEIs"] }));
+    instance.get('/pta-drs-01-total-imeis', config).then(response => this.setState({ totalDrsImies: response.data["Total-DRS-IMEIs"] }));
+    instance.get('/pta-dps-01-total-imeis', config).then(response => this.setState({ totalPairedImies: response.data["Total-DPS-IMEIs"] }));
+    instance.get('/pta-stolen-01-total-imeis', config).then(response => this.setState({ totalStolenImies: response.data["Total-Stolen-IMEIs"] }));
+    instance.get('/pta-dvs-01-total-imeis', config).then(response => this.setState({ totalDvsImies: response.data["Total-DVS-IMEIs"] }));
+    instance.get('/pta-core-08-total-blocked-imeis' + this.getCallParamsGetMethods(), config).then(response => this.setState({ totalBlocking: response.data["Total-Blocked-IMEIs"] }));
 
-      instance.post('/drs-reg-05-top-device-importers', postData, config)
-          .then(response => {
-                this.setState({ drsTopDeviceImporterData: response.data.top_importers, drsTopDeviceImporterLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })  
+    var resizeEvent = window.document.createEvent('UIEvents');
+    resizeEvent.initUIEvent('resize', true, false, window, 0);
+    window.dispatchEvent(resizeEvent);
 
-      instance.post('/drs-reg-07-input-type', postData, config)
-          .then(response => {
-            let cleanData = yAxisKeysCleaning(response.data.results)
-            let uniqueInputType = getUniqueKeys(cleanData);
-            this.setState({ drsInputTypeData: cleanData,uniqueInputType: uniqueInputType, drsInputTypeLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })
-      instance.post('/drs-reg-08-os-type', postData, config)
-          .then(response => {
-                let cleanData = yAxisKeysCleaning(response.data.results)
-                let uniqueTests = getUniqueKeys(cleanData);
-                this.setState({ drsOSTypeData: cleanData, uniqueTests: uniqueTests, drsOSTypeLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })
-      instance.post('/drs-reg-09-device-type', postData, config)
-          .then(response => {
-                let cleanData = yAxisKeysCleaning(response.data.results)
-                let uniqueType = getUniqueKeys(cleanData);
-                this.setState({ drsDeviceTypeData: cleanData, uniqueType: uniqueType, drsDeviceTypeLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })    
-      instance.post('/drs-reg-10-rat-type', postData, config)
-          .then(response => {
-                let cleanData = yAxisKeysCleaning(response.data.results)
-                let uniqueTech = getUniqueKeys(cleanData);
-                this.setState({ drsRatTypeData: cleanData, uniqueTech: uniqueTech, drsRatTypeLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })  
-      instance.post('/drs-reg-11-top-brands', postData, config)
-          .then(response => {
-                let cleanData = yAxisKeysCleaning(response.data.results)
-                let uniqueBrands = getUniqueKeys(cleanData);
-                this.setState({ drsTopBrandsData: cleanData, uniqueBrands: uniqueBrands, drsTopBrandsLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })    
-      instance.post('/drs-reg-12-top-models', postData, config)
-          .then(response => {
-                let cleanData = yAxisKeysCleaning(response.data.results)
-                let uniqueModels = getUniqueKeys(cleanData);
-                this.setState({ drsTopModelsData: cleanData, uniqueModels: uniqueModels, drsTopModelsLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })    
+    instance.get('/pta-core-02-operators-imeis' + this.getCallParamsGetMethods(), config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ drsImportTrendLoading: false });
+        } else {
+          let cleanData = yAxisKeysCleaning(response.data.results)
+          let uniqueData = getUniqueKeys(cleanData);
+          this.setState({ drsImportTrendData: cleanData, uniqueImportTrendData: uniqueData, drsImportTrendLoading: false });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
+
+    instance.get('/pta-drs-03-overall-top-brands' + this.getCallParamsGetMethods(), config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ drsTopBrandsLoading: false });
+        } else {
+          this.setState({ drsTopBrandsData: response.data.results, drsTopBrandsLoading: false });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
+
+    instance.get('/pta-drs-04-rat-top-brands' + this.getCallParamsGetMethods(), config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ drsTopBrandsByRatLoading: false });
+        } else {
+          let cleanData = yAxisKeysCleaning(response.data.results)
+          console.log(getTwoLevelPieChartData(response.data.results));
+          let uniqueData = getUniqueKeys(cleanData);
+          this.setState({ drsTopBrandsByRatData: cleanData, uniqueTopBrandsByRatData: uniqueData, drsTopBrandsByRatLoading: false });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
+
+    instance.get('/pta-combo-gross-drs-notification-imeis' + this.getCallParamsGetMethods(), config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ drsComboGrossLoading: false });
+        } else {
+          let cleanData = yAxisKeysCleaning(response.data.results)
+          let uniqueData = getUniqueKeys(cleanData);
+          this.setState({ drsComboGrossData: cleanData, uniqueComboGrossData: uniqueData, drsComboGrossLoading: false });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
+
   }
   render() {
-    const {apiFetched, drsManufacturingData, drsNumOfSimsData, drsRegisteredApprovedIMEIsData, drsTopDeviceImporterData, drsInputTypeData, drsOSTypeData, drsDeviceTypeData, drsRatTypeData, drsTopBrandsData, drsTopModelsData, drsCountOfStatusData, drsManufacturingLoading, drsNumOfSimsLoading, drsRegisteredApprovedIMEIsLoading, drsTopDeviceImporterLoading, drsInputTypeLoading, drsOSTypeLoading, drsDeviceTypeLoading, drsRatTypeLoading, drsTopBrandsLoading, drsTopModelsLoading, drsCountOfStatusLoading, uniqueTests, uniqueType, uniqueTech, uniqueBrands, uniqueModels, uniqueLocation, uniqueSims, uniqueImie, uniqueInputType, uniqueStatusCount, granularity, approved, rejected,inReview, totalRegDev, smartphone, featPhone, deletedObj } = this.state;
+    const { apiFetched, drsComboGrossData, uniqueComboGrossData, drsComboGrossLoading, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, drsTopBrandsByRatData, uniqueTopBrandsByRatData, drsTopBrandsByRatLoading, drsTopBrandsData, drsTopBrandsLoading, drsImportTrendData, uniqueImportTrendData, drsImportTrendLoading, granularity, deletedObj } = this.state;
     return (
       <Container fluid>
         <div className="search-box animated fadeIn">
-          { apiFetched &&
-          <article className="overview">
-            <Row>
-              <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0B6EDE" cardTitle="Registered Devices" cardText={totalRegDev}/></Col>
-              <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0BD49C" cardTitle="Registered IMEIs" cardText={approved}/></Col>
-              <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#ED6364" cardTitle="Rejected IMEIs" cardText={rejected}/></Col>
-              <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#FEAC55" cardTitle="Pending IMEIs" cardText={inReview}/></Col>
-              <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0BDDDE" cardTitle="Registered Smartphones" cardText={smartphone}/></Col>
-              <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#F07C7C" cardTitle="Registered Featured Phones" cardText={featPhone}/></Col>
-            </Row>
-          </article>
+          {apiFetched &&
+            <article className="overview">
+              <Row>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0B6EDE" cardTitle="Total Core IMEIs" cardText={totalImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0BD49C" cardTitle="Total DRS IMEIs" cardText={totalDrsImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0BDDDE" cardTitle="Total Paired IMEIs" cardText={totalPairedImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#F07C7C" cardTitle="Total Stolen" cardText={totalStolenImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#a3c592" cardTitle="Total DVS Searches" cardText={totalDvsImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#F07C7C" cardTitle="Total Blocking" cardText={totalBlocking } /></Col>
+              </Row>
+            </article>
           }
           <div id="fixFilter" className={this.state.scroll > this.state.top ? "filters fixed-filter" : "filters"}>
             {!this.state.isShowingFilters ?
-              <Card className="outline-theme-alfa4 applied-filters"> 
+              <Card className="outline-theme-alfa4 applied-filters">
                 <CardBody>
                   <div className="filter-toggler-control">
                     <h6>Applied Filters:</h6>
                   </div>
-                  <div id="searchFormDiv" style={{"display": "block"}}>
-                    <DateSearchForm callServer={this.saveSearchQuery} showHideComponents={this.filtersSidebarDisplay}/>
+                  <div id="searchFormDiv" style={{ "display": "block" }}>
+                    <DateSearchForm callServer={this.saveSearchQuery} showHideComponents={this.filtersSidebarDisplay} />
                   </div>
-                  <div style={{"display": "block"}}>
+                  <div style={{ "display": "block" }}>
                     <SearchFilters filters={this.state.searchQuery} />
                   </div>
                   {apiFetched &&
@@ -504,27 +411,27 @@ showHideFilters = () =>
                   <div className="filter-toggler-control">
                     <h6>Apply Filters:</h6>
                   </div>
-                  <div id="searchFormDiv" style={{"display": "block"}}>
-                    <DateSearchForm callServer={this.saveSearchQuery} showHideComponents={this.filtersSidebarDisplay}/>
+                  <div id="searchFormDiv" style={{ "display": "block" }}>
+                    <DateSearchForm callServer={this.saveSearchQuery} showHideComponents={this.filtersSidebarDisplay} />
                   </div>
-                  <div style={{"display": "none"}}>
+                  <div style={{ "display": "none" }}>
                     <SearchFilters filters={this.state.searchQuery} />
                   </div>
                   {apiFetched &&
                     <div className="toggler-button" onClick={this.showHideFilters}><svg><use xlinkHref={svgSymbol + '#pencil'} /></svg></div>
                   }
-                </CardBody> 
+                </CardBody>
               </Card>
             }
           </div>
           {!apiFetched &&
             <SearchInfo />
           }
-        <div id="filterData">
-        {apiFetched
-          ? 
-          <React.Fragment>
-                           <article className={this.state.active ? 'buttons-active button-config-chart' : 'button-config-chart'}>
+          <div id="filterData">
+            {apiFetched
+              ?
+              <React.Fragment>
+                <article className={this.state.active ? 'buttons-active button-config-chart' : 'button-config-chart'}>
                   <button
                     className="btn btn-save"
                     disabled={this.state.disableSaveButton}
@@ -534,16 +441,16 @@ showHideFilters = () =>
                     className="btn btn-reset"
                     onClick={this.resetChartConfig}
                   >Reset</button>
-                  <button 
+                  <button
                     className={this.state.fading ? 'button--large btn-fading' : 'button--large'}
-                    onClick={this._onClick} 
+                    onClick={this._onClick}
                     style={this.state.active ? { transform: 'scale(1)' } : { transform: 'scale(0.8333)' }}
                   >
                     <span className={this.state.active ? 'icon active' : 'icon'} />
                   </button>
                 </article>                <div className="grid-box">
                   <ResponsiveReactGridLayout
-                   {...this.props}
+                    {...this.props}
                     layouts={this.state.layouts}
                     onBreakpointChange={this.onBreakpointChange}
                     onLayoutChange={this.onLayoutChange}
@@ -554,47 +461,26 @@ showHideFilters = () =>
                     autoSize={true}
                     rowHeight={this.state.rowHeight}
                     onWidthChange={this.onWidthChangeMethod}
-                  > 
-                    <div name='drsRegisteredApprovedIMEIsKey' key="drsRegisteredApprovedIMEIsKey" className={deletedObj.drsRegisteredApprovedIMEIsKey === true && 'hidden'}>
-                    <Barchart cardClass="card-success" title="Registered IMEIs Count" loading={drsRegisteredApprovedIMEIsLoading} data={drsRegisteredApprovedIMEIsData} xAxis="x_axis" yAxisLabel="Number of IMEIs" yAxes={uniqueImie} customName="Count" colorArray={blueColors.slice(2)} granularity={granularity} info={registeredDevicesCount} showLegend="false" heightProp={this.getElementHeight(document.getElementsByName('drsRegisteredApprovedIMEIsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsRegisteredApprovedIMEIsKey'}/>
+                  >
+                    <div name='drsImportTrendKey' key="drsImportTrendKey" className={deletedObj.drsImportTrendKey === true && 'hidden'}>
+                      <Linechart cardClass="card-success" title="Import Trend" loading={drsImportTrendLoading} data={drsImportTrendData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueImportTrendData} colorArray={this.getColorArray(32)} granularity={granularity} info={dRSImportTrend} showLegend="true" heightProp={this.getElementHeight(document.getElementsByName('drsImportTrendKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsImportTrendKey'} />
                     </div>
-                    <div name='drsCountOfStatusKey' key="drsCountOfStatusKey" className={deletedObj.drsCountOfStatusKey === true && 'hidden'}>
-                    <Barchart cardClass="card-primary" title="IMEIs Registration Status" loading={drsCountOfStatusLoading} data={drsCountOfStatusData} xAxis="x_axis" yAxisLabel="Represents number of IMEIs" yAxes={uniqueStatusCount} colorArray={stackBarTwentyColors.slice(3)} granularity={granularity} info={ deviceRegistrationStatus }  heightProp={this.getElementHeight(document.getElementsByName('drsCountOfStatusKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsCountOfStatusKey'}/>
+                    <div name='drsTopBrandsKey' key="drsTopBrandsKey" className={deletedObj.drsTopBrandsKey === true && 'hidden'}>
+                      <HorizontalBarSegregateChart cardClass="card-primary" title="Brands by IMEIs" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis={["imeis"]} yAxis="brand" colorArray={this.getColorArray(56)} granularity={granularity} info={dRSTop10overAllBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsKey'}/>
                     </div>
-                    <div name='drsTopBrandsChartKey' key="drsTopBrandsChartKey" className={deletedObj.drsTopBrandsChartKey === true && 'hidden'}>
-                    <Barchart cardClass="card-primary" title="Top Registered Brands" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueBrands} colorArray={stackBarTwentyColors} granularity={granularity} info={topRegisteredBrands }  heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsChartKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsChartKey'}/>
-                    </div>    
-                    <div name='drsTopModelsKey' key="drsTopModelsKey" className={deletedObj.drsTopModelsKey === true && 'hidden'}>
-                    <Barchart cardClass="card-success" title="Top Registered Models" loading={drsTopModelsLoading} data={drsTopModelsData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueModels} colorArray={multiColorStack} granularity={granularity} info={topRegisteredModels}  heightProp={this.getElementHeight(document.getElementsByName('drsTopModelsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopModelsKey'}/>
-                    </div> 
-                    <div name='drsRatTypeKey' key="drsRatTypeKey" className={deletedObj.drsRatTypeKey === true && 'hidden'}>
-                    <Barchart cardClass="card-info" title="Device Technologies" loading={drsRatTypeLoading} data={drsRatTypeData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueTech} colorArray={multiColorStack} granularity={granularity} info={deviceTechnology}  heightProp={this.getElementHeight(document.getElementsByName('drsRatTypeKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsRatTypeKey'}/>
+                    <div name='drsTopBrandsByRatKey' key="drsTopBrandsByRatKey" className={deletedObj.drsTopBrandsByRatKey === true && 'hidden'}>
+                      <HorizontalBarSegregateChart cardClass="card-primary" title="IMEIs by Radio Access Technologies" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} xAxis={uniqueTopBrandsByRatData} yAxis="rat" colorArray={multiColorStack} granularity={granularity} info={dRSTop2G3G4GBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'}/>
                     </div>
-                    <div name='drsOSTypeKey' key="drsOSTypeKey" className={deletedObj.drsOSTypeKey === true && 'hidden'}>
-                    <Barchart cardClass="card-warning" title="Devices Operating System" loading={drsOSTypeLoading} data={drsOSTypeData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueTests} colorArray={stackBarTwentyColors.slice(3)} granularity={granularity} info={deviceOS}  heightProp={this.getElementHeight(document.getElementsByName('drsOSTypeKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsOSTypeKey'}/>
+                    <div name='drsComboGrossKey' key="drsComboGrossKey" className={deletedObj.drsComboGrossKey === true && 'hidden'}>
+                      <Barchart cardClass="card-primary" title="Gross Add IMEIs" loading={drsComboGrossLoading} data={drsComboGrossData} xAxis="x_axis" yAxes={uniqueComboGrossData} yAxisLabel="Number of IMEIs" colorArray={stackBarTwentyColors} showLegend="true" granularity={granularity} info={grossAddIMEIsVsDRSVsNotification} heightProp={this.getElementHeight(document.getElementsByName('drsComboGrossKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsComboGrossKey'} />
                     </div>
-                    <div name='drsManufacturingKey' key="drsManufacturingKey" className={deletedObj.drsManufacturingKey === true && 'hidden'}>
-                     <Areachart cardClass="card-info" title="Devices Manufacturing Location" loading={drsManufacturingLoading} data={drsManufacturingData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueLocation} colorArray={stackBarTetrade} granularity={granularity} info={deviceManufacturingLocation}  heightProp={this.getElementHeight(document.getElementsByName('drsManufacturingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsManufacturingKey'}/>
-                    </div>
-                    <div name='drsDeviceTypeKey' key="drsDeviceTypeKey" className={deletedObj.drsDeviceTypeKey === true && 'hidden'}>
-                    <Barchart cardClass="card-primary" title="Types of Registered Devices" loading={drsDeviceTypeLoading} data={drsDeviceTypeData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueType} colorArray={multiColors} granularity={granularity} info={typeOfRegeisteredDevices }  heightProp={this.getElementHeight(document.getElementsByName('drsDeviceTypeKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsDeviceTypeKey'}/>
-                    </div>
-                    <div name='drsTopDeviceImporterKey' key="drsTopDeviceImporterKey" className={deletedObj.drsTopDeviceImporterKey === true && 'hidden'}>
-                    <Piechart cardClass="card-warning" title="Device Top Importers" loading={drsTopDeviceImporterLoading} data={drsTopDeviceImporterData} value="value" colorArray={multiColorStack} granularity={granularity} innerRadiusProp={70} paddingProp={2} info={deviceTopImporters}  heightProp={this.getElementHeight(document.getElementsByName('drsTopDeviceImporterKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopDeviceImporterKey'}/>
-                    </div>
-                    <div name='drsInputTypeKey' key="drsInputTypeKey" className={deletedObj.drsInputTypeKey === true && 'hidden'}>
-                    <Areachart cardClass="card-success" title="Device Registration Method" loading={drsInputTypeLoading} data={drsInputTypeData} xAxis="x_axis" yAxisLabel="Represents number of devices" yAxes={uniqueInputType} colorArray={BoxesColors.slice(3)} granularity={granularity} info={deviceRegistrationMethod}  heightProp={this.getElementHeight(document.getElementsByName('drsInputTypeKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsInputTypeKey'}/>
-                    </div>
-                    <div name='drsNumOfSimsKey' key="drsNumOfSimsKey" className={deletedObj.drsNumOfSimsKey === true && 'hidden'}>
-                    <Barchart cardClass="card-info" title="Devices by IMEI Slots" loading={drsNumOfSimsLoading} data={drsNumOfSimsData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueSims} colorArray={multiColorStack.slice(4)}  granularity={granularity} info={devicesByIMEISlot} heightProp={this.getElementHeight(document.getElementsByName('drsNumOfSimsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsNumOfSimsKey'}/>
-                    </div>
-              </ResponsiveReactGridLayout>
-              </div>
-          </React.Fragment>
-          : null
-        }
+                  </ResponsiveReactGridLayout>
+                </div>
+              </React.Fragment>
+              : null
+            }
+          </div>
         </div>
-      </div>
       </Container>
     )
   }
@@ -603,19 +489,12 @@ showHideFilters = () =>
 Trends.defaultProps = {
   className: "layout",
   cols: { lg: 100, md: 100, sm: 6, xs: 4, xxs: 2 },
-  breakpoints: {lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0},
+  breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 },
   initialLayout: [
-    {i: 'drsRegisteredApprovedIMEIsKey', x: 0, y: 0, w: 50, h: (50/100*56.6)  , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'drsCountOfStatusKey', x: 50, y: 0, w: 50, h: (50/100*56.6)  , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'drsTopBrandsChartKey', x: 0, y: 0, w: 50, h: (50/100*56.6)  , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'drsTopModelsKey', x: 50, y: 0, w: 50, h: (50/100*56.6) , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'drsRatTypeKey', x: 0, y: 0, w: 50, h: (50/100*56.6) , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'drsOSTypeKey', x: 50, y: 0, w: 50, h: (50/100*56.6)  , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'drsManufacturingKey', x: 0, y: 0, w: 50, h: (50/100*56.6)  , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'drsDeviceTypeKey', x: 50, y: 0, w: 50, h: (50/100*56.6)  , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'drsTopDeviceImporterKey', x: 0, y: 0, w: 50, h: (50/100*56.6) , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6), isResizable: false },
-    {i: 'drsInputTypeKey', x: 50, y: 0, w: 50, h: (50/100*56.6) , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'drsNumOfSimsKey', x: 0, y: 0, w: 50, h: (50/100*56.6) , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) }
+    { i: 'drsImportTrendKey', x: 0, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'drsTopBrandsKey', x: 50, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'drsTopBrandsByRatKey', x: 0, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'drsComboGrossKey', x: 0, y: 5, w: 100, h: (40 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) }
   ]
 };
 

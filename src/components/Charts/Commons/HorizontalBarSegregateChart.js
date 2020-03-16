@@ -34,7 +34,7 @@ import { yAxisFormatter, numberWithCommas } from '../../../utilities/helpers';
 import { Scrollbars } from 'react-custom-scrollbars';
 import InfoModel from './../../Tooltips/InfoTooltip';
 import domtoimage from 'dom-to-image';
-
+import { CSVLink } from "react-csv";
 /**
  * This bar chart recieve props to be reusable according to the need
  */
@@ -102,7 +102,7 @@ class HorizontalBarSegregateChart extends PureComponent {
   }
 
   render(){
-    const {title, loading, data, chartMargin, cGrid, barSize, colorArray, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, isShowHeader, removeChart, chartGridId, heightProp } = this.props;
+    const {title, loading, data, chartMargin, cGrid, xAxis, yAxis, barSize, colorArray, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, isShowHeader, removeChart, chartGridId, heightProp, isLable } = this.props;
     let toolTipId = "";
     if(info)
     {   
@@ -115,6 +115,7 @@ class HorizontalBarSegregateChart extends PureComponent {
           {title}
           {info &&
             <React.Fragment>
+              <CSVLink data={data} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
               <i className={this.state.downloadImgLoading ? 'fa fa-circle-o-notch fa-spin fa-fw' : 'fa fa-cloud-download'} onClick={(e) => this.generateImg(e, title)}></i>
               <i className="fa fa-trash-o" onClick={() => {removeChart(chartGridId)}}></i>
               <i className="fa fa-info-circle" style={{color: this.state.infoButtonColor}} id={toolTipId} aria-hidden="true" onClick={this.toggleInfo}>
@@ -134,10 +135,15 @@ class HorizontalBarSegregateChart extends PureComponent {
                   layout='vertical'
                 >
                   <CartesianGrid strokeDasharray={cGrid}/>
-                  <XAxis type="number"  tickFormatter={yAxisFormatter}  style={{fontSize: "11px", fontWeight: "600"}} domain={[0, dataMax => (Math.round(dataMax * 1.1))]}/>
-                  <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} type="category"  dataKey={"y_axis"} style={{fontSize: "11px", fontWeight: "600"}} />
-                  <Tooltip formatter={(value) => [numberWithCommas(value) ,"Count"]} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} />
-                  <Bar barSize={barSize} dataKey="x_axis" animationDuration={3000} fill={colorArray[20]}/>
+                  <XAxis type="number" tickFormatter={yAxisFormatter}  style={{fontSize: "11px", fontWeight: "600"}} domain={[0, dataMax => (Math.round(dataMax * 1.1))]}/>
+                  <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} type="category"  dataKey={yAxis} style={{fontSize: "11px", fontWeight: "600"}} />
+                  <Tooltip formatter={(value, name) => [numberWithCommas(value) , name]} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} />
+                  {xAxis.map((elem, i) => {
+                    if(elem === 'rat') {
+                      return null;
+                    }
+                    return <Bar key={i} barSize={barSize} label={isLable ? ({x , y, height, index, viewbox, width, value}) => <text x={x + 5} y={y + 23} index={index} width={width} height={height} viewbox={viewbox} textAnchor="start">{value.toLocaleString()}</text> : false} dataKey={elem} animationDuration={3000} stackId="a" fill={colorArray[i]}/>
+                  })}
                 </BarChart>
               </ResponsiveContainer>
               : 'No Data Exists'}
@@ -161,5 +167,8 @@ HorizontalBarSegregateChart.defaultProps = {
   yAxisLabelPosition: 'insideLeft', /* 'insideLeft', 'insideRight' */
   yAxesLabelStyle: { textAnchor: 'middle', fontSize: '11px', fontWeight: '500' },
   isShowHeader: true, /* boolean to show or hide card header */
-  heightProp: '100%'
+  heightProp: '100%',
+  xAxis: "x_axis",
+  yAxis: "y_axis",
+  isLable: false
 }

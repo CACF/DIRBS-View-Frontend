@@ -23,167 +23,92 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/******************* Core Single Date ************/
+/******************* Core *******************/
 
-export const IdentifierCount = {
-    'Explanation' : 'Statistics of Identifier Counts from data dumps',
+export const coreOperatorWiseIMEIs = {
+    "Explanation": "Unique IMEIs seen on respective operators.",
+    "X-Axis": "Consisted of dates according to selected granularity.",
+    "Y-Axis": "Count of IMEIs."
 }
 
-export const IdentifierTrends = {
-    'Explanation' : 'Trend of percentage compliant & non-compliant IMEIs of last six month',
+export const coreOperatorWiseMSISDNs = {
+    "Explanation": "Unique MSISDNs seen on respective operators.",
+    "X-Axis": "Consisted of dates according to selected granularity.",
+    "Y-Axis": "Count of MSISDNs."
 }
 
-export const IdentifierTrendsOfUnique = {
-    'Explanation' : 'Trend of unique IMEIs, IMSIs & MSISDNs count of last six month',
+export const coreNetworkSeenIMEIsByTechnology2G3G4G = {
+    "Explanation": "Shows the breakup of Network Seen IMEIs based on Radio Access technology (2G/3G/4G).",
+    "X-Axis": "Consists of dates according to selected granularity.",
+    "Y-Axis": "Count of IMEIs."
 }
 
-export const complianceBreakdown = {
-    'Explanation' : 'Compliance Breakdown of IMEIs & triplets seen on network',
+export const coreValidInvalidNetworkSeenIMEIs = {
+    "Explanation": "Shows the breakup of Network Seen IMEIs based on GSMA Valid / Invalid TACs.",
+    "X-Axis": "Consists of dates according to selected granularity.",
+    "Y-Axis": "Count of IMEIs."
 }
 
-export const conditionalBreakdown = {
-    'Explanation' : 'stats of different counters segregated by different classification conditon and their combinations.',
+export const coreGrossAddIMEIs = {
+    "Explanation": "Shows the trend of Gross Add ( New Seen) IMEIs.",
+    "X-Axis": "Consists of dates according to selected granularity.",
+    "Y-Axis": "Count of IMEIs."
 }
 
-export const nationalBlacklist = {
-    'Explanation' : 'violations of Blacklist IMEIs by mobile operators segregated by different day ranges',
+export const coreGrossAddIMEIsByTechnology = {
+    "Explanation": "Shows the trend of Gross Add (New Seen) IMEIs based on Radio Access Technology (2G/3G/4G).",
+    "X-Axis": "Consists of dates according to selected granularity.",
+    "Y-Axis": "Count of IMEIs."
 }
 
-export const nationalBlacklistByMNO = {
-    'Explanation' : 'violations of Blacklist IMEIs of selected mobile operators segregated by different day ranges',
+/******************* DRS *******************/
+
+export const dRSImportTrend = {
+    "Explanation": "Shows the import trend w.r.t Devices and IMEIs.",
+    "X-Axis": "Consists of dates according to selected granularity.",
+    "Y-Axis": "Count of Devices and IMEIs."
 }
 
-export const lostStolenIMEIOnNetwork = {
-    'Explanation' : 'count of lost & stolen IMEIs segregated by operators',
+export const grossAddIMEIsVsDRSVsNotification = {
+    "Explanation": "Shows the division of Gross Add Newly seen IMEIs w.r.t Active IMEIs of DRS, Local Assembly and Notification List.",
+    "X-Axis": "Consists of dates according to selected granularity.",
+    "Y-Axis": "Count of IMEIs."
 }
 
-export const operatorWiseReason = {
-    'Explanation' : 'Stats of all black-listed reasons segregated by mobile operators',
+export const dRSTop10overAllBrands = {
+    "Explanation": "Shows the overall top Brands in DRS.",
+    "Y-Axis": "Names of Brands according to selected trend quantity.",
+    "X-Axis": "Count of IMEIs."
+}
+
+export const dRSTop2G3G4GBrands = {
+    "Explanation": "Shows the top imported Brands in DRS based on Radio Access technology (2G/3G/4G).",
+    "1st-Ring": "Names of RATs.",
+    "2nd-Ring": "Names of Brands."
 }
 
 
-/******************* Core Range Graphs ************/
+/******************* STOLEN *******************/
 
-export const regListTopModel = {
-    'Explanation' : 'graph of top registered Models in registration-list of CORE.',
-    'X-Axis': 'Date is plotted on x-axis segregated by selected granularity.',
-    'Y-Axis': 'Count of IMEIs'
-}   
-
-export const topModelDetails = {
-    'Explanation' : 'Related details of top models'
-}   
-
-export const conditionalBreakDownIMEI = {
-    'Explanation' : 'segregation of CORE-Classification IMEIs into different categories'
-}   
-
-export const noOfbListIMEI = {
-    'Explanation' : 'segregation of Black-list IMEIs count w.r.t given granularity.',
-    'X-Axis': 'Date is plotted on x-axis.',
-    'Y-Axis': 'Black-listed IMEIs count'
-}   
-
-export const networkNotificationList = {
-    'Explanation' : 'Statistics of notification-list counters segregated by mobile operators'
-}  
-
-export const networkExceptionList = {
-    'Explanation' : 'Statistics of Exception-list counters segregated by mobile operators'
-}  
-
-/******************* LSDS ************/
-
-export const noOfReportedDevices = {
-    'Explanation' : 'Represents the total reported devices as lost/stolen over the period of (year/month/day).',
-    'X-Axis': 'Devices Reported by users to authority over time.',
-    'Y-Axis': 'Represents total number of devices.'
-}   
-
-export const noOfTopStolenBrands = {
-    'Explanation' : 'Represents the top brands which were lost/stolen and reported by users over the period of (year/month/day) ',
-    'X-Axis': 'Top brands of reported devices over time',
-    'Y-Axis': 'Number of devices reported by users.'
-}   
-
-export const statusOfReportedDevices = {
-    'Explanation' : 'Represents the current status of reported devices',
-    'X-Axis': 'Current status of reported devices',
-    'Y-Axis': 'Total number of devices reported.'
-}   
-
-export const topModelsbyReportedDevices = {
-    'Explanation' : 'Represents the top models which were lost/stolen and reported by users over the period of (year/month/day)',
-    'X-Axis': 'Top models of reported devices over time',
-    'Y-Axis': 'Number of devices reported by users.'
-}   
-
-export const noOfLostStolenDevices = {
-    'Explanation' : 'Represent tha nature of incident happened while reporting a device',
-    'X-Axis': 'Devices reported due to lost vs. stolen incident',
-    'Y-Axis': 'Total number of devices reported by users.'
-}   
-
-/******************* DRS ************/
-
-export const deviceRegistrationStatus = {
-    'Explanation' : 'Breakdown of registration requests on the basis of current status. Each label represent a status.',
+export const stolenTrendofImeis = {
+    "Explanation": "Shows the trend of Stolen IMEIs reported to PTA.",
+    "X-Axis": "Consists of dates according to selected granularity.",
+    "Y-Axis": "Count of IMEIs."
 }
 
-export const registeredDevicesCount = {
-    'Explanation' : 'Devices successfully registered over the period of time (year/month/day). Filter can be selected from top.',
-    'X-Axis': 'Total devices registered over (year/month/day)',
-    'Y-Axis': 'Represents number of devices'
+export const stolenDeviceTypeBreakup = {
+    "Explanation": "Shows the breakup of Stolen IMEIs in terms of Device Type.",
+    "Main-Ring": "Names of types of devices."
 }
 
-export const deviceOS = {
-    'Explanation' : 'Registered Devices on the basis of Operating System type.',
-    'X-Axis': 'Represents number of devices',
-    'Y-Axis': 'Total devices registered over (year/month/day) for each OS type.'
+export const stolenBreakUpByTechnology2G3G4G = {
+    "Explanation": "Shows the breakup of Stolen IMEIs in terms of Radio Access Technology (2G/3G/4G).",
+    "X-Axis": "Count of IMEIs.",
+    "Y-Axis": "Names of Technologies."
 }
 
-export const deviceTechnology = {
-    'Explanation' : 'Registered devices on the basis of Radio Access Technology.',
-    'X-Axis': 'Total devices registered over (year/month/day) for each RAT.',
-    'Y-Axis': 'Represents number of devices'
-}
-
-export const deviceManufacturingLocation = {
-    'Explanation' : 'Shows how many devices are manufactured localy or overseas.',
-    'X-Axis': 'Total registered devices manufactured local vs. overseas',
-    'Y-Axis': 'Represents number of devices'
-}
-
-export const deviceTopImporters = {
-    'Explanation' : 'Who is the top importer of devices. Each label represent an importer user.'
-}
-
-export const typeOfRegeisteredDevices = {
-    'Explanation' : 'Shows the type of devices registered over the period of time.',
-    'X-Axis': 'Represents number of devices',
-    'Y-Axis': 'Total devices registered over (year/month/day) for each device type.'
-}
-
-export const topRegisteredBrands = {
-    'Explanation' : 'Represents the top brands of which the devices are registered.',
-    'X-Axis': 'Total devices registered over (year/month/day) for each top brand.',
-    'Y-Axis': 'Represents number of devices'
-}
-
-export const deviceRegistrationMethod = {
-    'Explanation' : 'Registration method used by users to register their devices.',
-    'X-Axis': 'Total registrations using webpage input vs. file',
-    'Y-Axis': 'Represents number of devices'
-}
-
-export const topRegisteredModels = {
-    'Explanation' : 'Represents the top models which are registered by users.',
-    'X-Axis': 'Represents number of devices',
-    'Y-Axis': 'Total devices registered over (year/month/day) for each top model.'
-}
-
-export const devicesByIMEISlot = {
-    'Explanation' : 'Represents IMEI slots of registered devices.',
-    'X-Axis': 'Represents number of devices',
-    'Y-Axis': 'Total devices registered over (year/month/day) by IMEI slots.'
+export const stolenBreakUpByTechnology2G3G4GOverTIME = {
+    "Explanation": "Shows the Trend of Stolen IMEIs w.r.t Radio Access Technology (2G/3G/4G).",
+    "X-Axis": "Consists of Dates According to Selected Granularity.",
+    "Y-Axis": "Count of Stolen IMEIs."
 }

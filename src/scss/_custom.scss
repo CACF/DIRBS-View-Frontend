@@ -463,7 +463,7 @@ body {
 	.card-header {
 		position: relative;
 
-		> i {
+		> a,i {
 			margin-right: 0;
 			vertical-align: middle;
 
@@ -479,7 +479,7 @@ body {
 
 				&:hover,
 				&.active {
-					color: rgb(0, 197, 205);
+					color: rgb(243, 227, 0);
 				}
 			}
 
@@ -496,7 +496,6 @@ body {
 				&:hover {
 					color: red;
 				}
-
 			}
 
 			&.fa-cloud-download,
@@ -512,6 +511,22 @@ body {
 
 				&:hover {
 					color: $theme-color;
+				}
+
+			}
+						
+			&.fa-file-excel-o {
+				position: absolute;
+				right: 98px;
+				top: 50%;
+				transform: translateY(-50%);
+				color: #777;
+				display: block;
+				font-size: 1.3rem;
+				cursor: pointer;
+
+				&:hover {
+					color: #50C878;
 				}
 
 			}

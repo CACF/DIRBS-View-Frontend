@@ -28,15 +28,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import React, { PureComponent } from 'react';
 import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import DateSearchForm from './../../components/Form/DateSearchForm';
-import {unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisKeysCleaning, getUserRole, getUserType, removeDevicesLabel, scrollOsetTopPlus, fixFilOsetHeightMinus} from "./../../utilities/helpers";
+import { unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisKeysCleaning, getUserRole, getUserType, removeDevicesLabel, scrollOsetTopPlus, fixFilOsetHeightMinus } from "./../../utilities/helpers";
 import Barchart from './../../components/Charts/Commons/Barchart';
 import Linechart from './../../components/Charts/Commons/Linechart';
 import Areachart from './../../components/Charts/Commons/AreaChart';
+import Piechart from './../../components/Charts/Commons/Piechart';
+import HorizontalBarSegregateChart from './../../components/Charts/Commons/HorizontalBarSegregateChart';
 import SearchFilters from "./../../components/Form/SearchFilters";
-import {SearchInfo} from "./../../components/Help/SearchInfo";
+import { SearchInfo } from "./../../components/Help/SearchInfo";
 import { stackBarTwentyColors, multiColorStack, BoxesColors } from './../../utilities/chart_colors';
 import HeaderCards from '../../components/Cards/HeaderCards';
-import { noOfReportedDevices, noOfTopStolenBrands, statusOfReportedDevices, topModelsbyReportedDevices, noOfLostStolenDevices } from './../../utilities/reportsInfo';
+import { stolenTrendofImeis, stolenDeviceTypeBreakup, stolenBreakUpByTechnology2G3G4G, stolenBreakUpByTechnology2G3G4GOverTIME } from './../../utilities/reportsInfo';
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import _ from 'lodash';
@@ -50,29 +52,24 @@ class Trends extends PureComponent {
       fading: false,
       isShowingFilters: true,
       disableSaveButton: true,
-      uniqueBrands: [],
-      uniqueModels: [],
-      uniqueIncidents: [],
-      uniqueStatus: [],
-      lsdsTotalReportedDevicesData: null,
-      lsdsIncidentTypeData: null,
-      lsdsCaseStatusData: null,
-      lsdsTopStolenBrandsData: null,
-      lsdsTopStolenModelsData: null,
-      lsdsTotalReportedDevicesLoading: false,
-      lsdsIncidentTypeLoading: false,
-      lsdsCaseStatusLoading: false,
-      lsdsTopStolenBrandsLoading: false,
-      lsdsTopStolenModelsLoading: false,
+      lsdsTrendInImeisData: null,
+      lsdsTrendInImeisLoading: false,
+      lsdsTypeBreakData: null,
+      lsdsTypeBreakLoading: false,
+      lsdsByTechnologyData: null,
+      lsdsByTechnologyLoading: false,
+      lsdsByTechnologyOverTimeData: null,
+      lsdsByTechnologyOverTimeLoading: false,
+      uniquelsdsByTechnologyOverTimeData: [],
       apiFetched: false,
       searchQuery: {},
       granularity: "",
-      stolen: '',
-      lost: '',
-      pending: '',
-      recovered: '',
-      blocked: '',
-      totalReportedDevices: '',
+      totalImies: '',
+      totalDrsImies: '',
+      totalPairedImies: '',
+      totalStolenImies: '',
+      totalDvsImies: '',
+      totalBlocking: '',
       subSystem: 'lsds',
       currentBreakpoint: "lg",
       compactType: "vertical",
@@ -80,7 +77,7 @@ class Trends extends PureComponent {
       layouts: { lg: props.initialLayout },
       layout: [],
       rowHeight: window.innerWidth < 1300 ? 3.7 : 10.6,
-      deletedObj: { lsdsTotalReportedDevicesKey: false, lsdsCaseStatusKey: false, lsdsTopStolenBrandsKey: false, lsdsTopStolenModelsKey: false, lsdsIncidentTypeKey: false}
+      deletedObj: { lsdsTrendInImeisKey: false, lsdsTypeBreakKey: false, lsdsByTechnologyKey: false, lsdsByTechnologyOverTimeKey: false }
     }
     this.getGraphDataFromServer = this.getGraphDataFromServer.bind(this);
     this.saveSearchQuery = this.saveSearchQuery.bind(this);
@@ -94,7 +91,7 @@ class Trends extends PureComponent {
 
   componentDidMount() {
     const el = document.getElementById('fixFilter');
-    this.setState({top: el.offsetTop+scrollOsetTopPlus, height: el.offsetHeight-fixFilOsetHeightMinus});
+    this.setState({ top: el.offsetTop + scrollOsetTopPlus, height: el.offsetHeight - fixFilOsetHeightMinus });
     window.addEventListener('scroll', this.handleScroll);
     this.setState({ mounted: true });
     this.getChartConfigFromServer();
@@ -102,15 +99,26 @@ class Trends extends PureComponent {
 
   componentDidUpdate() {
     const paddDiv = document.getElementById('filterData');
-    this.state.scroll > this.state.top ? 
-    paddDiv.style.paddingTop = `${this.state.height}px` :
-    paddDiv.style.paddingTop = 0;
+    this.state.scroll > this.state.top ?
+      paddDiv.style.paddingTop = `${this.state.height}px` :
+      paddDiv.style.paddingTop = 0;
   }
 
   _onClick = () => {
-    this.setState({ 
-      active: !this.state.active 
+    this.setState({
+      active: !this.state.active
     });
+  }
+
+  //Here we are getting parameters for get APi calls.
+
+  getCallParamsGetMethods = () => {
+    let searchQueryString = "";
+    const searchQuery = this.state.searchQuery;
+    let type = getUserType(this.props.resources);
+    let role = getUserRole(this.props.resources);
+    searchQueryString = `?role=${role}&type=${type}&start_date=${searchQuery.start_date}&end_date=${searchQuery.end_date}&granularity=${searchQuery.granularity}&trend_qty=${searchQuery.trend_qty}`
+    return searchQueryString;
   }
 
   onBreakpointChange(breakpoint) {
@@ -129,82 +137,74 @@ class Trends extends PureComponent {
 
   onWidthChangeMethod = (width, margin, cols) => {
     var height = this.state.rowHeight;
-    if(width > 1300)
-    {
-     height = width * 1/(cols + 75);
+    if (width > 1300) {
+      height = width * 1 / (cols + 75);
     }
-    else if(width <= 1300) {
-      height = width * 1/(cols + 195);
+    else if (width <= 1300) {
+      height = width * 1 / (cols + 195);
     }
     this.setState({
-        rowHeight: height
+      rowHeight: height
     });
   }
 
   onRemoveItem(i) {
-     this.setState({ layouts: { lg: _.reject(this.state.layout, { i: i })} }, () => {
+    this.setState({ layouts: { lg: _.reject(this.state.layout, { i: i }) } }, () => {
       let { deletedObj } = this.state;
       deletedObj[i] = true;
       this.setState({ deletedObj: deletedObj });
     })
 
   }
-  
-  getChartConfigFromServer = () => 
-  {
-    instance.get('/get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem )
-    .then(response => {
-        if(response.data.message) {
+
+  getChartConfigFromServer = () => {
+    instance.get('/get-user-dashboard?user_id=' + this.props.kc.userInfo.preferred_username + '&subsystem=' + this.state.subSystem)
+      .then(response => {
+        if (response.data.message) {
         } else {
           const retrievedChartConfig = response.data.config;
-                if(retrievedChartConfig !== undefined && retrievedChartConfig !== null)
-          {
-            if(retrievedChartConfig.length !== 0)
-            {
-            let { deletedObj } = this.state;
-            Object.keys(deletedObj).map((key, j) => 
-            {
-              let isDeleted = true;
-              retrievedChartConfig.map((ele, k) =>
-              {
-                if(key === retrievedChartConfig[k].i && retrievedChartConfig[k].w !== 1)
-                {
-                  isDeleted = false
-                }
+          if (retrievedChartConfig !== undefined && retrievedChartConfig !== null) {
+            if (retrievedChartConfig.length !== 0) {
+              let { deletedObj } = this.state;
+              Object.keys(deletedObj).map((key, j) => {
+                let isDeleted = true;
+                retrievedChartConfig.map((ele, k) => {
+                  if (key === retrievedChartConfig[k].i && retrievedChartConfig[k].w !== 1) {
+                    isDeleted = false
+                  }
+                  return null;
+                })
+                deletedObj[key] = isDeleted;
                 return null;
               })
-              deletedObj[key] = isDeleted;
-              return null;
-            })
-            this.setState({ layouts: { lg: retrievedChartConfig }, deletedObj: deletedObj  });
+              this.setState({ layouts: { lg: retrievedChartConfig }, deletedObj: deletedObj });
             }
-          }   
-         }
-    })
+          }
+        }
+      })
   }
 
-  setChartConfigToServer = (config) => 
-  {
-    this.setState({fading: true})
+  setChartConfigToServer = (config) => {
+    this.setState({ fading: true })
     this.change = setTimeout(() => {
-      this.setState({fading: false})
+      this.setState({ fading: false })
     }, 2000);
-    this.setState({ 
+    this.setState({
       active: false
     });
     let setChartObj = {};
     setChartObj.user_id = this.props.kc.userInfo.preferred_username;
     setChartObj.subsystem = this.state.subSystem;
     setChartObj.config = this.state.layout
-          instance.post('/set-user-dashboard', setChartObj, config)
-        .then(response => {
-            if(response.data.message) {
-            } else {
-            }
-        })
-        .catch(error => {
-            errors(this, error);
-        })
+    instance.post('/set-user-dashboard', setChartObj, config)
+      .then(response => {
+        if (response.data.message) {
+        } else {
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
   }
 
   componentWillUnmount() {
@@ -212,56 +212,52 @@ class Trends extends PureComponent {
   }
 
   handleScroll() {
-    this.setState({scroll: window.scrollY});
+    this.setState({ scroll: window.scrollY });
   }
-  
-    //returns randomized color array from single array of colors.
 
-    getColorArray = (n) => unique_437_colors.slice(n);
+  //returns randomized color array from single array of colors.
+
+  getColorArray = (n) => unique_437_colors.slice(n);
 
   updateTokenHOC(callingFunc) {
-      let config = null;
-      if(this.props.kc.isTokenExpired(0)) {
-          this.props.kc.updateToken(0)
-              .success(() => {
-                  localStorage.setItem('token', this.props.kc.token)
-                  config = {
-                    headers: getAuthHeader(this.props.kc.token)
-                  }
-                  callingFunc(config);
-              })
-              .error(() => this.props.kc.logout());
-      } else {
+    let config = null;
+    if (this.props.kc.isTokenExpired(0)) {
+      this.props.kc.updateToken(0)
+        .success(() => {
+          localStorage.setItem('token', this.props.kc.token)
           config = {
-            headers: getAuthHeader()
+            headers: getAuthHeader(this.props.kc.token)
           }
           callingFunc(config);
+        })
+        .error(() => this.props.kc.logout());
+    } else {
+      config = {
+        headers: getAuthHeader()
       }
+      callingFunc(config);
+    }
   }
-// Next two function are responsible for toggeling sidebar and filter component
-  
-filtersSidebarDisplay = () =>
-{
+  // Next two function are responsible for toggeling sidebar and filter component
+
+  filtersSidebarDisplay = () => {
     this.showHideFilters();
     document.body.classList.add('brand-minimized');
     document.body.classList.add('sidebar-minimized');
-}
+  }
 
-showHideFilters = () =>
-{
-  const div = document.getElementById('searchFormDiv');
-    if(this.state.isShowingFilters)
-    {
-      div.style.display= 'none';  
+  showHideFilters = () => {
+    const div = document.getElementById('searchFormDiv');
+    if (this.state.isShowingFilters) {
+      div.style.display = 'none';
     }
-    else if(!this.state.isShowingFilters)
-    {
-      div.style.display= 'block';  
+    else if (!this.state.isShowingFilters) {
+      div.style.display = 'block';
     }
     this.setState((prevState) => ({
       isShowingFilters: !prevState.isShowingFilters
-      })); 
-} 
+    }));
+  }
 
   getElementHeight = (e) => {
     if (e) {
@@ -270,141 +266,131 @@ showHideFilters = () =>
     return 400
   }
 
-   resetChartConfig()
-   {
-    this.setState({fading: true})
+  resetChartConfig() {
+    this.setState({ fading: true })
     this.change = setTimeout(() => {
-      this.setState({fading: false})
+      this.setState({ fading: false })
     }, 2000);
-    this.setState({ layouts: { lg: _.reject(this.state.layout, { i: 'lsdsTopStolenModelsKey' })} }, () => {
-    let { deletedObj } = this.state;
-    deletedObj.lsdsTotalReportedDevicesKey = false;
-    deletedObj.lsdsCaseStatusKey = false;
-    deletedObj.lsdsTopStolenBrandsKey = false;
-    deletedObj.lsdsTopStolenModelsKey = false;
-    deletedObj.lsdsIncidentTypeKey = false;
-    this.setState({ deletedObj: deletedObj, layouts: { lg: this.props.initialLayout } });
+    this.setState({ layouts: { lg: _.reject(this.state.layout, { i: 'lsdsByTechnologyOverTimeKey' }) } }, () => {
+      let { deletedObj } = this.state;
+      deletedObj.lsdsTrendInImeisKey = false;
+      deletedObj.lsdsTypeBreakKey = false;
+      deletedObj.lsdsByTechnologyKey = false;
+      deletedObj.lsdsByTechnologyOverTimeKey = false;
+      this.setState({ deletedObj: deletedObj, layouts: { lg: this.props.initialLayout } });
     })
   }
 
 
   saveSearchQuery(values) {
-    this.setState({ searchQuery: values, lsdsTotalReportedDevicesLoading: true, lsdsIncidentTypeLoading: true, lsdsCaseStatusLoading: true, lsdsTopStolenBrandsLoading: true, lsdsTopStolenModelsLoading: true, lsdsTotalReportedDevicesData: [], lsdsIncidentTypeData: [], lsdsCaseStatusData: [], lsdsTopStolenBrandsData: [], lsdsTopStolenModelsData: [], apiFetched: true} , () => {
+    this.setState({ searchQuery: values, lsdsTotalReportedDevicesLoading: true, lsdsIncidentTypeLoading: true, lsdsCaseStatusLoading: true, lsdsTopStolenBrandsLoading: true, lsdsTopStolenModelsLoading: true, lsdsTrendInImeisLoading: true, lsdsByTechnologyLoading: true, lsdsByTechnologyOverTimeLoading: true, lsdsTypeBreakLoading: true, lsdsTypeBreakData: [], lsdsByTechnologyOverTimeData: [], lsdsByTechnologyData: [], lsdsTrendInImeisData: [], lsdsTotalReportedDevicesData: [], lsdsIncidentTypeData: [], lsdsCaseStatusData: [], lsdsTopStolenBrandsData: [], lsdsTopStolenModelsData: [], apiFetched: true, granularity: values.granularity }, () => {
       this.updateTokenHOC(this.getGraphDataFromServer);
-	  })
+    })
   }
 
   getGraphDataFromServer(config) {
-      const searchQuery = this.state.searchQuery;
-      let type = getUserType(this.props.resources)
-      let role = getUserRole(this.props.resources)
-      let postData = {
-        ...searchQuery,
-        type,
-        role
-      }
+    const searchQuery = this.state.searchQuery;
+    let type = getUserType(this.props.resources)
+    let role = getUserRole(this.props.resources)
+    let postData = {
+      ...searchQuery,
+      type,
+      role
+    }
 
-      instance.post('/lsds-06-main-counters',postData, config)
-        .then(response => {
-          const data = Object.assign({}, ...response.data.lsds_boxes);
-          this.setState({
-              stolen: data.Stolen,
-              lost: data.Lost,
-              pending: data.Pending,
-              blocked: data.Blocked,
-              recovered: data.Recovered,
-              totalReportedDevices: data.total_reported_devices
-          })
-          var resizeEvent = window.document.createEvent('UIEvents'); 
-          resizeEvent.initUIEvent('resize', true, false, window, 0); 
-          window.dispatchEvent(resizeEvent);
-        })
+    //Here API is being called to get Operator wise IMEIs. In response we are setting the state with the recieved data
 
-      instance.post('/lsds-01-total-reported-devices', postData, config)
-          .then(response => {
-              if(response.data.message) {
-                this.setState({ lsdsTotalReportedDevicesLoading: false });
-              } else {
-                this.setState({ lsdsTotalReportedDevicesData: response.data.results, lsdsTotalReportedDevicesLoading: false, granularity: searchQuery.granularity});
-              }
-          })
-          .catch(error => {
-              errors(this, error);
-          })
-      
-      instance.post('/lsds-02-incident-types-chart', postData, config)
-          .then(response => {
-                let cleanData = removeDevicesLabel(response.data.results);
-                let uniqueIncidents = getUniqueKeys(cleanData);
-                this.setState({ lsdsIncidentTypeData: cleanData, lsdsIncidentTypeLoading: false, uniqueIncidents: uniqueIncidents, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })
-      
-      instance.post('/lsds-03-case-status-chart', postData, config)
-          .then(response => {
-              if(response.data.message) {
-                this.setState({ lsdsCaseStatusLoading: false });
-              } else {
-                let cleanData = yAxisKeysCleaning(response.data.results);
-                let uniqueStatus = getUniqueKeys(cleanData);
-                this.setState({ lsdsCaseStatusData: cleanData, lsdsCaseStatusLoading: false, uniqueStatus: uniqueStatus, granularity: searchQuery.granularity});
-              }
-          })
-          .catch(error => {
-              errors(this, error);
-          })
-      
-      instance.post('/lsds-04-top-stolen-brands', postData, config)
-          .then(response => {
-              let cleanData = yAxisKeysCleaning(response.data.results);
-              let uniqueBrands = getUniqueKeys(cleanData);
-              this.setState({ lsdsTopStolenBrandsData: cleanData, uniqueBrands: uniqueBrands, lsdsTopStolenBrandsLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })
+    instance.get('/pta-core-01-total-imeis' + this.getCallParamsGetMethods(), config).then(response => this.setState({ totalImies: response.data["Total-Core-IMEIs"] }));
+    instance.get('/pta-drs-01-total-imeis', config).then(response => this.setState({ totalDrsImies: response.data["Total-DRS-IMEIs"] }));
+    instance.get('/pta-dps-01-total-imeis', config).then(response => this.setState({ totalPairedImies: response.data["Total-DPS-IMEIs"] }));
+    instance.get('/pta-stolen-01-total-imeis', config).then(response => this.setState({ totalStolenImies: response.data["Total-Stolen-IMEIs"] }));
+    instance.get('/pta-dvs-01-total-imeis', config).then(response => this.setState({ totalDvsImies: response.data["Total-DVS-IMEIs"] }));
+    instance.get('/pta-core-08-total-blocked-imeis' + this.getCallParamsGetMethods(), config).then(response => this.setState({ totalBlocking: response.data["Total-Blocked-IMEIs"] }));
 
-      instance.post('/lsds-05-top-stolen-models', postData, config)
-          .then(response => {
-              let cleanData = yAxisKeysCleaning(response.data.results);
-              let uniqueModels = getUniqueKeys(cleanData);
-              this.setState({ lsdsTopStolenModelsData: cleanData, uniqueModels: uniqueModels, lsdsTopStolenModelsLoading: false, granularity: searchQuery.granularity});
-          })
-          .catch(error => {
-              errors(this, error);
-          })
+    var resizeEvent = window.document.createEvent('UIEvents');
+    resizeEvent.initUIEvent('resize', true, false, window, 0);
+    window.dispatchEvent(resizeEvent);
+
+    instance.post('/pta-stolen-02-num-of-imeis', postData, config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ lsdsTrendInImeisLoading: false });
+        } else {
+          this.setState({ lsdsTrendInImeisData: response.data.results, lsdsTrendInImeisLoading: false, granularity: searchQuery.granularity });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
+
+    instance.post('/pta-stolen-03-device-type-breakup', postData, config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ lsdsTypeBreakLoading: false });
+        } else {
+          this.setState({ lsdsTypeBreakData: response.data.device_types, lsdsTypeBreakLoading: false, granularity: searchQuery.granularity });
+          // this.setState({ lsdsTypeBreakData: response.data.device_types.map((e) => ({ name: Object.keys(e)[0], value: e[Object.keys(e)] })), lsdsTypeBreakLoading: false, granularity: searchQuery.granularity });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
+
+    instance.get('/pta-stolen-04-breakup-by-technology' + this.getCallParamsGetMethods(), config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ lsdsByTechnologyLoading: false });
+        } else {
+          this.setState({ lsdsByTechnologyData: response.data.results, lsdsByTechnologyLoading: false, granularity: searchQuery.granularity });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
+
+    instance.get('/pta-stolen-05-breakup-by-technology-over-time_range' + this.getCallParamsGetMethods(), config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ lsdsByTechnologyOverTimeLoading: false });
+        } else {
+          let cleanData = yAxisKeysCleaning(response.data.results);
+          let uniqueData = getUniqueKeys(cleanData);
+          this.setState({ lsdsByTechnologyOverTimeData: cleanData, lsdsByTechnologyOverTimeLoading: false, uniquelsdsByTechnologyOverTimeData: uniqueData, granularity: searchQuery.granularity });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
   }
 
   render() {
-    const {apiFetched, lsdsTotalReportedDevicesData, lsdsIncidentTypeData, lsdsCaseStatusData, lsdsTopStolenBrandsData, lsdsTopStolenModelsData, lsdsTotalReportedDevicesLoading, lsdsIncidentTypeLoading, lsdsCaseStatusLoading, lsdsTopStolenBrandsLoading, lsdsTopStolenModelsLoading, uniqueBrands, uniqueModels, uniqueStatus, uniqueIncidents, granularity, stolen, lost, pending, blocked, recovered, totalReportedDevices, deletedObj} = this.state;
+    const { apiFetched, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, lsdsTypeBreakData, lsdsTypeBreakLoading, lsdsByTechnologyOverTimeData, lsdsByTechnologyOverTimeLoading, uniquelsdsByTechnologyOverTimeData, lsdsByTechnologyData, uniquelsdsByTechnologyData, lsdsByTechnologyLoading, lsdsTrendInImeisData, lsdsTrendInImeisLoading, lsdsTotalReportedDevicesData, lsdsIncidentTypeData, lsdsCaseStatusData, lsdsTopStolenBrandsData, lsdsTopStolenModelsData, lsdsTotalReportedDevicesLoading, lsdsIncidentTypeLoading, lsdsCaseStatusLoading, lsdsTopStolenBrandsLoading, lsdsTopStolenModelsLoading, uniqueBrands, uniqueModels, uniqueStatus, uniqueIncidents, granularity, stolen, lost, pending, blocked, recovered, totalReportedDevices, deletedObj } = this.state;
     return (
       <Container fluid>
         <div className="search-box animated fadeIn">
-          { apiFetched &&
+          {apiFetched &&
             <article className="overview">
               <Row>
-                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#FEAC55" cardTitle="Reported Devices" cardText={totalReportedDevices}/></Col>
-                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#ED6364" cardTitle="Stolen Devices" cardText={stolen}/></Col>
-                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#F07C7C" cardTitle="Lost Devices" cardText={lost}/></Col>
-                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0BD49C" cardTitle="Recovered Devices" cardText={recovered}/></Col>
-                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0B6EDE" cardTitle="Pending Devices" cardText={pending}/></Col>
-                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#ED6364" cardTitle="Blocked Devices" cardText={blocked}/></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0B6EDE" cardTitle="Total Core IMEIs" cardText={totalImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0BD49C" cardTitle="Total DRS IMEIs" cardText={totalDrsImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#0BDDDE" cardTitle="Total Paired IMEIs" cardText={totalPairedImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#F07C7C" cardTitle="Total Stolen" cardText={totalStolenImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#a3c592" cardTitle="Total DVS Searches" cardText={totalDvsImies} /></Col>
+                <Col xl={2} lg={3} md={4} sm={6}><HeaderCards backgroundColor="#F07C7C" cardTitle="Total Blocking" cardText={totalBlocking } /></Col>
               </Row>
             </article>
           }
           <div id="fixFilter" className={this.state.scroll > this.state.top ? "filters fixed-filter" : "filters"}>
             {!this.state.isShowingFilters ?
-              <Card className="outline-theme-alfa4 applied-filters"> 
+              <Card className="outline-theme-alfa4 applied-filters">
                 <CardBody>
                   <div className="filter-toggler-control">
                     <h6>Applied Filters:</h6>
                   </div>
-                  <div id="searchFormDiv" style={{"display": "block"}}>
-                    <DateSearchForm callServer={this.saveSearchQuery} showHideComponents={this.filtersSidebarDisplay}/>
+                  <div id="searchFormDiv" style={{ "display": "block" }}>
+                    <DateSearchForm callServer={this.saveSearchQuery} showHideComponents={this.filtersSidebarDisplay} />
                   </div>
-                  <div style={{"display": "block"}}>
+                  <div style={{ "display": "block" }}>
                     <SearchFilters filters={this.state.searchQuery} />
                   </div>
                   {apiFetched &&
@@ -420,16 +406,16 @@ showHideFilters = () =>
                   <div className="filter-toggler-control">
                     <h6>Apply Filters:</h6>
                   </div>
-                  <div id="searchFormDiv" style={{"display": "block"}}>
-                    <DateSearchForm callServer={this.saveSearchQuery} showHideComponents={this.filtersSidebarDisplay}/>
+                  <div id="searchFormDiv" style={{ "display": "block" }}>
+                    <DateSearchForm callServer={this.saveSearchQuery} showHideComponents={this.filtersSidebarDisplay} />
                   </div>
-                  <div style={{"display": "none"}}>
+                  <div style={{ "display": "none" }}>
                     <SearchFilters filters={this.state.searchQuery} />
                   </div>
                   {apiFetched &&
                     <div className="toggler-button" onClick={this.showHideFilters}><svg><use xlinkHref={svgSymbol + '#pencil'} /></svg></div>
                   }
-                </CardBody> 
+                </CardBody>
               </Card>
             }
           </div>
@@ -449,9 +435,9 @@ showHideFilters = () =>
                     className="btn btn-reset"
                     onClick={this.resetChartConfig}
                   >Reset</button>
-                  <button 
+                  <button
                     className={this.state.fading ? 'button--large btn-fading' : 'button--large'}
-                    onClick={this._onClick} 
+                    onClick={this._onClick}
                     style={this.state.active ? { transform: 'scale(1)' } : { transform: 'scale(0.8333)' }}
                   >
                     <span className={this.state.active ? 'icon active' : 'icon'} />
@@ -460,7 +446,7 @@ showHideFilters = () =>
 
                 <div className="grid-box">
                   <ResponsiveReactGridLayout
-                   {...this.props}
+                    {...this.props}
                     layouts={this.state.layouts}
                     onBreakpointChange={this.onBreakpointChange}
                     onLayoutChange={this.onLayoutChange}
@@ -471,21 +457,18 @@ showHideFilters = () =>
                     autoSize={true}
                     rowHeight={this.state.rowHeight}
                     onWidthChange={this.onWidthChangeMethod}
-                  > 
-                    <div name='lsdsTotalReportedDevicesKey' key="lsdsTotalReportedDevicesKey" className={deletedObj.lsdsTotalReportedDevicesKey === true && 'hidden'}>
-                      <Linechart cardClass="card-warning" title="Number of Reported Devices" loading={lsdsTotalReportedDevicesLoading} data={lsdsTotalReportedDevicesData} xAxis="x_axis" yAxisLabel="Total number of devices" yAxes={["unique_devices"]}  colorArray={this.getColorArray(32)} granularity={granularity} info={noOfReportedDevices} showLegend="false" heightProp={this.getElementHeight(document.getElementsByName('lsdsTotalReportedDevicesKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTotalReportedDevicesKey'}/>
+                  >
+                    <div name='lsdsTrendInImeisKey' key="lsdsTrendInImeisKey" className={deletedObj.lsdsTrendInImeisKey === true && 'hidden'}>
+                      <Linechart cardClass="card-warning" title="Stolen Trend" loading={lsdsTrendInImeisLoading} data={lsdsTrendInImeisData} xAxis="x_axis" yAxisLabel="Number of IMEIS" yAxes={["imeis"]} colorArray={this.getColorArray(32)} granularity={granularity} info={stolenTrendofImeis} showLegend="false" customName="Count" heightProp={this.getElementHeight(document.getElementsByName('lsdsTrendInImeisKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTrendInImeisKey'} />
                     </div>
-                    <div name='lsdsCaseStatusKey' key="lsdsCaseStatusKey" className={deletedObj.lsdsCaseStatusKey === true && 'hidden'}>
-                      <Barchart cardClass="card-info" title="Status of Reported Devices" heightProp={this.getElementHeight(document.getElementsByName('lsdsCaseStatusKey')[0])} loading={lsdsCaseStatusLoading} data={lsdsCaseStatusData} xAxis="x_axis" yAxisLabel="Number of devices reported by users" yAxes={uniqueStatus} yAxesComposite={["Pending","Blocked", "Recovered"]} colorArray={stackBarTwentyColors.slice(4)} granularity={granularity}  info={statusOfReportedDevices} removeChart={this.onRemoveItem} chartGridId={'lsdsCaseStatusKey'}/>
+                    <div name='lsdsTypeBreakKey' key="lsdsTypeBreakKey" className={deletedObj.lsdsTypeBreakKey === true && 'hidden'}>
+                      <Piechart cardClass="card-success" title="Devices Type Breakup" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} value="value" colorArray={BoxesColors} granularity={granularity} innerRadiusProp={70} paddingProp={2} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'} />
                     </div>
-                    <div name='lsdsTopStolenBrandsKey' key="lsdsTopStolenBrandsKey" className={deletedObj.lsdsTopStolenBrandsKey === true && 'hidden'}>
-                      <Barchart cardClass="card-danger" title="Top Stolen Brands" heightProp={this.getElementHeight(document.getElementsByName('lsdsTopStolenBrandsKey')[0])} loading={lsdsTopStolenBrandsLoading} data={lsdsTopStolenBrandsData} yAxisLabel="Total number of devices reported" yAxes={uniqueBrands} xAxis="x_axis"  colorArray={multiColorStack} granularity={granularity}  info={noOfTopStolenBrands} removeChart={this.onRemoveItem} chartGridId={'lsdsTopStolenBrandsKey'}/>
-                    </div>    
-                    <div name='lsdsTopStolenModelsKey' key="lsdsTopStolenModelsKey" className={deletedObj.lsdsTopStolenModelsKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="Top Models by Reported Devices" heightProp={this.getElementHeight(document.getElementsByName('lsdsTopStolenModelsKey')[0])} loading={lsdsTopStolenModelsLoading} data={lsdsTopStolenModelsData} yAxisLabel="Number of devices reported by users" yAxes={uniqueModels} xAxis="x_axis" colorArray={multiColorStack} granularity={granularity}  info={topModelsbyReportedDevices} removeChart={this.onRemoveItem} chartGridId={'lsdsTopStolenModelsKey'}/>
-                    </div> 
-                    <div name='lsdsIncidentTypeKey' key="lsdsIncidentTypeKey" className={deletedObj.lsdsIncidentTypeKey === true && 'hidden'}>
-                        <Areachart cardClass="card-warning" title="Incident Nature of Reported Devices" heightProp={this.getElementHeight(document.getElementsByName('lsdsIncidentTypeKey')[0])} loading={lsdsIncidentTypeLoading} data={lsdsIncidentTypeData} yAxisLabel="Total number of devices reported by users" xAxis="x_axis" yAxes={uniqueIncidents} colorArray={BoxesColors.slice(4)} granularity={granularity}  removeChart={this.onRemoveItem} chartGridId={'lsdsIncidentTypeKey'} info={noOfLostStolenDevices}/>
+                    <div name='lsdsByTechnologyKey' key="lsdsByTechnologyKey" className={deletedObj.lsdsByTechnologyKey === true && 'hidden'}>
+                      <HorizontalBarSegregateChart cardClass="card-info" title="Overall Technology BreakUp (2G/3G/4G)" loading={lsdsByTechnologyLoading} data={lsdsByTechnologyData} xAxis={["IMEIs"]} yAxis="RAT" colorArray={this.getColorArray(56)} granularity={granularity} info={stolenBreakUpByTechnology2G3G4G} heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyKey'} />
+                    </div>
+                    <div name='lsdsByTechnologyOverTimeKey' key="lsdsByTechnologyOverTimeKey" className={deletedObj.lsdsByTechnologyOverTimeKey === true && 'hidden'}>
+                      <Barchart cardClass="card-primary" title="Trend of Stolen IMEIs w.r.t Technology (2G/3G/4G)" heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyOverTimeKey')[0])} loading={lsdsByTechnologyOverTimeLoading} data={lsdsByTechnologyOverTimeData} yAxisLabel="Number of IMEIS" yAxes={uniquelsdsByTechnologyOverTimeData} xAxis="x_axis" colorArray={multiColorStack} granularity={granularity} info={stolenBreakUpByTechnology2G3G4GOverTIME} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyOverTimeKey'} />
                     </div>
                   </ResponsiveReactGridLayout>
                 </div>
@@ -502,13 +485,12 @@ showHideFilters = () =>
 Trends.defaultProps = {
   className: "layout",
   cols: { lg: 100, md: 100, sm: 6, xs: 4, xxs: 2 },
-  breakpoints: {lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0},
+  breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 },
   initialLayout: [
-    {i: 'lsdsTotalReportedDevicesKey', x: 0, y: 0, w: 50, h: (50/100*56.6)  , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'lsdsCaseStatusKey', x: 0, y: 0, w: 50, h: (50/100*56.6)  , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'lsdsTopStolenBrandsKey', x: 0, y: 0, w: 50, h: (50/100*56.6)  , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'lsdsTopStolenModelsKey', x: 50, y: 0, w: 50, h: (50/100*56.6) , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) },
-    {i: 'lsdsIncidentTypeKey', x: 50, y: 0, w: 50, h: (50/100*56.6) , minW: 33, minH: 20, maxW: 100, maxH: (75/100*56.6) }
+    { i: 'lsdsTrendInImeisKey', x: 0, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'lsdsTypeBreakKey', x: 0, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'lsdsByTechnologyKey', x: 50, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'lsdsByTechnologyOverTimeKey', x: 50, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) }
   ]
 };
 

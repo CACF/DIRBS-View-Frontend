@@ -35,7 +35,7 @@ const HeaderCards = (props) => {
   return (
       <Card body inverse style={{ backgroundColor: backgroundColor, borderRadius: "8px", padding: padding}}>
                 <CardTitle> {cardTitle} </CardTitle>
-                <CardText><CountUp end={cardText} duration={8} formattingFn={(e) => e.toLocaleString() } />
+                <CardText><CountUp end={cardText} duration={3} formattingFn={(e) => e.toLocaleString() } />
                 </CardText>
                 { avg &&
                   <div className="desc-txt">

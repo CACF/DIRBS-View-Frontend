@@ -35,6 +35,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import randomColor  from 'randomcolor';
 import InfoModel from './../../Tooltips/InfoTooltip';
 import domtoimage from 'dom-to-image';
+import { CSVLink } from "react-csv";
 
 class Areachart extends PureComponent {
 
@@ -115,6 +116,7 @@ class Areachart extends PureComponent {
           {title}
           {info &&
             <React.Fragment>
+              <CSVLink data={data} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
               <i className={this.state.downloadImgLoading ? 'fa fa-circle-o-notch fa-spin fa-fw' : 'fa fa-cloud-download'} onClick={(e) => this.generateImg(e, title)}></i>
               <i className="fa fa-trash-o" onClick={() => {removeChart(chartGridId)}}></i>
               <i className="fa fa-info-circle" style={{color: this.state.infoButtonColor}} id={toolTipId} aria-hidden="true" onClick={this.toggleInfo}>

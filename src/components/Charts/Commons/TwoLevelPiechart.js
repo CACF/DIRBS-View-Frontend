@@ -37,12 +37,11 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import {numberWithCommas} from '../../../utilities/helpers';
 import domtoimage from 'dom-to-image';
 import { CSVLink } from "react-csv";
-let dataArray = [];
 
 /**
 * Chart for Top Devices Importer
 */
-class Piechart extends PureComponent {
+class TwoLevelPiechart extends PureComponent {
 
   constructor(props) {
     super(props);
@@ -114,13 +113,6 @@ class Piechart extends PureComponent {
     );
   }
 
-formateData = (dataToFormate) => {
-      dataArray = [];
-      dataToFormate.map(obj => {
-       return dataArray.push({ 'name': Object.keys(obj)[0], 'value': obj[Object.keys(obj)[0]] });
-    });
-  }
-
   renderCustomizedLabel(props) {
     const { cx, cy, midAngle, innerRadius, outerRadius,percent, fill, startAngle, endAngle, name} = props;
     let y;
@@ -175,6 +167,7 @@ formateData = (dataToFormate) => {
   {
   const { title, loading, data, value, colorArray, innerRadiusProp, paddingProp, chartMargin, info, cardClass, isShowHeader, isShowLable, removeChart, chartGridId, heightProp } = this.props;
   let toolTipId = "";
+  console.log(data.firstDataGroup)
   if(info)
   {  
      toolTipId =`infoTooltipPieChart_${info.Explanation.replace(/[^a-zA-Z0-9]/g, "")}`;
@@ -186,7 +179,7 @@ formateData = (dataToFormate) => {
         {title}
         {info &&
         <React.Fragment>
-        <CSVLink data={dataArray} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
+        <CSVLink data={data} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
         <i className={this.state.downloadImgLoading ? 'fa fa-circle-o-notch fa-spin fa-fw' : 'fa fa-cloud-download'} onClick={(e) => this.generateImg(e, title)}></i>
         <i className="fa fa-trash-o" onClick={() => {removeChart(chartGridId)}}></i>
         <i className="fa fa-info-circle" style={{color: this.state.infoButtonColor}} id={toolTipId} aria-hidden="true" onClick={this.toggleInfo}>
@@ -198,9 +191,8 @@ formateData = (dataToFormate) => {
       }
       <CardBody className='steps-loading min-hei100'>
         {loading ? <CardLoading /> : null}
-        {((data || {}).length > 0) ?
+        {((data.firstDataGroup || {}).length > 0) ?
             <React.Fragment>
-            {this.formateData(data)}
             <ResponsiveContainer width='100%' height={heightProp}>
               <PieChart className="custom-piechart" 
                 margin={chartMargin}
@@ -217,9 +209,14 @@ formateData = (dataToFormate) => {
                   verticalAlign={legendVerticalAlign} 
                   align={legendAlign}
                   /> } */}
-                <Pie dataKey={value} isAnimationActive={false} data={dataArray} labelLine={isShowLable && this.renderCustomizedLabelLine} label={isShowLable && this.renderCustomizedLabel} animationDuration={3000} outerRadius={120} fill="#8884d8"  innerRadius={innerRadiusProp} paddingAngle={paddingProp}>
+                <Pie dataKey={value} isAnimationActive={false} data={data.firstDataGroup} animationDuration={3000} outerRadius={120} fill="#8884d8"  innerRadius={innerRadiusProp} paddingAngle={paddingProp}>
                   {
-                    dataArray.map((entry, index) => <Cell key={index} fill={colorArray[index]} />)
+                    data.map((entry, index) => <Cell key={index} fill={colorArray[index]} />)
+                  }
+                </Pie>
+                <Pie dataKey={value} isAnimationActive={false} data={data.secondDataGroup} labelLine={isShowLable && this.renderCustomizedLabelLine} label={isShowLable && this.renderCustomizedLabel} animationDuration={3000} outerRadius={120} fill="#8884d8"  innerRadius={innerRadiusProp} paddingAngle={paddingProp}>
+                  {
+                    data.map((entry, index) => <Cell key={index} fill={colorArray[index]} />)
                   }
                 </Pie>
               </PieChart>
@@ -232,7 +229,7 @@ formateData = (dataToFormate) => {
   }
 }
 
-Piechart.defaultProps ={
+TwoLevelPiechart.defaultProps ={
   chartMargin: { top: 20, right: 0, left: 0, bottom: 5,  }, /* Changes margin of chart inside the card */
   legendIconType:'triangle' /*  'line' | 'rect'| 'circle' | 'cross' | 'diamond' | 'square' | 'star' | 'triangle' | 'wye' | 'none' */,
   legendLayout:'horizontal', /* 'verticle' */
@@ -246,4 +243,4 @@ Piechart.defaultProps ={
   isShowLable: true /* boolean to show or hide PieChart Label */
 }
 
-export default Piechart;
+export default TwoLevelPiechart;

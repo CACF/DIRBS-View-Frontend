@@ -142,7 +142,7 @@ class SearchForm extends PureComponent {
               <div className="dv-trend" title="Select Trend Quantity">
                 <Label>Trend Quantity</Label>
                 <div>
-                <Field className="form-control" name="trend_qty" type="number"  min="1" max="10"/>
+                <Field className="form-control" name="trend_qty" type="number"  min="1" max="16"/>
                 </div>
                 <Field name="trend_qty" component={renderError}/>
               </div>
@@ -189,8 +189,8 @@ class SearchForm extends PureComponent {
     }
     if (!values.trend_qty && bag.isRange) {
       errors.trend_qty = 'This field is required'
-    }else if((values.trend_qty < 1 || values.trend_qty > 10) && bag.isRange){
-      errors.trend_qty = 'Value must be between 1-10'
+    }else if((values.trend_qty < 1 || values.trend_qty > 16) && bag.isRange){
+      errors.trend_qty = 'Value must be between 1-16'
     }
     if (!values.mno && bag.isMNORequired){
       errors.mno = 'this field is required'
