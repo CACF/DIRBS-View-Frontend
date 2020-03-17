@@ -49,7 +49,7 @@ export default class RenderDateRangePicker extends PureComponent {
     this.range(1900, 2019);
   }
 
-   range(start, end) {
+   range = (start, end) => {
     for (let i = start; i <= end; i++) {
       this.state.yearArr.push(i);
     }

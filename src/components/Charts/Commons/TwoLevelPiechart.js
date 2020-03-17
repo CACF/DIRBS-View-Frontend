@@ -27,14 +27,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import React, { PureComponent } from 'react';
 import {
-  Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Label, Surface, Symbols
+    Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Label, Surface, Symbols
 } from 'recharts';
 import { Card, CardHeader, CardBody } from 'reactstrap';
 import CardLoading from '../../Loaders/CardLoading';
 import randomColor from "randomcolor";
 import InfoModel from './../../Tooltips/InfoTooltip';
 import { Scrollbars } from 'react-custom-scrollbars';
-import {numberWithCommas} from '../../../utilities/helpers';
+import { numberWithCommas } from '../../../utilities/helpers';
 import domtoimage from 'dom-to-image';
 import { CSVLink } from "react-csv";
 
@@ -43,204 +43,202 @@ import { CSVLink } from "react-csv";
 */
 class TwoLevelPiechart extends PureComponent {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      infoTooltipState: false,
-      infoButtonColor: '',
-    };
-    this.toggleInfo = this.toggleInfo.bind(this);
-    this.resize = this.resize.bind(this);
-  }
-
-  componentDidUpdate() {
-    this.resize();
-  }
-
-  resize() {
-    let pieElHeight = this.props.heightProp;
-    this.setState({ pieElHeight });
-  }
-
-  filter = (node) => {
-    return (node.tagName !== 'I');
-  }
-
-  generateImg = (event, title) => {
-    let th = this;
-    th.setState({downloadImgLoading: true});
-    let target = event.target;
-    let downloadImgEl = target.parentElement.parentElement;
-
-    domtoimage.toPng(downloadImgEl, {filter: this.filter}).then(function(blob) {
-      if(blob != null) {
-        window.saveAs(blob, title);
-        th.setState({downloadImgLoading: false});
-      } 
-    })
-  }
-
-  toggleInfo() {
-    this.setState(prevState => ({
-      infoTooltipState: !prevState.infoTooltipState,
-      infoButtonColor: !prevState.infoButtonColor ? "#00C5CD" : ''
-    }));
-  }
-
-  scrollableLegend = (props) => {
-    const { payload } = props
-    return (
-      <Scrollbars
-        autoHeight
-        autoHeightMax={47}
-      >
-        <ul className="recharts-default-legend">
-          {
-            payload.map((entry, index) => {
-              const {value, color } = entry
-              return (
-                <li className="legend-item">
-                  <Surface width={10} height={10} viewbox="0 0 10 10">
-                    <Symbols cx={6} cy={6} type="rect" size={50} fill={color} />
-                  </Surface>
-                  <span>{value}</span>
-                </li>
-              );
-            })
-          }
-        </ul>
-      </Scrollbars>
-    );
-  }
-
-  renderCustomizedLabel(props) {
-    const { cx, cy, midAngle, innerRadius, outerRadius,percent, fill, startAngle, endAngle, name} = props;
-    let y;
-    let x;
-    const RADIAN = Math.PI / 180;
-    const diffAngle = endAngle - startAngle;
-    const delta = ((360-diffAngle)/30);
-    const radius = innerRadius + (outerRadius - innerRadius);
-    if ( (midAngle >= 0 && midAngle <= 30) || (midAngle >= 330 && midAngle <= 360) || (midAngle >= 150 && midAngle <= 210)  )
-    {
-    x = cx + (radius + delta * delta * 0.5) * Math.cos(-midAngle * RADIAN);
-    y = cy + (radius + delta + 300) * Math.sin(-midAngle * RADIAN);
+    constructor(props) {
+        super(props);
+        this.state = {
+            infoTooltipState: false,
+            infoButtonColor: '',
+        };
+        this.toggleInfo = this.toggleInfo.bind(this);
+        this.resize = this.resize.bind(this);
     }
-    else
-    {
-       x = cx + (radius + delta * delta * 0.5) * Math.cos(-midAngle * RADIAN);
-       y = cy + (radius + delta * 3) * Math.sin(-midAngle * RADIAN);
-    }
-    return (
-      <text x={x} y={y} textAnchor={x > cx ? 'start' : 'end'} 	dominantBaseline="central">
-        <tspan alignmentBaseline="middle" fontSize="22" fill={fill}>{(percent * 100).toFixed(2)}%</tspan>
-      {/* <tspan x={x} y={y+15}>{name}</tspan> */}
-    </text>
-    );
-  };
 
-  renderCustomizedLabelLine(props){
-    let { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle } = props;
-    const RADIAN = Math.PI / 180;
-    const diffAngle = endAngle - startAngle;
-    const radius = innerRadius + (outerRadius - innerRadius);
-    let path='';
-    if ( (midAngle >= 0 && midAngle <= 30) || (midAngle >= 330 && midAngle <= 360) || (midAngle >= 150 && midAngle <= 210)  )
-    {
-    for(let i=0;i<((360-diffAngle)/30);i++){
-      path += `${(cx + (radius + i * i * 0.5) * Math.cos(-midAngle * RADIAN ))},${(cy + (radius + i * 27) * Math.sin(-midAngle * RADIAN))} `
+    componentDidUpdate() {
+        this.resize();
     }
-  }
-  else
-  {
-    for(let i=0;i<((360-diffAngle)/30);i++){
-      path += `${(cx + (radius + i * i * 0.5) * Math.cos(-midAngle * RADIAN ))},${(cy + (radius + i * 3) * Math.sin(-midAngle * RADIAN))} `
+
+    resize() {
+        let pieElHeight = this.props.heightProp;
+        this.setState({ pieElHeight });
     }
-  }
 
-    return (
-      <polyline points={path} stroke={"#800080"} fill="none" />
-    );
-  }
+    filter = (node) => {
+        return (node.tagName !== 'I');
+    }
 
-  render()
-  {
-  const { title, loading, data, value, colorArray, innerRadiusProp, paddingProp, chartMargin, info, cardClass, isShowHeader, isShowLable, removeChart, chartGridId, heightProp } = this.props;
-  let toolTipId = "";
-  console.log(data.firstDataGroup)
-  if(info)
-  {  
-     toolTipId =`infoTooltipPieChart_${info.Explanation.replace(/[^a-zA-Z0-9]/g, "")}`;
-  }
-  return (
-    <Card className={`${cardClass} card-chart`}>
-      {isShowHeader && 
-      <CardHeader className="border-bottom-0">
-        {title}
-        {info &&
-        <React.Fragment>
-        <CSVLink data={data} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
-        <i className={this.state.downloadImgLoading ? 'fa fa-circle-o-notch fa-spin fa-fw' : 'fa fa-cloud-download'} onClick={(e) => this.generateImg(e, title)}></i>
-        <i className="fa fa-trash-o" onClick={() => {removeChart(chartGridId)}}></i>
-        <i className="fa fa-info-circle" style={{color: this.state.infoButtonColor}} id={toolTipId} aria-hidden="true" onClick={this.toggleInfo}>
-        <InfoModel TooltipState={this.state.infoTooltipState} toggle={this.toggleInfo} chartInfo={info} id={toolTipId}/>
-        </i>
-        </React.Fragment>
+    generateImg = (event, title) => {
+        let th = this;
+        th.setState({ downloadImgLoading: true });
+        let target = event.target;
+        let downloadImgEl = target.parentElement.parentElement;
+
+        domtoimage.toPng(downloadImgEl, { filter: this.filter }).then(function (blob) {
+            if (blob != null) {
+                window.saveAs(blob, title);
+                th.setState({ downloadImgLoading: false });
+            }
+        })
+    }
+
+    toggleInfo() {
+        this.setState(prevState => ({
+            infoTooltipState: !prevState.infoTooltipState,
+            infoButtonColor: !prevState.infoButtonColor ? "#00C5CD" : ''
+        }));
+    }
+
+    scrollableLegend = (props) => {
+        const { payload } = props
+        return (
+            <Scrollbars
+                autoHeight
+                autoHeightMax={47}
+            >
+                <ul className="recharts-default-legend">
+                    {
+                        payload.map((entry, index) => {
+                            const { value, color } = entry
+                            return (
+                                <li className="legend-item">
+                                    <Surface width={10} height={10} viewbox="0 0 10 10">
+                                        <Symbols cx={6} cy={6} type="rect" size={50} fill={color} />
+                                    </Surface>
+                                    <span>{value}</span>
+                                </li>
+                            );
+                        })
+                    }
+                </ul>
+            </Scrollbars>
+        );
+    }
+
+    renderCustomizedLabel(props) {
+        const { cx, cy, midAngle, innerRadius, outerRadius, percent, fill, startAngle, endAngle, name } = props;
+        let y;
+        let x;
+        const RADIAN = Math.PI / 180;
+        const diffAngle = endAngle - startAngle;
+        const delta = ((360 - diffAngle) / 30);
+        const radius = innerRadius + (outerRadius - innerRadius);
+        if ((midAngle >= 0 && midAngle <= 30) || (midAngle >= 330 && midAngle <= 360) || (midAngle >= 150 && midAngle <= 210)) {
+            x = cx + (radius + delta * delta) * Math.cos(-midAngle * RADIAN);
+            y = cy + (radius + delta + 300) * Math.sin(-midAngle * RADIAN);
         }
-      </CardHeader>
-      }
-      <CardBody className='steps-loading min-hei100'>
-        {loading ? <CardLoading /> : null}
-        {((data.firstDataGroup || {}).length > 0) ?
-            <React.Fragment>
-            <ResponsiveContainer width='100%' height={heightProp}>
-              <PieChart className="custom-piechart" 
-                margin={chartMargin}
-                label={true}
-                width={300}
-                height={300}
-              > 
-                 <Tooltip contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} formatter={(value, name) => [numberWithCommas(value) , name]}/>
-                 <Label value="any" color="#fff"/>            
-                  {/* { showLegend && <Legend 
-                  content={this.scrollableLegend}
-                  iconType={legendIconType}
-                  layout={legendLayout} 
-                  verticalAlign={legendVerticalAlign} 
-                  align={legendAlign}
-                  /> } */}
-                <Pie dataKey={value} isAnimationActive={false} data={data.firstDataGroup} animationDuration={3000} outerRadius={120} fill="#8884d8"  innerRadius={innerRadiusProp} paddingAngle={paddingProp}>
-                  {
-                    data.map((entry, index) => <Cell key={index} fill={colorArray[index]} />)
-                  }
-                </Pie>
-                <Pie dataKey={value} isAnimationActive={false} data={data.secondDataGroup} labelLine={isShowLable && this.renderCustomizedLabelLine} label={isShowLable && this.renderCustomizedLabel} animationDuration={3000} outerRadius={120} fill="#8884d8"  innerRadius={innerRadiusProp} paddingAngle={paddingProp}>
-                  {
-                    data.map((entry, index) => <Cell key={index} fill={colorArray[index]} />)
-                  }
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            </React.Fragment>
-          : 'No Data Exists'}
-      </CardBody>
-    </Card>
-  )
-  }
+        else {
+            x = cx + (radius + delta * delta * 0.2) * Math.cos(-midAngle * RADIAN);
+            y = cy + (radius + delta * 11.5) * Math.sin(-midAngle * RADIAN);
+        }
+        return (
+            (percent * 100).toFixed(2) > 2.00 ?
+                <text x={x} y={y} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+                    <tspan alignmentBaseline="middle" fontSize="18" fill={fill}>{(percent * 100).toFixed(2)}%</tspan>
+                    <tspan x={x} y={y+15}>{name}</tspan>
+                </text>
+                :
+                null
+        );
+    };
+
+    renderCustomizedLabelLine(props) {
+        let { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, percent } = props;
+        const RADIAN = Math.PI / 180;
+        const diffAngle = endAngle - startAngle;
+        const radius = innerRadius + (outerRadius - innerRadius);
+        let path = '';
+        if ((midAngle >= 0 && midAngle <= 30) || (midAngle >= 330 && midAngle <= 360) || (midAngle >= 150 && midAngle <= 210)) {
+            for (let i = 0; i < ((360 - diffAngle) / 30); i++) {
+                path += `${(cx + (radius + i * i) * Math.cos(-midAngle * RADIAN))},${(cy + (radius + i * 27) * Math.sin(-midAngle * RADIAN))} `
+            }
+        }
+        else {
+            for (let i = 0; i < ((360 - diffAngle) / 30); i++) {
+                path += `${(cx + (radius + i * i * 0.2) * Math.cos(-midAngle * RADIAN))},${(cy + (radius + i * 11.5) * Math.sin(-midAngle * RADIAN))} `
+            }
+        }
+
+        return (
+            (percent * 100).toFixed(2) > 2.00 &&
+            <polyline points={path} stroke={"#800080"} fill="none" />
+        );
+    }
+
+    render() {
+        const { title, loading, data, value, colorArray, dataToDownload, innerRadiusProp, paddingProp, chartMargin, info, cardClass, isShowHeader, isShowLable, removeChart, chartGridId, heightProp } = this.props;
+        let toolTipId = "";
+        console.log(data)
+        if (info) {
+            toolTipId = `infoTooltipPieChart_${info.Explanation.replace(/[^a-zA-Z0-9]/g, "")}`;
+        }
+        return (
+            <Card className={`${cardClass} card-chart`}>
+                {isShowHeader &&
+                    <CardHeader className="border-bottom-0">
+                        {title}
+                        {info &&
+                            <React.Fragment>
+                                <CSVLink data={dataToDownload} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
+                                <i className={this.state.downloadImgLoading ? 'fa fa-circle-o-notch fa-spin fa-fw' : 'fa fa-cloud-download'} onClick={(e) => this.generateImg(e, title)}></i>
+                                <i className="fa fa-trash-o" onClick={() => { removeChart(chartGridId) }}></i>
+                                <i className="fa fa-info-circle" style={{ color: this.state.infoButtonColor }} id={toolTipId} aria-hidden="true" onClick={this.toggleInfo}>
+                                    <InfoModel TooltipState={this.state.infoTooltipState} toggle={this.toggleInfo} chartInfo={info} id={toolTipId} />
+                                </i>
+                            </React.Fragment>
+                        }
+                    </CardHeader>
+                }
+                <CardBody className='steps-loading'>
+                    {loading ? <CardLoading /> : null}
+                    {((data.firstDataGroup || {}).length > 0) ?
+                        <React.Fragment>
+                            <ResponsiveContainer width='100%' height={heightProp}>
+                                <PieChart className=""
+                                    margin={chartMargin}
+                                    label={true}
+                                    width={700}
+                                    height={700}
+                                >
+                                    <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value), name]} />
+                                    <Label value="any" color="#fff" />
+                                    {/* { showLegend && <Legend 
+                                        content={this.scrollableLegend}
+                                        iconType={legendIconType}
+                                        layout={legendLayout} 
+                                        verticalAlign={legendVerticalAlign} 
+                                        align={legendAlign}
+                                        /> } */}
+                                    <Pie dataKey={value} isAnimationActive={false} data={data.firstDataGroup} animationDuration={3000} outerRadius={106} innerRadius={70} fill="#8884d8" paddingAngle={paddingProp}>
+                                        {
+                                            data.firstDataGroup.map((entry, index) => <Cell key={index}  />)
+                                        }
+                                    </Pie>
+                                    <Pie dataKey={value} isAnimationActive={false} data={data.secondDataGroup} labelLine={isShowLable && this.renderCustomizedLabelLine} label={isShowLable && this.renderCustomizedLabel} animationDuration={3000} outerRadius={160} fill="#8884d8" innerRadius={innerRadiusProp} paddingAngle={paddingProp}>
+                                        {
+                                            data.secondDataGroup.map((entry, index) => <Cell key={index} />)
+                                        }
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </React.Fragment>
+                        : 'No Data Exists'}
+                </CardBody>
+            </Card>
+        )
+    }
 }
 
-TwoLevelPiechart.defaultProps ={
-  chartMargin: { top: 20, right: 0, left: 0, bottom: 5,  }, /* Changes margin of chart inside the card */
-  legendIconType:'triangle' /*  'line' | 'rect'| 'circle' | 'cross' | 'diamond' | 'square' | 'star' | 'triangle' | 'wye' | 'none' */,
-  legendLayout:'horizontal', /* 'verticle' */
-  legendAlign:'center', /* 'left', 'center', 'right' */
-  legendVerticalAlign:'bottom', /* 'top', 'middle', 'bottom' */
-  colorArray: randomColor({luminosity: 'bright', count: 100}), /* luminosity: 'dark', 'light' */
-  innerRadiusProp: 0, /* Integer */
-  paddingProp: 0, /* Integer */
-  showLegend: true, /* boolean to show or hide Legends */
-  isShowHeader: true, /* boolean to show or hide card header */
-  isShowLable: true /* boolean to show or hide PieChart Label */
+TwoLevelPiechart.defaultProps = {
+    chartMargin: { top: 20, right: 0, left: 0, bottom: 5, }, /* Changes margin of chart inside the card */
+    legendIconType: 'triangle' /*  'line' | 'rect'| 'circle' | 'cross' | 'diamond' | 'square' | 'star' | 'triangle' | 'wye' | 'none' */,
+    legendLayout: 'horizontal', /* 'verticle' */
+    legendAlign: 'center', /* 'left', 'center', 'right' */
+    legendVerticalAlign: 'bottom', /* 'top', 'middle', 'bottom' */
+    colorArray: randomColor({ luminosity: 'bright', count: 100 }), /* luminosity: 'dark', 'light' */
+    innerRadiusProp: 0, /* Integer */
+    paddingProp: 0, /* Integer */
+    showLegend: true, /* boolean to show or hide Legends */
+    isShowHeader: true, /* boolean to show or hide card header */
+    isShowLable: true /* boolean to show or hide PieChart Label */
 }
 
 export default TwoLevelPiechart;

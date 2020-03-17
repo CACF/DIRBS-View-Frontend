@@ -30,6 +30,7 @@ import Base64 from 'base-64';
 import moment from 'moment';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { orangeColors, blueColors, purpleShades, greenColors} from './chart_colors'
 
 import {
   BASE_URL,
@@ -764,49 +765,22 @@ export const getTwoLevelPieChartData = (data) =>{
   let resultObj = {};
   let newArrGOne = [];
   let newArrGTwo = [];
+  let colorMasterArray = [orangeColors, blueColors,greenColors, purpleShades];
   data.map((elem, i) => {
     let objOne = {};
     let valueSum = 0;  
-    Object.keys(elem).map(item => {
+    Object.keys(elem).map((item, j) => {
       if(item==="rat"){
        objOne.name = elem[item];
+       objOne.fill = colorMasterArray[i][0]
       }else {
-       valueSum = elem[item];
-       newArrGTwo.push({name: item, value: elem[item]})
+       valueSum += elem[item];
+       newArrGTwo.push({name: item, value: elem[item], fill: colorMasterArray[i][j - 1]})
       }
     })
     objOne.value = valueSum      
     newArrGOne.push(objOne)     
   })
-  // data.map(items => {
-  //   let obj = { Group: "", Value: [] }
-  //   Object.keys(items).map(item => {
-  //     if(item==="rat"){
-  //      obj.Group = items[item];
-  //     }else {
-  //      obj.Value.push(items[item])
-  //     }
-  //   })
-  //   let total = obj.Value.reduce((a, b) => a + b)
-  //   obj.Value = total
-  //   newArrGOne.push(obj)
-  // })
-  // data.map(items => {
-  //   let obj = { Name: [], Value: [] }
-  //   Object.keys(items).map(item => {
-  //     if(item==='rat'){
-  //     }else{
-  //       obj.Value.push(items[item])
-  //     } 
-  //   })
-  //   let dataSet=['A1','A2','B1','B2','B3','B4','B5','C1','C2','D1']   
-  //   for(let i=0;i<obj.Value.length;i++){     
-  //       obj.Name.push(dataSet[i])
-  //   }
-  //   let Value = obj.Value
-  //   obj.Value = Value
-  //   newArrGTwo.push(obj)
-  // })
   resultObj.firstDataGroup = newArrGOne;
   resultObj.secondDataGroup = newArrGTwo;
   return resultObj;

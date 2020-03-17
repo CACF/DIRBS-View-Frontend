@@ -61,6 +61,19 @@ export const coreGrossAddIMEIsByTechnology = {
     "Y-Axis": "Count of IMEIs."
 }
 
+export const coreUnBlocking= {
+    "Explanation": "Shows the break-up of Un-Blocked IMEIs according to un-blocking reasons..",
+    "X-Axis": "Consists of un-blocking reasons.",
+    "Y-Axis": "Count of IMEIs."
+}
+
+export const coreBlocking = {
+    "Explanation": "Shows the break-up of Blocked IMEIs according to blocking reasons.",
+    "X-Axis": "Consists of blocking reasons",
+    "Y-Axis": "Count of IMEIs."
+}
+
+
 /******************* DRS *******************/
 
 export const dRSImportTrend = {

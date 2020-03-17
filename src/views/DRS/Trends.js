@@ -30,7 +30,7 @@ import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import DateSearchForm from './../../components/Form/DateSearchForm';
 import { unique_437_colors, getAuthHeader, instance, getTwoLevelPieChartData, errors, getUniqueKeys, yAxisKeysCleaning, getUserType, getUserRole, yAxisToCount, scrollOsetTopPlus, fixFilOsetHeightMinus } from "./../../utilities/helpers";
 import Barchart from './../../components/Charts/Commons/Barchart'
-import Piechart from '../../components/Charts/Commons/Piechart';
+import TwoLevelPiechart from '../../components/Charts/Commons/TwoLevelPiechart';
 import Areachart from '../../components/Charts/Commons/AreaChart';
 import Linechart from '../../components/Charts/Commons/Linechart';
 import SearchFilters from "./../../components/Form/SearchFilters";
@@ -59,7 +59,7 @@ class Trends extends PureComponent {
       drsTopBrandsData: null,
       drsTopBrandsLoading: false,
       drsTopBrandsByRatData: null,
-      uniqueTopBrandsByRatData: [],
+      TopBrandsByRatDataToDownload: [],
       drsTopBrandsByRatLoading: false,
 
       drsComboGrossData: null,
@@ -344,9 +344,8 @@ class Trends extends PureComponent {
           this.setState({ drsTopBrandsByRatLoading: false });
         } else {
           let cleanData = yAxisKeysCleaning(response.data.results)
-          console.log(getTwoLevelPieChartData(response.data.results));
-          let uniqueData = getUniqueKeys(cleanData);
-          this.setState({ drsTopBrandsByRatData: cleanData, uniqueTopBrandsByRatData: uniqueData, drsTopBrandsByRatLoading: false });
+          let formatedData = getTwoLevelPieChartData(cleanData);
+          this.setState({ drsTopBrandsByRatData: formatedData, TopBrandsByRatDataToDownload: cleanData, drsTopBrandsByRatLoading: false });
         }
       })
       .catch(error => {
@@ -369,7 +368,7 @@ class Trends extends PureComponent {
 
   }
   render() {
-    const { apiFetched, drsComboGrossData, uniqueComboGrossData, drsComboGrossLoading, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, drsTopBrandsByRatData, uniqueTopBrandsByRatData, drsTopBrandsByRatLoading, drsTopBrandsData, drsTopBrandsLoading, drsImportTrendData, uniqueImportTrendData, drsImportTrendLoading, granularity, deletedObj } = this.state;
+    const { apiFetched, drsComboGrossData, uniqueComboGrossData, drsComboGrossLoading, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, drsTopBrandsByRatData, TopBrandsByRatDataToDownload, drsTopBrandsByRatLoading, drsTopBrandsData, drsTopBrandsLoading, drsImportTrendData, uniqueImportTrendData, drsImportTrendLoading, granularity, deletedObj } = this.state;
     return (
       <Container fluid>
         <div className="search-box animated fadeIn">
@@ -469,7 +468,7 @@ class Trends extends PureComponent {
                       <HorizontalBarSegregateChart cardClass="card-primary" title="Brands by IMEIs" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis={["imeis"]} yAxis="brand" colorArray={this.getColorArray(56)} granularity={granularity} info={dRSTop10overAllBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsKey'}/>
                     </div>
                     <div name='drsTopBrandsByRatKey' key="drsTopBrandsByRatKey" className={deletedObj.drsTopBrandsByRatKey === true && 'hidden'}>
-                      <HorizontalBarSegregateChart cardClass="card-primary" title="IMEIs by Radio Access Technologies" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} xAxis={uniqueTopBrandsByRatData} yAxis="rat" colorArray={multiColorStack} granularity={granularity} info={dRSTop2G3G4GBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'}/>
+                      <TwoLevelPiechart cardClass="card-success" title="IMEIs by Radio Access Technologies" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} value="value" colorArray={[ BoxesColors, this.getColorArray(56)]} granularity={granularity} innerRadiusProp={110} paddingProp={2} info={dRSTop2G3G4GBrands} dataToDownload={TopBrandsByRatDataToDownload} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'} />
                     </div>
                     <div name='drsComboGrossKey' key="drsComboGrossKey" className={deletedObj.drsComboGrossKey === true && 'hidden'}>
                       <Barchart cardClass="card-primary" title="Gross Add IMEIs" loading={drsComboGrossLoading} data={drsComboGrossData} xAxis="x_axis" yAxes={uniqueComboGrossData} yAxisLabel="Number of IMEIs" colorArray={stackBarTwentyColors} showLegend="true" granularity={granularity} info={grossAddIMEIsVsDRSVsNotification} heightProp={this.getElementHeight(document.getElementsByName('drsComboGrossKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsComboGrossKey'} />
@@ -492,9 +491,9 @@ Trends.defaultProps = {
   breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 },
   initialLayout: [
     { i: 'drsImportTrendKey', x: 0, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'drsTopBrandsKey', x: 50, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'drsTopBrandsByRatKey', x: 0, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'drsComboGrossKey', x: 0, y: 5, w: 100, h: (40 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) }
+    { i: 'drsTopBrandsKey', x: 50, y: 50, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'drsTopBrandsByRatKey', x: 0, y: 100, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50 },
+    { i: 'drsComboGrossKey', x: 0, y: 150, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) }
   ]
 };
 

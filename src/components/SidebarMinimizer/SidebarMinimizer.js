@@ -29,11 +29,11 @@ import React, {PureComponent} from 'react';
 
 class SidebarMinimizer extends PureComponent {
 
-  sidebarMinimize() {
+  sidebarMinimize = () => {
     document.body.classList.toggle('sidebar-minimized');
   }
 
-  brandMinimize() {
+  brandMinimize = () => {
     document.body.classList.toggle('brand-minimized');
   }
 

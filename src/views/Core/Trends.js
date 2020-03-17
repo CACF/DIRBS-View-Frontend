@@ -36,7 +36,7 @@ import SearchFilters from "../../components/Form/SearchFilters";
 import { SearchInfo } from "../../components/Help/SearchInfo";
 import { multiColorStack, multiColors, blueColors, stackBarTwentyColors, stackBarTetrade, BoxesColors, statusColors, progressBarColors } from '../../utilities/chart_colors';
 import HeaderCards from '../../components/Cards/HeaderCards';
-import { coreOperatorWiseIMEIs, coreOperatorWiseMSISDNs, coreNetworkSeenIMEIsByTechnology2G3G4G, coreValidInvalidNetworkSeenIMEIs, coreGrossAddIMEIs, coreGrossAddIMEIsByTechnology } from '../../utilities/reportsInfo';
+import { coreOperatorWiseIMEIs, coreOperatorWiseMSISDNs, coreNetworkSeenIMEIsByTechnology2G3G4G, coreValidInvalidNetworkSeenIMEIs, coreGrossAddIMEIs, coreGrossAddIMEIsByTechnology, coreBlocking, coreUnBlocking } from '../../utilities/reportsInfo';
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import _ from 'lodash';
@@ -576,16 +576,16 @@ class Trends extends PureComponent {
                       <Barchart cardClass="card-primary" title="GSMA Valid and Invalid IMEIs" loading={coreValidInvalidLoading} data={coreValidInvalidData} xAxis="x_axis" yAxes={uniqueValidInvalidData} yAxisLabel="Number of IMEIs" colorArray={BoxesColors.reverse()} granularity={granularity} info={coreValidInvalidNetworkSeenIMEIs} heightProp={this.getElementHeight(document.getElementsByName('coreValidInvalidKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreValidInvalidKey'} />
                     </div>
                     <div name='coreGrossAddImeiKey' key="coreGrossAddImeiKey" className={deletedObj.coreGrossAddImeiKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="New Seen IMEIs" loading={coreGrossAddImeiLoading} data={coreGrossAddImeiData} xAxis="x_axis" yAxes={uniqueGrossAddImeiData} yAxisLabel="Number of IMEIs" colorArray={blueColors} customName="Count" showLegend="false" granularity={granularity} info={coreGrossAddIMEIs} heightProp={this.getElementHeight(document.getElementsByName('coreGrossAddImeiKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreGrossAddImeiKey'} />
+                      <Barchart cardClass="card-primary" title="New Seen IMEIs" loading={coreGrossAddImeiLoading} data={coreGrossAddImeiData} xAxis="x_axis" yAxes={uniqueGrossAddImeiData} yAxisLabel="Number of IMEIs" colorArray={blueColors} customName="Count" showLegend="false" isTriangle={true} granularity={granularity} info={coreGrossAddIMEIs} heightProp={this.getElementHeight(document.getElementsByName('coreGrossAddImeiKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreGrossAddImeiKey'} />
                     </div>
                     <div name='coreGrossAddImeiByTechKey' key="coreGrossAddImeiByTechKey" className={deletedObj.coreGrossAddImeiByTechKey === true && 'hidden'}>
                       <Linechart cardClass="card-warning" title="Gross Add By Technology" loading={coreGrossAddImeiByTechLoading} data={coreGrossAddImeiByTechData} xAxis="x_axis" yAxisLabel="Number of IMEIs" yAxes={uniqueGrossAddImeiByTechData} colorArray={this.getColorArray(32)} granularity={granularity} info={coreGrossAddIMEIsByTechnology} showLegend="false" heightProp={this.getElementHeight(document.getElementsByName('coreGrossAddImeiByTechKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreGrossAddImeiByTechKey'} />
                     </div>
                     <div name='coreBlockingKey' key="coreBlockingKey" className={deletedObj.coreBlockingKey === true && 'hidden'}>
-                      <HorizontalBarSegregateChart cardClass="card-primary" title="Blocked by Reasons" loading={coreBlockingLoading} data={coreBlockingData} xAxis={["imeis"]} yAxis="reason" colorArray={this.getColorArray(56)} granularity={granularity} isLable={true} info={coreGrossAddIMEIsByTechnology} heightProp={this.getElementHeight(document.getElementsByName('coreBlockingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreBlockingKey'}/>
+                      <HorizontalBarSegregateChart cardClass="card-primary" title="Blocked by Reasons" loading={coreBlockingLoading} data={coreBlockingData} xAxis={["imeis"]} yAxis="reason" colorArray={this.getColorArray(56)} granularity={granularity} isLable={true} info={coreBlocking} heightProp={this.getElementHeight(document.getElementsByName('coreBlockingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreBlockingKey'}/>
                     </div>
                     <div name='coreUnBlockingKey' key="coreUnBlockingKey" className={deletedObj.coreUnBlockingKey === true && 'hidden'}>
-                      <HorizontalBarSegregateChart cardClass="card-primary" title="UnBlocked by Reasons" loading={coreUnBlockingLoading} data={coreUnBlockingData} xAxis={["imeis"]} yAxis="reason" colorArray={this.getColorArray(56)} granularity={granularity} isLable={true} info={coreGrossAddIMEIsByTechnology} heightProp={this.getElementHeight(document.getElementsByName('coreUnBlockingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreUnBlockingKey'}/>
+                      <HorizontalBarSegregateChart cardClass="card-primary" title="UnBlocked by Reasons" loading={coreUnBlockingLoading} data={coreUnBlockingData} xAxis={["imeis"]} yAxis="reason" colorArray={this.getColorArray(56)} granularity={granularity} isLable={true} info={coreUnBlocking} heightProp={this.getElementHeight(document.getElementsByName('coreUnBlockingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreUnBlockingKey'}/>
                     </div>
                   </ResponsiveReactGridLayout>
                 </div>

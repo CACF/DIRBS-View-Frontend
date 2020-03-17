@@ -101,6 +101,11 @@ class HorizontalBarSegregateChart extends PureComponent {
     );
   }
 
+  getLable = (props) => {
+    const {x , y, height, index, viewbox, width, value} = props;
+    return <text x={x + 5} y={y + 23} index={index} width={width} height={height} viewbox={viewbox} textAnchor="start">{value.toLocaleString()}</text>
+  }
+
   render(){
     const {title, loading, data, chartMargin, cGrid, xAxis, yAxis, barSize, colorArray, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, isShowHeader, removeChart, chartGridId, heightProp, isLable } = this.props;
     let toolTipId = "";
@@ -142,7 +147,7 @@ class HorizontalBarSegregateChart extends PureComponent {
                     if(elem === 'rat') {
                       return null;
                     }
-                    return <Bar key={i} barSize={barSize} label={isLable ? ({x , y, height, index, viewbox, width, value}) => <text x={x + 5} y={y + 23} index={index} width={width} height={height} viewbox={viewbox} textAnchor="start">{value.toLocaleString()}</text> : false} dataKey={elem} animationDuration={3000} stackId="a" fill={colorArray[i]}/>
+                    return <Bar key={i} barSize={barSize} label={isLable ? this.getLable : false} dataKey={elem} animationDuration={3000} stackId="a" fill={colorArray[i]}/>
                   })}
                 </BarChart>
               </ResponsiveContainer>

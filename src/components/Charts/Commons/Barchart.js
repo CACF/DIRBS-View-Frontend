@@ -25,13 +25,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 import React, { PureComponent } from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Surface, Symbols
 } from 'recharts';
-import {Card, CardHeader, CardBody} from 'reactstrap';
+import { Card, CardHeader, CardBody } from 'reactstrap';
 import CardLoading from '../../Loaders/CardLoading';
-import { formatXAxisDate, yAxisFormatter, formatXAxisDateDaily, formatXAxisDateYearly, numberWithCommas} from './../../../utilities/helpers';
+import { formatXAxisDate, yAxisFormatter, formatXAxisDateDaily, formatXAxisDateYearly, numberWithCommas } from './../../../utilities/helpers';
 import { Scrollbars } from 'react-custom-scrollbars';
 import InfoModel from './../../Tooltips/InfoTooltip';
 import domtoimage from 'dom-to-image';
@@ -65,15 +65,15 @@ class Barchart extends PureComponent {
   generateImg = (event, title) => {
     let th = this;
     title = title.props ? title.props.children[0] : title;
-    th.setState({downloadImgLoading: true});
+    th.setState({ downloadImgLoading: true });
     let target = event.target;
     let downloadImgEl = target.parentElement.parentElement;
 
-    domtoimage.toPng(downloadImgEl, {filter: this.filter}).then(function(blob) {
-      if(blob != null) {
+    domtoimage.toPng(downloadImgEl, { filter: this.filter }).then(function (blob) {
+      if (blob != null) {
         window.saveAs(blob, title);
-        th.setState({downloadImgLoading: false});
-      } 
+        th.setState({ downloadImgLoading: false });
+      }
     })
   }
 
@@ -103,62 +103,77 @@ class Barchart extends PureComponent {
     );
   }
 
+
+  getPath = (x, y, width, height) => `M${x},${y + height}
+  C${x + width / 3},${y + height} ${x + width / 2},${y + height / 3} ${x + width / 2}, ${y}
+  C${x + width / 2},${y + height / 3} ${x + 2 * width / 3},${y + height} ${x + width}, ${y + height}
+  Z`;
+
+  TriangleBar = (props) => {
+    const {
+      fill, x, y, width, height,
+    } = props;
+
+    return <path d={this.getPath(x, y, width, height)} stroke="none" fill={fill} />;
+  };
+
+
   render() {
-    const {title, loading, data, xAxis, yAxes, chartMargin, legendLayout, legendIconType, legendVerticalAlign, customName, legendAlign, cGrid, legendStyle, barSize, colorArray, granularity, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, showLegend, removeChart, chartGridId, heightProp } = this.props;
-    let xAxisFormat = granularity==="daily" ? formatXAxisDateDaily : granularity==="yearly" ? formatXAxisDateYearly : formatXAxisDate ;
+    const { title, loading, data, xAxis, yAxes, chartMargin, legendLayout, legendIconType, legendVerticalAlign, customName, legendAlign, cGrid, legendStyle, barSize, colorArray, granularity, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, showLegend, removeChart, chartGridId, heightProp, isTriangle } = this.props;
+    let xAxisFormat = granularity === "daily" ? formatXAxisDateDaily : granularity === "yearly" ? formatXAxisDateYearly : formatXAxisDate;
     let toolTipId = "";
-    if(info)
-    {  
-       toolTipId =`infoTooltipBarChart_${info.Explanation.replace(/[^a-zA-Z0-9]/g, "")}`;
+    if (info) {
+      toolTipId = `infoTooltipBarChart_${info.Explanation.replace(/[^a-zA-Z0-9]/g, "")}`;
     }
     return (
       <Card className={`${cardClass} card-chart`}>
-      <CardHeader className="border-bottom-0">
-        {title}
-        {info &&
-          <React.Fragment>
-            <CSVLink data={data} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
-            <i className={this.state.downloadImgLoading ? 'fa fa-circle-o-notch fa-spin fa-fw' : 'fa fa-cloud-download'} onClick={(e) => this.generateImg(e, title)}></i>
-            <i className="fa fa-trash-o" onClick={() => {removeChart(chartGridId)}}></i>
-            <i className="fa fa-info-circle" style={{color: this.state.infoButtonColor}} id={toolTipId} aria-hidden="true" onClick={this.toggleInfo}>
-              <InfoModel TooltipState={this.state.infoTooltipState} toggle={this.toggleInfo} chartInfo={info} id={toolTipId}/>
-            </i>
-          </React.Fragment>
-        }
-      </CardHeader>
-      
-          <CardBody className='steps-loading min-hei100'>
-            {loading ? <CardLoading /> : null}
-            {((data || {}).length > 0) ?
-              <ResponsiveContainer width='100%' height={heightProp}>
-                <BarChart
-                  data={data}
-                  margin={chartMargin}
-                >
-                  <CartesianGrid strokeDasharray={cGrid}/>
-                  <XAxis dataKey={xAxis} tickFormatter={xAxisFormat} style={{fontSize: "11px", fontWeight: "600"}}/>
-                  <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} tickFormatter={yAxisFormatter} style={{fontSize: "11px", fontWeight: "600"}} type="number" domain={[0, dataMax => (Math.round(dataMax * 1.1))]}/>
-                  <Tooltip  labelFormatter={xAxisFormat} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} formatter={(value, name) => [numberWithCommas(value) , name]}/>
-                  { showLegend==="false" ? null
-                  : 
-                  <Legend 
+        <CardHeader className="border-bottom-0">
+          {title}
+          {info &&
+            <React.Fragment>
+              <CSVLink data={data} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
+              <i className={this.state.downloadImgLoading ? 'fa fa-circle-o-notch fa-spin fa-fw' : 'fa fa-cloud-download'} onClick={(e) => this.generateImg(e, title)}></i>
+              <i className="fa fa-trash-o" onClick={() => { removeChart(chartGridId) }}></i>
+              <i className="fa fa-info-circle" style={{ color: this.state.infoButtonColor }} id={toolTipId} aria-hidden="true" onClick={this.toggleInfo}>
+                <InfoModel TooltipState={this.state.infoTooltipState} toggle={this.toggleInfo} chartInfo={info} id={toolTipId} />
+              </i>
+            </React.Fragment>
+          }
+        </CardHeader>
+
+        <CardBody className='steps-loading min-hei100'>
+          {loading ? <CardLoading /> : null}
+          {((data || {}).length > 0) ?
+            <ResponsiveContainer width='100%' height={heightProp}>
+              <BarChart
+                data={data}
+                margin={chartMargin}
+              >
+                <CartesianGrid strokeDasharray={cGrid} />
+                <XAxis dataKey={xAxis} tickFormatter={xAxisFormat} style={{ fontSize: "11px", fontWeight: "600" }} />
+                <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} tickFormatter={yAxisFormatter} style={{ fontSize: "11px", fontWeight: "600" }} type="number" domain={[0, dataMax => (Math.round(dataMax * 1.1))]} />
+                <Tooltip labelFormatter={xAxisFormat} contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value), name]} />
+                {showLegend === "false" ? null
+                  :
+                  <Legend
                     iconType={legendIconType}
                     layout={legendLayout} verticalAlign={legendVerticalAlign} align={legendAlign}
                     wrapperStyle={legendStyle}
-                    onClick={this.handleClick} 
-                    content={this.scrollableLegend} 
+                    onClick={this.handleClick}
+                    content={this.scrollableLegend}
                   />
+                }
+                {yAxes.map((model, i) => {
+                  if (model === 'x_axis') {
+                    return null;
                   }
-                  {yAxes.map((model, i) => {
-                    if(model === 'x_axis') {
-                      return null;
-                    }
-                    return  yAxes.length > 3 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]}  /> : <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} dataKey={model} fill={colorArray[i]} />
-                  })}
-                </BarChart>
-              </ResponsiveContainer>
-              : 'No Data Exists'}
-          </CardBody>
+                  return yAxes.length > 3 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]} /> : 
+                  <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={isTriangle ? { position: 'top' } : false} dataKey={model} fill={colorArray[i]} />
+                })}
+              </BarChart>
+            </ResponsiveContainer>
+            : 'No Data Exists'}
+        </CardBody>
       </Card>
     );
   }
@@ -168,16 +183,17 @@ class Barchart extends PureComponent {
 export default Barchart;
 
 Barchart.defaultProps = {
-  chartMargin: { top: 5, right: 0, left: 0, bottom: 5,  }, /* Changes margin of chart inside the card */
-  legendIconType:'line' /*  'line' | 'rect'| 'circle' | 'cross' | 'diamond' | 'square' | 'star' | 'triangle' | 'wye' | 'none' */,
+  chartMargin: { top: 5, right: 0, left: 0, bottom: 5, }, /* Changes margin of chart inside the card */
+  legendIconType: 'line' /*  'line' | 'rect'| 'circle' | 'cross' | 'diamond' | 'square' | 'star' | 'triangle' | 'wye' | 'none' */,
   cGrid: "3 3", /* changes the cartesian Grid of the chart */
   barSize: 70, /* changes the size of the bar */
-  legendLayout:'horizontal', /* 'verticle' */
-  legendAlign:'center', /* 'left', 'center', 'right' */
-  legendVerticalAlign:'bottom', /* 'top', 'middle', 'bottom' */
+  legendLayout: 'horizontal', /* 'verticle' */
+  legendAlign: 'center', /* 'left', 'center', 'right' */
+  legendVerticalAlign: 'bottom', /* 'top', 'middle', 'bottom' */
   yAxisLabelAngel: -90, /* '-90', '90' */
   yAxisLabelPosition: 'insideLeft', /* 'insideLeft', 'insideRight' */
   yAxesLabelStyle: { textAnchor: 'middle', fontSize: '11px', fontWeight: '500' },
   showLegend: true,
-  heightProp: '100%'
+  heightProp: '100%',
+  isTriangle: false
 }

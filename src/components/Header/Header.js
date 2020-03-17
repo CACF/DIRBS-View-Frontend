@@ -35,12 +35,12 @@ import HeaderDropdown from './HeaderDropdown';
 
 class Header extends PureComponent {
 
-  sidebarToggle(e) {
+  sidebarToggle = (e) => {
     e.preventDefault();
     document.body.classList.toggle('sidebar-hidden');
   }
 
-  mobileSidebarToggle(e) {
+  mobileSidebarToggle = (e) => {
     e.preventDefault();
     document.body.classList.toggle('sidebar-mobile-show');
   }

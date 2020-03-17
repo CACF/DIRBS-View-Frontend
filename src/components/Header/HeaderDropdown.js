@@ -38,14 +38,12 @@ class HeaderDropdown extends PureComponent {
 
   constructor(props) {
     super(props);
-
-    this.toggle = this.toggle.bind(this);
     this.state = {
       dropdownOpen: false
     };
   }
 
-  toggle() {
+  toggle = () => {
     this.setState({
       dropdownOpen: !this.state.dropdownOpen
     });
