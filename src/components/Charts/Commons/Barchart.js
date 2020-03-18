@@ -117,6 +117,10 @@ class Barchart extends PureComponent {
     return <path d={this.getPath(x, y, width, height)} stroke="none" fill={fill} />;
   };
 
+  getLable = (props) => {
+    const {x , y, height, index, viewbox, width, value} = props;
+    return <text x={x + 5} y={y + 23} index={index} width={width} height={height} viewbox={viewbox} textAnchor="start">{value.toLocaleString()}</text>
+  }
 
   render() {
     const { title, loading, data, xAxis, yAxes, chartMargin, legendLayout, legendIconType, legendVerticalAlign, customName, legendAlign, cGrid, legendStyle, barSize, colorArray, granularity, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, showLegend, removeChart, chartGridId, heightProp, isTriangle } = this.props;
@@ -168,7 +172,7 @@ class Barchart extends PureComponent {
                     return null;
                   }
                   return yAxes.length > 2 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]} /> : 
-                  <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={isTriangle ? { position: 'top' } : false} dataKey={model} fill={colorArray[i]} />
+                  <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={isTriangle ? this.getLable : false} dataKey={model} fill={colorArray[i]} />
                 })}
               </BarChart>
             </ResponsiveContainer>
