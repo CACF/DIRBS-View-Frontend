@@ -166,7 +166,6 @@ class TwoLevelPiechart extends PureComponent {
     render() {
         const { title, loading, data, value, colorArray, dataToDownload, innerRadiusProp, paddingProp, chartMargin, info, cardClass, isShowHeader, isShowLable, removeChart, chartGridId, heightProp } = this.props;
         let toolTipId = "";
-        console.log(data)
         if (info) {
             toolTipId = `infoTooltipPieChart_${info.Explanation.replace(/[^a-zA-Z0-9]/g, "")}`;
         }
