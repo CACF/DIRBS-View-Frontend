@@ -140,15 +140,18 @@ formateData = (dataToFormate) => {
        y = cy + (radius + delta * 3) * Math.sin(-midAngle * RADIAN);
     }
     return (
-      <text x={x} y={y} textAnchor={x > cx ? 'start' : 'end'} 	dominantBaseline="central">
-        <tspan alignmentBaseline="middle" fontSize="22" fill={fill}>{(percent * 100).toFixed(2)}%</tspan>
-      {/* <tspan x={x} y={y+15}>{name}</tspan> */}
-    </text>
+      (percent * 100).toFixed(2) > 2.00 ?
+                <text x={x} y={y} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+                    <tspan alignmentBaseline="middle" fontSize="18" fill={fill}>{(percent * 100).toFixed(2)}%</tspan>
+                    <tspan x={x} y={y+15}>{name}</tspan>
+                </text>
+                :
+                null
     );
   };
 
   renderCustomizedLabelLine(props){
-    let { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle } = props;
+    let { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, percent } = props;
     const RADIAN = Math.PI / 180;
     const diffAngle = endAngle - startAngle;
     const radius = innerRadius + (outerRadius - innerRadius);
@@ -167,6 +170,7 @@ formateData = (dataToFormate) => {
   }
 
     return (
+      (percent * 100).toFixed(2) > 2.00 &&
       <polyline points={path} stroke={"#800080"} fill="none" />
     );
   }
