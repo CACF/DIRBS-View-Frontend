@@ -462,7 +462,7 @@ class Trends extends PureComponent {
                     onWidthChange={this.onWidthChangeMethod}
                   >
                     <div name='drsImportTrendKey' key="drsImportTrendKey" className={deletedObj.drsImportTrendKey === true && 'hidden'}>
-                      <Linechart cardClass="card-success" title="Devices Vs. IMEIs" loading={drsImportTrendLoading} data={drsImportTrendData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueImportTrendData} colorArray={this.getColorArray(32)} granularity={granularity} info={dRSImportTrend} showLegend="true" heightProp={this.getElementHeight(document.getElementsByName('drsImportTrendKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsImportTrendKey'} />
+                      <Linechart cardClass="card-success" title="Devices Vs IMEIs" loading={drsImportTrendLoading} data={drsImportTrendData} xAxis="x_axis" yAxisLabel="Count of Devices and IMEIs" yAxes={uniqueImportTrendData} colorArray={this.getColorArray(32)} granularity={granularity} info={dRSImportTrend} showLegend="true" heightProp={this.getElementHeight(document.getElementsByName('drsImportTrendKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsImportTrendKey'} />
                     </div>
                     <div name='drsTopBrandsKey' key="drsTopBrandsKey" className={deletedObj.drsTopBrandsKey === true && 'hidden'}>
                       <HorizontalBarSegregateChart cardClass="card-primary" title="Brands by IMEIs" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis={["imeis"]} yAxis="brand" colorArray={this.getColorArray(56)} granularity={granularity} info={dRSTop10overAllBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsKey'}/>
@@ -471,7 +471,7 @@ class Trends extends PureComponent {
                       <TwoLevelPiechart cardClass="card-success" title="IMEIs by Radio Access Technologies" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} value="value" colorArray={[ BoxesColors, this.getColorArray(56)]} granularity={granularity} innerRadiusProp={110} paddingProp={2} info={dRSTop2G3G4GBrands} dataToDownload={TopBrandsByRatDataToDownload} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'} />
                     </div>
                     <div name='drsComboGrossKey' key="drsComboGrossKey" className={deletedObj.drsComboGrossKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="Gross Add IMEIs" loading={drsComboGrossLoading} data={drsComboGrossData} xAxis="x_axis" yAxes={uniqueComboGrossData} yAxisLabel="Number of IMEIs" colorArray={stackBarTwentyColors} showLegend="true" granularity={granularity} info={grossAddIMEIsVsDRSVsNotification} heightProp={this.getElementHeight(document.getElementsByName('drsComboGrossKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsComboGrossKey'} />
+                      <Barchart cardClass="card-primary" title="Gross Add IMEIs" loading={drsComboGrossLoading} data={drsComboGrossData} xAxis="x_axis" yAxes={uniqueComboGrossData} yAxisLabel="Count of IMEIs" colorArray={stackBarTwentyColors} showLegend="true" granularity={granularity} info={grossAddIMEIsVsDRSVsNotification} heightProp={this.getElementHeight(document.getElementsByName('drsComboGrossKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsComboGrossKey'} />
                     </div>
                   </ResponsiveReactGridLayout>
                 </div>
@@ -492,7 +492,7 @@ Trends.defaultProps = {
   initialLayout: [
     { i: 'drsImportTrendKey', x: 0, y: 25, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'drsTopBrandsKey', x: 50, y: 50, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'drsTopBrandsByRatKey', x: 0, y: 0, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50 },
+    { i: 'drsTopBrandsByRatKey', x: 0, y: 0, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50, isResizable: false },
     { i: 'drsComboGrossKey', x: 0, y: 150, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) }
   ]
 };

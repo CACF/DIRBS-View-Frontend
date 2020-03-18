@@ -107,7 +107,7 @@ class HorizontalBarSegregateChart extends PureComponent {
   }
 
   render(){
-    const {title, loading, data, chartMargin, cGrid, xAxis, yAxis, barSize, colorArray, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, isShowHeader, removeChart, chartGridId, heightProp, isLable } = this.props;
+    const {title, loading, data, chartMargin, cGrid, xAxis, yAxis, barSize, colorArray, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxisWidth, yAxesLabelStyle, info, cardClass, isShowHeader, removeChart, chartGridId, heightProp, isLable } = this.props;
     let toolTipId = "";
     if(info)
     {   
@@ -141,7 +141,7 @@ class HorizontalBarSegregateChart extends PureComponent {
                 >
                   <CartesianGrid strokeDasharray={cGrid}/>
                   <XAxis type="number" tickFormatter={yAxisFormatter}  style={{fontSize: "11px", fontWeight: "600"}} domain={[0, dataMax => (Math.round(dataMax * 1.1))]}/>
-                  <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} type="category"  dataKey={yAxis} style={{fontSize: "11px", fontWeight: "600"}} />
+                  <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} width={yAxisWidth} type="category"  dataKey={yAxis} style={{fontSize: "11px", fontWeight: "600"}} />
                   <Tooltip formatter={(value, name) => [numberWithCommas(value) , name]} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} />
                   {xAxis.map((elem, i) => {
                     if(elem === 'rat') {
@@ -175,5 +175,6 @@ HorizontalBarSegregateChart.defaultProps = {
   heightProp: '100%',
   xAxis: "x_axis",
   yAxis: "y_axis",
-  isLable: true
+  isLable: true,
+  yAxisWidth: 60
 }
