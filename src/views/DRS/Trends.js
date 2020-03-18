@@ -312,7 +312,7 @@ class Trends extends PureComponent {
     resizeEvent.initUIEvent('resize', true, false, window, 0);
     window.dispatchEvent(resizeEvent);
 
-    instance.get('/pta-core-02-operators-imeis' + this.getCallParamsGetMethods(), config)
+    instance.get('/pta-drs-02-import-trend' + this.getCallParamsGetMethods(), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ drsImportTrendLoading: false });
@@ -462,7 +462,7 @@ class Trends extends PureComponent {
                     onWidthChange={this.onWidthChangeMethod}
                   >
                     <div name='drsImportTrendKey' key="drsImportTrendKey" className={deletedObj.drsImportTrendKey === true && 'hidden'}>
-                      <Linechart cardClass="card-success" title="Import Trend" loading={drsImportTrendLoading} data={drsImportTrendData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueImportTrendData} colorArray={this.getColorArray(32)} granularity={granularity} info={dRSImportTrend} showLegend="true" heightProp={this.getElementHeight(document.getElementsByName('drsImportTrendKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsImportTrendKey'} />
+                      <Linechart cardClass="card-success" title="Devices Vs. IMEIs" loading={drsImportTrendLoading} data={drsImportTrendData} xAxis="x_axis" yAxisLabel="Number of Devices" yAxes={uniqueImportTrendData} colorArray={this.getColorArray(32)} granularity={granularity} info={dRSImportTrend} showLegend="true" heightProp={this.getElementHeight(document.getElementsByName('drsImportTrendKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsImportTrendKey'} />
                     </div>
                     <div name='drsTopBrandsKey' key="drsTopBrandsKey" className={deletedObj.drsTopBrandsKey === true && 'hidden'}>
                       <HorizontalBarSegregateChart cardClass="card-primary" title="Brands by IMEIs" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis={["imeis"]} yAxis="brand" colorArray={this.getColorArray(56)} granularity={granularity} info={dRSTop10overAllBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsKey'}/>
@@ -490,9 +490,9 @@ Trends.defaultProps = {
   cols: { lg: 100, md: 100, sm: 6, xs: 4, xxs: 2 },
   breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 },
   initialLayout: [
-    { i: 'drsImportTrendKey', x: 0, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'drsImportTrendKey', x: 0, y: 25, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'drsTopBrandsKey', x: 50, y: 50, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'drsTopBrandsByRatKey', x: 0, y: 100, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50 },
+    { i: 'drsTopBrandsByRatKey', x: 0, y: 0, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50 },
     { i: 'drsComboGrossKey', x: 0, y: 150, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) }
   ]
 };

@@ -785,3 +785,23 @@ export const getTwoLevelPieChartData = (data) =>{
   resultObj.secondDataGroup = newArrGTwo;
   return resultObj;
  }
+
+/**
+ * This method return object of array of data for two leve pie charts
+ *
+ * @param  [Data]
+ * @returns [string]
+ */
+export const removeTotalImeis = (data) =>{
+  let resultObj = [];
+  data.map((elem, i) => {
+    let objOne = {};
+    Object.keys(elem).map((item, j) => {
+      if(item !=="y_axis_imeis"){
+       objOne[item] = elem[item];
+      }
+    })
+    resultObj.push(objOne)     
+  })
+  return resultObj;
+ }

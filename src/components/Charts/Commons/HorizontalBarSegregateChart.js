@@ -175,5 +175,5 @@ HorizontalBarSegregateChart.defaultProps = {
   heightProp: '100%',
   xAxis: "x_axis",
   yAxis: "y_axis",
-  isLable: false
+  isLable: true
 }

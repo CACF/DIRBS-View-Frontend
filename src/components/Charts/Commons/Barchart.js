@@ -167,7 +167,7 @@ class Barchart extends PureComponent {
                   if (model === 'x_axis') {
                     return null;
                   }
-                  return yAxes.length > 3 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]} /> : 
+                  return yAxes.length > 2 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]} /> : 
                   <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={isTriangle ? { position: 'top' } : false} dataKey={model} fill={colorArray[i]} />
                 })}
               </BarChart>

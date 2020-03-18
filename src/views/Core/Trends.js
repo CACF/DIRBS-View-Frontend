@@ -28,9 +28,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import React, { PureComponent } from 'react';
 import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import SearchForm from '../../components/Form/SearchForm';
-import { unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisToCount, yAxisKeysCleaning, FormatDataForDataTable, getUserRole, getUserType, replaceCharacters, scrollOsetTopPlus, fixFilOsetHeightMinus } from "../../utilities/helpers";
+import { unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisToCount, yAxisKeysCleaning, FormatDataForDataTable, getUserRole, getUserType, replaceCharacters, scrollOsetTopPlus, fixFilOsetHeightMinus, removeTotalImeis } from "../../utilities/helpers";
 import Barchart from '../../components/Charts/Commons/Barchart';
 import Linechart from '../../components/Charts/Commons/Linechart';
+import AreaChart from '../../components/Charts/Commons/AreaChart';
 import DataTable from '../../components/DataTable/DataTable';
 import SearchFilters from "../../components/Form/SearchFilters";
 import { SearchInfo } from "../../components/Help/SearchInfo";
@@ -397,7 +398,7 @@ class Trends extends PureComponent {
         if (response.data.message) {
           this.setState({ coreValidInvalidLoading: false });
         } else {
-          let cleanData = yAxisKeysCleaning(response.data.results)
+          let cleanData = yAxisKeysCleaning(removeTotalImeis(response.data.results))
           let uniqueData = getUniqueKeys(cleanData);
           this.setState({ coreValidInvalidData: cleanData, uniqueValidInvalidData: uniqueData, coreValidInvalidLoading: false });
         }
@@ -564,16 +565,16 @@ class Trends extends PureComponent {
                     {/* Here we are rendering reusable charts and passing them props according to the need. (Title, loading, data, xAxis and yAxes are the only mandatory props)   */}
 
                     <div name='coreOperatorWiseImeisKey' key="coreOperatorWiseImeisKey" className={deletedObj.coreOperatorWiseImeisKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="Operator Wise IMEIs" loading={coreOperatorWiseImeisLoading} data={coreOperatorWiseImeisData} xAxis="x_axis" yAxes={uniqueOperatorWiseImeisData} yAxisLabel="Number of IMEIs" colorArray={multiColors} granularity={granularity} info={coreOperatorWiseIMEIs} heightProp={this.getElementHeight(document.getElementsByName('coreOperatorWiseImeisKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreOperatorWiseImeisKey'} />
+                      <Linechart cardClass="card-primary" title="Operator Wise IMEIs" loading={coreOperatorWiseImeisLoading} data={coreOperatorWiseImeisData} xAxis="x_axis" yAxes={uniqueOperatorWiseImeisData} yAxisLabel="Number of IMEIs" colorArray={BoxesColors.reverse()} granularity={granularity} info={coreOperatorWiseIMEIs} heightProp={this.getElementHeight(document.getElementsByName('coreOperatorWiseImeisKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreOperatorWiseImeisKey'} />
                     </div>
                     <div name='coreOperatorWiseMsisdnsKey' key="coreOperatorWiseMsisdnsKey" className={deletedObj.coreOperatorWiseMsisdnsKey === true && 'hidden'}>
                       <Barchart cardClass="card-primary" title="Operator Wise MSISDNs" loading={coreOperatorWiseMsisdnsLoading} data={coreOperatorWiseMsisdnsData} xAxis="x_axis" yAxes={uniqueOperatorWiseMsisdnsData} yAxisLabel="Number of MSISDN" colorArray={multiColorStack} granularity={granularity} info={coreOperatorWiseMSISDNs} heightProp={this.getElementHeight(document.getElementsByName('coreOperatorWiseMsisdnsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreOperatorWiseMsisdnsKey'} />
                     </div>
                     <div name='coreImeisOnNetworkKey' key="coreImeisOnNetworkKey" className={deletedObj.coreImeisOnNetworkKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="Seen Network IMEIs By Technology" loading={coreImeisOnNetworkLoading} data={coreImeisOnNetworkData} xAxis="x_axis" yAxes={uniqueImeisOnNetworkData} yAxisLabel="Number of IMEIs" colorArray={stackBarTwentyColors} granularity={granularity} info={coreNetworkSeenIMEIsByTechnology2G3G4G} heightProp={this.getElementHeight(document.getElementsByName('coreImeisOnNetworkKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreImeisOnNetworkKey'} />
+                      <Linechart cardClass="card-primary" title="Seen Network IMEIs By Technology" loading={coreImeisOnNetworkLoading} data={coreImeisOnNetworkData} xAxis="x_axis" yAxes={uniqueImeisOnNetworkData} yAxisLabel="Number of IMEIs" colorArray={BoxesColors} granularity={granularity} info={coreNetworkSeenIMEIsByTechnology2G3G4G} heightProp={this.getElementHeight(document.getElementsByName('coreImeisOnNetworkKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreImeisOnNetworkKey'} />
                     </div>
                     <div name='coreValidInvalidKey' key="coreValidInvalidKey" className={deletedObj.coreValidInvalidKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="GSMA Valid and Invalid IMEIs" loading={coreValidInvalidLoading} data={coreValidInvalidData} xAxis="x_axis" yAxes={uniqueValidInvalidData} yAxisLabel="Number of IMEIs" colorArray={BoxesColors.reverse()} granularity={granularity} info={coreValidInvalidNetworkSeenIMEIs} heightProp={this.getElementHeight(document.getElementsByName('coreValidInvalidKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreValidInvalidKey'} />
+                      <Barchart cardClass="card-primary" title="GSMA Valid and Invalid IMEIs" loading={coreValidInvalidLoading} data={coreValidInvalidData} xAxis="x_axis" yAxes={uniqueValidInvalidData} yAxisLabel="Number of IMEIs" colorArray={this.getColorArray(11)} granularity={granularity} info={coreValidInvalidNetworkSeenIMEIs} heightProp={this.getElementHeight(document.getElementsByName('coreValidInvalidKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreValidInvalidKey'} />
                     </div>
                     <div name='coreGrossAddImeiKey' key="coreGrossAddImeiKey" className={deletedObj.coreGrossAddImeiKey === true && 'hidden'}>
                       <Barchart cardClass="card-primary" title="New Seen IMEIs" loading={coreGrossAddImeiLoading} data={coreGrossAddImeiData} xAxis="x_axis" yAxes={uniqueGrossAddImeiData} yAxisLabel="Number of IMEIs" colorArray={blueColors} customName="Count" showLegend="false" isTriangle={true} granularity={granularity} info={coreGrossAddIMEIs} heightProp={this.getElementHeight(document.getElementsByName('coreGrossAddImeiKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreGrossAddImeiKey'} />
@@ -582,10 +583,10 @@ class Trends extends PureComponent {
                       <Linechart cardClass="card-warning" title="Gross Add By Technology" loading={coreGrossAddImeiByTechLoading} data={coreGrossAddImeiByTechData} xAxis="x_axis" yAxisLabel="Number of IMEIs" yAxes={uniqueGrossAddImeiByTechData} colorArray={this.getColorArray(32)} granularity={granularity} info={coreGrossAddIMEIsByTechnology} showLegend="false" heightProp={this.getElementHeight(document.getElementsByName('coreGrossAddImeiByTechKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreGrossAddImeiByTechKey'} />
                     </div>
                     <div name='coreBlockingKey' key="coreBlockingKey" className={deletedObj.coreBlockingKey === true && 'hidden'}>
-                      <HorizontalBarSegregateChart cardClass="card-primary" title="Blocked by Reasons" loading={coreBlockingLoading} data={coreBlockingData} xAxis={["imeis"]} yAxis="reason" colorArray={this.getColorArray(56)} granularity={granularity} isLable={true} info={coreBlocking} heightProp={this.getElementHeight(document.getElementsByName('coreBlockingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreBlockingKey'}/>
+                      <HorizontalBarSegregateChart cardClass="card-primary" title="Blocked by Reasons" loading={coreBlockingLoading} data={coreBlockingData} xAxis={["imeis"]} yAxis="reason" colorArray={this.getColorArray(56)} granularity={granularity} info={coreBlocking} heightProp={this.getElementHeight(document.getElementsByName('coreBlockingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreBlockingKey'}/>
                     </div>
                     <div name='coreUnBlockingKey' key="coreUnBlockingKey" className={deletedObj.coreUnBlockingKey === true && 'hidden'}>
-                      <HorizontalBarSegregateChart cardClass="card-primary" title="UnBlocked by Reasons" loading={coreUnBlockingLoading} data={coreUnBlockingData} xAxis={["imeis"]} yAxis="reason" colorArray={this.getColorArray(56)} granularity={granularity} isLable={true} info={coreUnBlocking} heightProp={this.getElementHeight(document.getElementsByName('coreUnBlockingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreUnBlockingKey'}/>
+                      <HorizontalBarSegregateChart cardClass="card-primary" title="UnBlocked by Reasons" loading={coreUnBlockingLoading} data={coreUnBlockingData} xAxis={["imeis"]} yAxis="reason" colorArray={this.getColorArray(56)} granularity={granularity} info={coreUnBlocking} heightProp={this.getElementHeight(document.getElementsByName('coreUnBlockingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreUnBlockingKey'}/>
                     </div>
                   </ResponsiveReactGridLayout>
                 </div>
@@ -606,8 +607,8 @@ Trends.defaultProps = {
   initialLayout: [
     { i: 'coreOperatorWiseImeisKey', x: 0, y: 22, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'coreOperatorWiseMsisdnsKey', x: 50, y: 50, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'coreImeisOnNetworkKey', x: 0, y: 70, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'coreValidInvalidKey', x: 50, y: 90, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'coreImeisOnNetworkKey', x: 50, y: 70, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'coreValidInvalidKey', x: 0, y: 90, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'coreGrossAddImeiKey', x: 0, y: 120, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'coreGrossAddImeiByTechKey', x: 0, y: 0, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'coreBlockingKey', x: 0, y: 180, w: 50, h: (90 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (90 / 100 * 56.6) },
