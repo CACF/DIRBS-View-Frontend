@@ -148,7 +148,7 @@ export default class RenderMonthRangePicker extends PureComponent {
       dateFormat = "MMM-yy"
       showMonthYearPicker
       onChange={this.handleChangeStart}
-      minDate={new Date(moment().subtract(10,'years').format(Date_Format))}
+      minDate={new Date(moment().subtract(20,'years').format(Date_Format))}
       maxDate={this.state.endDate}
       showDisabledMonthNavigation 
       onChangeRaw={ (e) => {e.preventDefault()}}
