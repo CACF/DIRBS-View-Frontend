@@ -33,6 +33,7 @@ import Barchart from './../../components/Charts/Commons/Barchart'
 import TwoLevelPiechart from '../../components/Charts/Commons/TwoLevelPiechart';
 import Areachart from '../../components/Charts/Commons/AreaChart';
 import Linechart from '../../components/Charts/Commons/Linechart';
+import Composedchart from '../../components/Charts/Commons/Composedchart';
 import SearchFilters from "./../../components/Form/SearchFilters";
 import { SearchInfo } from "./../../components/Help/SearchInfo";
 import { blueColors, stackBarTwentyColors, stackBarTetrade, multiColorStack, multiColors, BoxesColors } from './../../utilities/chart_colors';
@@ -468,10 +469,10 @@ class Trends extends PureComponent {
                       <HorizontalBarSegregateChart cardClass="card-primary" title="Brands by IMEIs" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis={["imeis"]} yAxis="brand" colorArray={this.getColorArray(56)} granularity={granularity} info={dRSTop10overAllBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsKey'}/>
                     </div>
                     <div name='drsTopBrandsByRatKey' key="drsTopBrandsByRatKey" className={deletedObj.drsTopBrandsByRatKey === true && 'hidden'}>
-                      <TwoLevelPiechart cardClass="card-success" title="IMEIs by Radio Access Technologies" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} value="value" colorArray={[ BoxesColors, this.getColorArray(56)]} granularity={granularity} innerRadiusProp={110} paddingProp={2} info={dRSTop2G3G4GBrands} dataToDownload={TopBrandsByRatDataToDownload} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'} />
+                      <TwoLevelPiechart cardClass="card-success" title="Top Brands of 2G/3G/4G" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} value="value" colorArray={[ BoxesColors, this.getColorArray(56)]} granularity={granularity} innerRadiusProp={110} paddingProp={0} info={dRSTop2G3G4GBrands} dataToDownload={TopBrandsByRatDataToDownload} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'} />
                     </div>
                     <div name='drsComboGrossKey' key="drsComboGrossKey" className={deletedObj.drsComboGrossKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="Gross Add IMEIs" loading={drsComboGrossLoading} data={drsComboGrossData} xAxis="x_axis" yAxes={uniqueComboGrossData} yAxisLabel="Count of IMEIs" colorArray={stackBarTwentyColors} showLegend="true" granularity={granularity} info={grossAddIMEIsVsDRSVsNotification} heightProp={this.getElementHeight(document.getElementsByName('drsComboGrossKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsComboGrossKey'} />
+                      <Composedchart cardClass="card-primary" title="Gross Add IMEIs" loading={drsComboGrossLoading} data={drsComboGrossData} xAxis="x_axis" yAxes={uniqueComboGrossData} yAxisComposit="gross_add_imeis" yAxisLabel="Count of IMEIs" colorArray={stackBarTwentyColors} showLegend="true" granularity={granularity} info={grossAddIMEIsVsDRSVsNotification} heightProp={this.getElementHeight(document.getElementsByName('drsComboGrossKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsComboGrossKey'} />
                     </div>
                   </ResponsiveReactGridLayout>
                 </div>

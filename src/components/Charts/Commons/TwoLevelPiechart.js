@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import React, { PureComponent } from 'react';
 import {
-    Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Label, Surface, Symbols
+    Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Label, Surface, Symbols, Legend
 } from 'recharts';
 import { Card, CardHeader, CardBody } from 'reactstrap';
 import CardLoading from '../../Loaders/CardLoading';
@@ -98,7 +98,7 @@ class TwoLevelPiechart extends PureComponent {
                     {
                         payload.map((entry, index) => {
                             const { value, color } = entry
-                            return (
+                            return ( index < 3 &&
                                 <li className="legend-item">
                                     <Surface width={10} height={10} viewbox="0 0 10 10">
                                         <Symbols cx={6} cy={6} type="rect" size={50} fill={color} />
@@ -164,7 +164,7 @@ class TwoLevelPiechart extends PureComponent {
     }
 
     render() {
-        const { title, loading, data, value, colorArray, dataToDownload, innerRadiusProp, paddingProp, chartMargin, info, cardClass, isShowHeader, isShowLable, removeChart, chartGridId, heightProp } = this.props;
+        const { title, loading, data, value, showLegend, legendIconType, legendLayout, legendVerticalAlign, legendAlign, colorArray, dataToDownload, innerRadiusProp, paddingProp, chartMargin, info, cardClass, isShowHeader, isShowLable, removeChart, chartGridId, heightProp } = this.props;
         let toolTipId = "";
         if (info) {
             toolTipId = `infoTooltipPieChart_${info.Explanation.replace(/[^a-zA-Z0-9]/g, "")}`;
@@ -199,13 +199,13 @@ class TwoLevelPiechart extends PureComponent {
                                 >
                                     <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value), name]} />
                                     <Label value="any" color="#fff" />
-                                    {/* { showLegend && <Legend 
+                                    { showLegend && <Legend 
                                         content={this.scrollableLegend}
                                         iconType={legendIconType}
                                         layout={legendLayout} 
                                         verticalAlign={legendVerticalAlign} 
                                         align={legendAlign}
-                                        /> } */}
+                                        /> }
                                     <Pie dataKey={value} isAnimationActive={false} data={data.firstDataGroup} animationDuration={3000} outerRadius={106} innerRadius={70} fill="#8884d8" paddingAngle={paddingProp}>
                                         {
                                             data.firstDataGroup.map((entry, index) => <Cell key={index}  />)

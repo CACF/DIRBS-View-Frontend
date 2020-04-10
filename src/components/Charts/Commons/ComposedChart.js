@@ -25,79 +25,184 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 import React, { PureComponent } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  ComposedChart, Bar,Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Surface, Symbols, Line
 } from 'recharts';
-import {Card, CardHeader, CardBody} from 'reactstrap';
+import { Card, CardHeader, CardBody } from 'reactstrap';
 import CardLoading from '../../Loaders/CardLoading';
-import { formatXAxisDate, yAxisFormatter, formatXAxisDateDaily, formatXAxisDateYearly} from '../../../utilities/helpers';
-import scrollableLegend from './scrollableLegend';
-import randomColor  from 'randomcolor';
+import { formatXAxisDate, yAxisFormatter, formatXAxisDateDaily, formatXAxisDateYearly, numberWithCommas } from '../../../utilities/helpers';
+import { Scrollbars } from 'react-custom-scrollbars';
+import InfoModel from '../../Tooltips/InfoTooltip';
+import domtoimage from 'dom-to-image';
+import { CSVLink } from "react-csv";
 
 /**
  * This bar chart recieve props to be reusable according to the need
  */
 
-class ComposedCharts extends PureComponent {
-  render() { 
-    const {title, loading, data, xAxis, yAxes, chartMargin, legendLayout, legendVerticalAlign, legendAlign, yAxesComposite, legendStyle, barSize, colorArray, granularity, CustomName, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, cardClass} = this.props;
-    let xAxisFormat = granularity==="daily" ? formatXAxisDateDaily : granularity==="yearly" ? formatXAxisDateYearly : formatXAxisDate ;
-    return ( 
+class Composedchart extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      infoTooltipState: false,
+      infoButtonColor: '',
+      downloadImgLoading: false
+    };
+    this.toggleInfo = this.toggleInfo.bind(this);
+  }
+
+  toggleInfo() {
+    this.setState(prevState => ({
+      infoTooltipState: !prevState.infoTooltipState,
+      infoButtonColor: !prevState.infoButtonColor ? "#00C5CD" : ''
+    }));
+  }
+
+  filter = (node) => {
+    return (node.tagName !== 'I');
+  }
+
+  generateImg = (event, title) => {
+    let th = this;
+    title = title.props ? title.props.children[0] : title;
+    th.setState({ downloadImgLoading: true });
+    let target = event.target;
+    let downloadImgEl = target.parentElement.parentElement;
+
+    domtoimage.toPng(downloadImgEl, { filter: this.filter }).then(function (blob) {
+      if (blob != null) {
+        window.saveAs(blob, title);
+        th.setState({ downloadImgLoading: false });
+      }
+    })
+  }
+
+  scrollableLegend = (props) => {
+    const { payload } = props
+    return (
+      <Scrollbars
+        autoHeight
+        autoHeightMax={47}
+      >
+        <ul className="recharts-default-legend">
+          {
+            payload.map((entry, index) => {
+              const { dataKey, color } = entry
+              let legend = dataKey === "notfication_list_imeis" ? "Notification" : dataKey === "gross_add_imeis" ? "Gross Add" : dataKey === "local_assembly_etc" ? "Manual Entries (Local Assembly etc.)" : dataKey === "drs_local_assembly" ? "DRS Local Assembly IMEIs" : dataKey === "drs_active_imeis_new" ? "DRS IMEIs (Individual & Commercial)" : null;
+              return (
+                <li className="legend-item" key={index}>
+                  <Surface width={10} height={10} viewbox="0 0 10 10">
+                    <Symbols cx={6} cy={6} type="circle" size={50} fill={color} />
+                  </Surface>
+                  <span>{legend}</span>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </Scrollbars>
+    );
+  }
+
+
+  getPath = (x, y, width, height) => `M${x},${y + height}
+  C${x + width / 3},${y + height} ${x + width / 2},${y + height / 3} ${x + width / 2}, ${y}
+  C${x + width / 2},${y + height / 3} ${x + 2 * width / 3},${y + height} ${x + width}, ${y + height}
+  Z`;
+
+  TriangleBar = (props) => {
+    const {
+      fill, x, y, width, height,
+    } = props;
+
+    return <path d={this.getPath(x, y, width, height)} stroke="none" fill={fill} />;
+  };
+
+  getLable = (props) => {
+    const {x , y, height, index, viewbox, width, value} = props;
+    return <text x={x + 5} y={y + 23} index={index} width={width} height={height} viewbox={viewbox} textAnchor="start">{value.toLocaleString()}</text>
+  }
+
+  render() {
+    const { title, loading, data, xAxis, yAxes, chartMargin, legendLayout, legendIconType, legendVerticalAlign, yAxisComposit, customName, legendAlign, cGrid, legendStyle, barSize, colorArray, granularity, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, showLegend, removeChart, chartGridId, heightProp, isTriangle } = this.props;
+    let xAxisFormat = granularity === "daily" ? formatXAxisDateDaily : granularity === "yearly" ? formatXAxisDateYearly : formatXAxisDate;
+    let toolTipId = "";
+    if (info) {
+      toolTipId = `infoTooltipBarChart_${info.Explanation.replace(/[^a-zA-Z0-9]/g, "")}`;
+    }
+    return (
       <Card className={`${cardClass} card-chart`}>
-      <CardHeader className="border-bottom-0">
+        <CardHeader className="border-bottom-0">
           {title}
-      </CardHeader>
-      <CardBody className='steps-loading min-hei100'>
-        {loading ? <CardLoading /> : null}
-        {((data || {}).length > 0) ?
-        <div className="chart-box">
-          <ResponsiveContainer width='100%' height='100%'>
-          <ComposedChart width={600} height={400}
-            data={data}
-            margin={chartMargin}
-          >
-          <CartesianGrid strokeDasharray="3 3" verticalFill={['#d1ece9', '#fff']} fillOpacity={0.2} />
-          <XAxis dataKey={xAxis} tickFormatter={xAxisFormat} style={{fontSize: "11px", fontWeight: "600"}}/>
-          <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} tickFormatter={yAxisFormatter} style={{fontSize: "11px", fontWeight: "600"}} type="number" domain={[0, dataMax => (Math.round(dataMax * 1.1))]}/>
-          <Tooltip labelFormatter={xAxisFormat} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} />
-          <Legend
-                  content={scrollableLegend}
-                  layout={legendLayout} verticalAlign={legendVerticalAlign} align={legendAlign}
-                  wrapperStyle={legendStyle}
-          />   
-           
-           {yAxes.map((model, i) => {
-                  if(model === 'x_axis') {
+          {info &&
+            <React.Fragment>
+              <CSVLink data={data} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
+              <i className={this.state.downloadImgLoading ? 'fa fa-circle-o-notch fa-spin fa-fw' : 'fa fa-cloud-download'} onClick={(e) => this.generateImg(e, title)}></i>
+              <i className="fa fa-trash-o" onClick={() => { removeChart(chartGridId) }}></i>
+              <i className="fa fa-info-circle" style={{ color: this.state.infoButtonColor }} id={toolTipId} aria-hidden="true" onClick={this.toggleInfo}>
+                <InfoModel TooltipState={this.state.infoTooltipState} toggle={this.toggleInfo} chartInfo={info} id={toolTipId} />
+              </i>
+            </React.Fragment>
+          }
+        </CardHeader>
+
+        <CardBody className='steps-loading min-hei100'>
+          {loading ? <CardLoading /> : null}
+          {((data || {}).length > 0) ?
+            <ResponsiveContainer width='100%' height={heightProp}>
+              <ComposedChart
+                data={data}
+                margin={chartMargin}
+              >
+                <CartesianGrid strokeDasharray={cGrid} />
+                <XAxis dataKey={xAxis} tickFormatter={xAxisFormat} style={{ fontSize: "11px", fontWeight: "600" }} />
+                <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} tickFormatter={yAxisFormatter} style={{ fontSize: "11px", fontWeight: "600" }} type="number" domain={[0, dataMax => (Math.round(dataMax * 1.1))]} />
+                <Tooltip labelFormatter={xAxisFormat} contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value), name]} />
+                {showLegend === "false" ? null
+                  :
+                  <Legend
+                    iconType={legendIconType}
+                    layout={legendLayout} verticalAlign={legendVerticalAlign} align={legendAlign}
+                    wrapperStyle={legendStyle}
+                    onClick={this.handleClick}
+                    content={this.scrollableLegend}
+                  />
+                }
+                {yAxes.map((model, i) => {
+                  if (model === 'x_axis') {
                     return null;
                   }
-                  return  <Bar key={i} barSize={barSize} dataKey={model} fill={colorArray[i]}/>
-                })} 
-            { yAxesComposite.map((data, i) => { 
-              return <Line opacity="1" name={CustomName} type="monotone" dataKey={data} key={i} stroke={colorArray[i]} strokeWidth={4} dot={{ stroke: '#f370a2', strokeWidth: 8 }}/>
-             })
-            }    
-          
-       </ComposedChart>
-          </ResponsiveContainer>
-        </div>
-          : 'No Data Exists'}
-      </CardBody>
-  </Card>
-     );
+                  if (model === "local_assembly_etc" || model === "drs_active_imeis_new" || model === "drs_local_assembly" || model === "notfication_list_imeis"){
+                    return yAxes.length > 2 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]} /> : 
+                    <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={isTriangle ? this.getLable : false} dataKey={model} fill={colorArray[i]} />
+                  }
+                })}
+                <Line type="monotone" dataKey={yAxisComposit} stroke="#ff7300" />
+              </ComposedChart>
+            </ResponsiveContainer>
+            : 'No Data Exists'}
+        </CardBody>
+      </Card>
+    );
   }
+
 }
 
-ComposedCharts.defaultProps = {
-  chartMargin: { top: 5, right: 0, left: 0, bottom: 5,  }, /* Changes margin of chart inside the card */
+Composedchart.defaultProps = {
+  chartMargin: { top: 5, right: 0, left: 0, bottom: 5, }, /* Changes margin of chart inside the card */
+  legendIconType: 'line' /*  'line' | 'rect'| 'circle' | 'cross' | 'diamond' | 'square' | 'star' | 'triangle' | 'wye' | 'none' */,
   cGrid: "3 3", /* changes the cartesian Grid of the chart */
-  barSize: 60, /* changes the size of the bar */
-  legendLayout:'horizontal', /* 'verticle' */
-  legendAlign:'center', /* 'left', 'center', 'right' */
-  legendVerticalAlign:'bottom', /* 'top', 'middle', 'bottom' */
-  colorArray: randomColor({luminosity: 'bright', count: 100}), /* luminosity: 'dark', 'light' */
+  barSize: 70, /* changes the size of the bar */
+  legendLayout: 'horizontal', /* 'verticle' */
+  legendAlign: 'center', /* 'left', 'center', 'right' */
+  legendVerticalAlign: 'bottom', /* 'top', 'middle', 'bottom' */
   yAxisLabelAngel: -90, /* '-90', '90' */
   yAxisLabelPosition: 'insideLeft', /* 'insideLeft', 'insideRight' */
-  yAxesLabelStyle: { textAnchor: 'middle', fontSize: '11px', fontWeight: '500' }
+  yAxesLabelStyle: { textAnchor: 'middle', fontSize: '11px', fontWeight: '500' },
+  showLegend: true,
+  heightProp: '100%',
+  isTriangle: false
 }
 
-export default ComposedCharts;
+export default Composedchart;
