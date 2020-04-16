@@ -36,6 +36,7 @@ import CrossSystemAnalysis from '../../views/CrossSystemAnalysis/CrossSystemAnal
 import CoreTrends from '../../views/Core/Trends.js';
 import LSDSTrends from '../../views/LSDS/Trends.js';
 import DRSTrends from '../../views/DRS/Trends.js';
+import Dashboard from '../../views/Dashboard/Dashboard.js'
 import Page401 from '../../views/Errors/Page401';
 
 class Full extends PureComponent {
@@ -66,11 +67,12 @@ class Full extends PureComponent {
               {this.state.breadcrumbOnOff ? <Breadcrumb {...this.props} /> : null}
               <Switch>
                 <Route path="/cross-system-analysis" name="CSA" render={(props) => <CrossSystemAnalysis {...this.props} />}/>
+                <Route path="/dashboard" name="Dashboard" render={(props) => <Dashboard {...this.props} />}/>
                 <Route path="/core" name="CoreTrends" render={(props) => <CoreTrends {...this.props} />}/>
                 <Route path="/lsds" name="LSDSTrends" render={(props) => <LSDSTrends {...this.props} />}/>
                 <Route path="/drs" name="DRSTrends" render={(props) => <DRSTrends {...this.props} />}/>
                 <Route path="/unauthorized-access" name="Page401" component={Page401}/>
-                <Redirect from="/" to="/core"/>
+                <Redirect from="/" to="/dashboard"/>
               </Switch>
             </main>
           </div>

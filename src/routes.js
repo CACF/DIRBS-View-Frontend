@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 const routes = {
+  '/dashboard': 'Dashboard',
   '/lsds': 'LSDS',
   '/drs': 'DRS',
   '/core': 'Core',

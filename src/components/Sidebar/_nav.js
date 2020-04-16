@@ -38,6 +38,13 @@ export default {
     },
     {
       id: 1,
+      name: 'Dashboard',
+      url: '/dashboard',
+      icon: 'fa fa-dashboard'
+      //symbol: '#dashboard',
+    },
+    {
+      id: 2,
       name: 'Core',
       url: '/core',
       // icon: 'fa fa-cog',

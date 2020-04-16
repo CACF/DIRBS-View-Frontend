@@ -158,7 +158,7 @@ class Composedchart extends PureComponent {
                 <CartesianGrid strokeDasharray={cGrid} />
                 <XAxis dataKey={xAxis} tickFormatter={xAxisFormat} style={{ fontSize: "11px", fontWeight: "600" }} />
                 <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} tickFormatter={yAxisFormatter} style={{ fontSize: "11px", fontWeight: "600" }} type="number" domain={[0, dataMax => (Math.round(dataMax * 1.1))]} />
-                <Tooltip labelFormatter={xAxisFormat} contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value), name]} />
+                <Tooltip labelFormatter={xAxisFormat} contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value), name === "notfication_list_imeis" ? "Notification" : name === "gross_add_imeis" ? "Gross Add" : name === "local_assembly_etc" ? "Manual Entries (Local Assembly etc.)" : name === "drs_local_assembly" ? "DRS Local Assembly IMEIs" : name === "drs_active_imeis_new" ? "DRS IMEIs (Individual & Commercial)" : null]}/>
                 {showLegend === "false" ? null
                   :
                   <Legend

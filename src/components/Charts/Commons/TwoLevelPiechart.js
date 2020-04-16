@@ -37,10 +37,10 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { numberWithCommas } from '../../../utilities/helpers';
 import domtoimage from 'dom-to-image';
 import { CSVLink } from "react-csv";
-
 /**
 * Chart for Top Devices Importer
 */
+
 class TwoLevelPiechart extends PureComponent {
 
     constructor(props) {
@@ -48,9 +48,18 @@ class TwoLevelPiechart extends PureComponent {
         this.state = {
             infoTooltipState: false,
             infoButtonColor: '',
+            firstGroup: []
         };
         this.toggleInfo = this.toggleInfo.bind(this);
         this.resize = this.resize.bind(this);
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        if (JSON.stringify(props.data.firstDataGroup) !== JSON.stringify(state.firstGroup)) {
+            return {
+                firstGroup: props.data.firstDataGroup
+            }
+        }
     }
 
     componentDidUpdate() {
@@ -98,7 +107,7 @@ class TwoLevelPiechart extends PureComponent {
                     {
                         payload.map((entry, index) => {
                             const { value, color } = entry
-                            return ( index < 3 &&
+                            return (index < 3 &&
                                 <li className="legend-item">
                                     <Surface width={10} height={10} viewbox="0 0 10 10">
                                         <Symbols cx={6} cy={6} type="rect" size={50} fill={color} />
@@ -113,14 +122,29 @@ class TwoLevelPiechart extends PureComponent {
         );
     }
 
-    renderCustomizedLabel(props) {
-        const { cx, cy, midAngle, innerRadius, outerRadius, percent, fill, startAngle, endAngle, name } = props;
+    renderCustomizedLabel = (props) => {
+        const { cx, cy, midAngle, innerRadius, outerRadius, percent, fill, startAngle, endAngle, value, name, index } = props;
+        const { firstGroup } = this.state;
+        let percentage = 0;
         let y;
         let x;
         const RADIAN = Math.PI / 180;
         const diffAngle = endAngle - startAngle;
         const delta = ((360 - diffAngle) / 30);
         const radius = innerRadius + (outerRadius - innerRadius);
+        if (index < 5) {
+            percentage = value / firstGroup[0].value * 100;
+        }
+        else if (index < 10 && index >= 5) {
+            percentage = value / firstGroup[1].value * 100;
+        }
+        else if (index < 15 && index >= 10) {
+            percentage = value / firstGroup[2].value * 100;
+        }
+        else {
+            percentage = value / firstGroup[3].value * 100;
+        }
+
         if ((midAngle >= 0 && midAngle <= 30) || (midAngle >= 330 && midAngle <= 360) || (midAngle >= 150 && midAngle <= 210)) {
             x = cx + (radius + delta * delta) * Math.cos(-midAngle * RADIAN);
             y = cy + (radius + delta + 300) * Math.sin(-midAngle * RADIAN);
@@ -130,10 +154,10 @@ class TwoLevelPiechart extends PureComponent {
             y = cy + (radius + delta * 11.5) * Math.sin(-midAngle * RADIAN);
         }
         return (
-            (percent * 100).toFixed(2) > 2.00 ?
+            (percent * 100).toFixed(2) > 1.00 ?
                 <text x={x} y={y} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-                    <tspan alignmentBaseline="middle" fontSize="18" fill={fill}>{(percent * 100).toFixed(2)}%</tspan>
-                    <tspan x={x} y={y+15}>{name}</tspan>
+                    <tspan alignmentBaseline="middle" fontSize="18" fill={fill}>{percentage.toFixed(2)}%</tspan>
+                    <tspan x={x} y={y + 15}>{name}</tspan>
                 </text>
                 :
                 null
@@ -158,7 +182,7 @@ class TwoLevelPiechart extends PureComponent {
         }
 
         return (
-            (percent * 100).toFixed(2) > 2.00 &&
+            (percent * 100).toFixed(2) > 1.00 &&
             <polyline points={path} stroke={"#800080"} fill="none" />
         );
     }
@@ -199,16 +223,16 @@ class TwoLevelPiechart extends PureComponent {
                                 >
                                     <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value), name]} />
                                     <Label value="any" color="#fff" />
-                                    { showLegend && <Legend 
+                                    {showLegend && <Legend
                                         content={this.scrollableLegend}
                                         iconType={legendIconType}
-                                        layout={legendLayout} 
-                                        verticalAlign={legendVerticalAlign} 
+                                        layout={legendLayout}
+                                        verticalAlign={legendVerticalAlign}
                                         align={legendAlign}
-                                        /> }
+                                    />}
                                     <Pie dataKey={value} isAnimationActive={false} data={data.firstDataGroup} animationDuration={3000} outerRadius={106} innerRadius={70} fill="#8884d8" paddingAngle={paddingProp}>
                                         {
-                                            data.firstDataGroup.map((entry, index) => <Cell key={index}  />)
+                                            data.firstDataGroup.map((entry, index) => <Cell key={index} />)
                                         }
                                     </Pie>
                                     <Pie dataKey={value} isAnimationActive={false} data={data.secondDataGroup} labelLine={isShowLable && this.renderCustomizedLabelLine} label={isShowLable && this.renderCustomizedLabel} animationDuration={3000} outerRadius={160} fill="#8884d8" innerRadius={innerRadiusProp} paddingAngle={paddingProp}>

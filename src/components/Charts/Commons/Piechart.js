@@ -131,18 +131,17 @@ formateData = (dataToFormate) => {
     const radius = innerRadius + (outerRadius - innerRadius);
     if ( (midAngle >= 0 && midAngle <= 30) || (midAngle >= 330 && midAngle <= 360) || (midAngle >= 150 && midAngle <= 210)  )
     {
-    x = cx + (radius + delta * delta * 0.5) * Math.cos(-midAngle * RADIAN);
-    y = cy + (radius + delta + 300) * Math.sin(-midAngle * RADIAN);
-    }
-    else
-    {
-       x = cx + (radius + delta * delta * 0.5) * Math.cos(-midAngle * RADIAN);
-       y = cy + (radius + delta * 3) * Math.sin(-midAngle * RADIAN);
+      x = cx + (radius + delta * delta * 0.75) * Math.cos(-midAngle * RADIAN);
+      y = cy + (radius + delta + 300) * Math.sin(-midAngle * RADIAN);
+  }
+  else {
+      x = cx + (radius + delta * delta * 0.2) * Math.cos(-midAngle * RADIAN);
+      y = cy + (radius + delta * 11.5) * Math.sin(-midAngle * RADIAN);
     }
     return (
       (percent * 100).toFixed(2) > 2.00 ?
                 <text x={x} y={y} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-                    <tspan alignmentBaseline="middle" fontSize="18" fill={fill}>{(percent * 100).toFixed(2)}%</tspan>
+                    <tspan alignmentBaseline="middle" fontSize="18" fill={fill}>{(percent * 100).toFixed(1)}%</tspan>
                     <tspan x={x} y={y+15}>{name}</tspan>
                 </text>
                 :
@@ -159,13 +158,12 @@ formateData = (dataToFormate) => {
     if ( (midAngle >= 0 && midAngle <= 30) || (midAngle >= 330 && midAngle <= 360) || (midAngle >= 150 && midAngle <= 210)  )
     {
     for(let i=0;i<((360-diffAngle)/30);i++){
-      path += `${(cx + (radius + i * i * 0.5) * Math.cos(-midAngle * RADIAN ))},${(cy + (radius + i * 27) * Math.sin(-midAngle * RADIAN))} `
+      path += `${(cx + (radius + i * i * 0.8) * Math.cos(-midAngle * RADIAN))},${(cy + (radius + i * 27) * Math.sin(-midAngle * RADIAN))} `
     }
-  }
-  else
-  {
-    for(let i=0;i<((360-diffAngle)/30);i++){
-      path += `${(cx + (radius + i * i * 0.5) * Math.cos(-midAngle * RADIAN ))},${(cy + (radius + i * 3) * Math.sin(-midAngle * RADIAN))} `
+}
+else {
+    for (let i = 0; i < ((360 - diffAngle) / 30); i++) {
+        path += `${(cx + (radius + i * i * 0.2) * Math.cos(-midAngle * RADIAN))},${(cy + (radius + i * 11.5) * Math.sin(-midAngle * RADIAN))} `
     }
   }
 
