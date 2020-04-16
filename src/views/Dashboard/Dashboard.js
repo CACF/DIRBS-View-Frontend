@@ -59,12 +59,12 @@ class Dashboard extends PureComponent {
     this.filtersSidebarDisplay();
   }
 
-  componentDidUpdate() {
-    const paddDiv = document.getElementById('filterData');
-    this.state.scroll > this.state.top ?
-      paddDiv.style.paddingTop = `${this.state.height}px` :
-      paddDiv.style.paddingTop = 0;
-  }
+  // componentDidUpdate() {
+  //   const paddDiv = document.getElementById('filterData');
+  //   this.state.scroll > this.state.top ?
+  //     paddDiv.style.paddingTop = `${this.state.height}px` :
+  //     paddDiv.style.paddingTop = 0;
+  // }
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this.handleScroll);
