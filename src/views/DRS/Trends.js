@@ -38,7 +38,7 @@ import SearchFilters from "./../../components/Form/SearchFilters";
 import { SearchInfo } from "./../../components/Help/SearchInfo";
 import { blueColors, stackBarTwentyColors, stackBarTetrade, multiColorStack, multiColors, BoxesColors } from './../../utilities/chart_colors';
 import HeaderCards from './../../components/Cards/HeaderCards';
-import { dRSImportTrend, grossAddIMEIsVsDRSVsNotification, dRSTop10overAllBrands, dRSTop2G3G4GBrands } from './../../utilities/reportsInfo';
+import { dRSImportTrend, grossAddIMEIsVsDRSVsNotification, dRSTop10overAllBrands, dRSTop2G3G4GBrands, dRSCOCTypeInfo,dRSCOCTypeRATInfo } from './../../utilities/reportsInfo';
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import HorizontalBarSegregateChart from './../../components/Charts/Commons/HorizontalBarSegregateChart';
@@ -60,12 +60,18 @@ class Trends extends PureComponent {
       drsTopBrandsData: null,
       drsTopBrandsLoading: false,
       drsTopBrandsByRatData: null,
+      uniqueTopBrandsByRatData: [],
       TopBrandsByRatDataToDownload: [],
       drsTopBrandsByRatLoading: false,
-
       drsComboGrossData: null,
       uniqueComboGrossData: [],
       drsComboGrossLoading: false,
+      drsCOCTypeData: null,
+      uniqueCOCTypeData: [],
+      drsCOCTypeLoading: false,
+      drsCOCTypeRATData: null,
+      uniqueCOCTypeRATData: [],
+      drsCOCTypeRATLoading: false,
 
       totalImies: '',
       totalDrsImies: '',
@@ -83,7 +89,7 @@ class Trends extends PureComponent {
       layouts: { lg: props.initialLayout },
       layout: [],
       rowHeight: window.innerWidth < 1300 ? 3.7 : 10.6,
-      deletedObj: { drsImportTrendKey: false, drsTopBrandsKey: false, drsTopBrandsByRatKey: false, drsComboGrossKey: false }
+      deletedObj: { drsImportTrendKey: false, drsCOCTypeKey: false, drsCOCTypeRATKey:false, drsTopBrandsKey: false, drsTopBrandsByRatKey: false, drsComboGrossKey: false }
     }
     this.getGraphDataFromServer = this.getGraphDataFromServer.bind(this);
     this.saveSearchQuery = this.saveSearchQuery.bind(this);
@@ -235,6 +241,8 @@ class Trends extends PureComponent {
       deletedObj.drsTopBrandsKey = false;
       deletedObj.drsTopBrandsByRatKey = false;
       deletedObj.drsComboGrossKey = false;
+      deletedObj.drsCOCTypeKey = false;
+      deletedObj.drsCOCTypeRATKey = false;
       this.setState({ deletedObj: deletedObj, layouts: { lg: this.props.initialLayout } });
     })
   }
@@ -287,7 +295,7 @@ class Trends extends PureComponent {
   }
 
   saveSearchQuery(values) {
-    this.setState({ searchQuery: values, drsTopBrandsLoading: true, drsImportTrendLoading: true, drsTopBrandsByRatLoading: true, drsComboGrossLoading: false, drsComboGrossData: [], drsTopBrandsByRatData: [], drsImportTrendData: [], drsTopBrandsData: [], apiFetched: true, granularity: values.granularity }, () => {
+    this.setState({ searchQuery: values, drsTopBrandsLoading: true, drsImportTrendLoading: true, drsTopBrandsByRatLoading: true, drsComboGrossLoading: false, drsCOCTypeLoading: true, drsCOCTypeData: [], drsCOCTypeRATLoading: true, drsCOCTypeRATData: [], drsComboGrossData: [], drsTopBrandsByRatData: [], drsImportTrendData: [], drsTopBrandsData: [], apiFetched: true, granularity: values.granularity }, () => {
       this.updateTokenHOC(this.getGraphDataFromServer);
     })
   }
@@ -345,15 +353,15 @@ class Trends extends PureComponent {
           this.setState({ drsTopBrandsByRatLoading: false });
         } else {
           let cleanData = yAxisKeysCleaning(response.data.results)
-          let formatedData = getTwoLevelPieChartData(cleanData);
-          this.setState({ drsTopBrandsByRatData: formatedData, TopBrandsByRatDataToDownload: cleanData, drsTopBrandsByRatLoading: false });
+          let formatedData = getUniqueKeys(cleanData);
+          this.setState({ drsTopBrandsByRatData: cleanData, uniqueTopBrandsByRatData: formatedData, TopBrandsByRatDataToDownload: cleanData, drsTopBrandsByRatLoading: false });
         }
       })
       .catch(error => {
         errors(this, error);
       })
 
-    instance.get('/pta-combo-gross-drs-notification-imeis' + this.getCallParamsGetMethods(), config)
+    instance.get('/pta-drs-07-imeis-bifurcation' + this.getCallParamsGetMethods(), config)
       .then(response => {
         if (response.data.message) {
           this.setState({ drsComboGrossLoading: false });
@@ -367,9 +375,37 @@ class Trends extends PureComponent {
         errors(this, error);
       })
 
+    instance.get('/pta-drs-05-coc-types' + this.getCallParamsGetMethods(), config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ drsCOCTypeLoading: false });
+        } else {
+          let cleanData = yAxisKeysCleaning(response.data.result)
+          let uniqueData = getUniqueKeys(cleanData);
+          this.setState({ drsCOCTypeData: cleanData, uniqueCOCTypeData: uniqueData, drsCOCTypeLoading: false });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
+
+    instance.get('/pta-drs-06-coc-type-with-rats' + this.getCallParamsGetMethods(), config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ drsCOCTypeRATLoading: false });
+        } else {
+          let cleanData = yAxisKeysCleaning(response.data);
+          //let uniqueData = getUniqueKeys(cleanData);
+          this.setState({ drsCOCTypeRATData: cleanData, drsCOCTypeRATLoading: false });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
+
   }
   render() {
-    const { apiFetched, drsComboGrossData, uniqueComboGrossData, drsComboGrossLoading, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, drsTopBrandsByRatData, TopBrandsByRatDataToDownload, drsTopBrandsByRatLoading, drsTopBrandsData, drsTopBrandsLoading, drsImportTrendData, uniqueImportTrendData, drsImportTrendLoading, granularity, deletedObj } = this.state;
+    const { apiFetched, drsCOCTypeRATData, drsCOCTypeRATLoading, drsCOCTypeData, uniqueCOCTypeData, drsCOCTypeLoading, drsComboGrossData, uniqueTopBrandsByRatData, uniqueComboGrossData, drsComboGrossLoading, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, drsTopBrandsByRatData, TopBrandsByRatDataToDownload, drsTopBrandsByRatLoading, drsTopBrandsData, drsTopBrandsLoading, drsImportTrendData, uniqueImportTrendData, drsImportTrendLoading, granularity, deletedObj } = this.state;
     return (
       <Container fluid>
         <div className="search-box animated fadeIn">
@@ -465,14 +501,20 @@ class Trends extends PureComponent {
                     <div name='drsImportTrendKey' key="drsImportTrendKey" className={deletedObj.drsImportTrendKey === true && 'hidden'}>
                       <Linechart cardClass="card-success" title="Devices Vs IMEIs" loading={drsImportTrendLoading} data={drsImportTrendData} xAxis="x_axis" yAxisLabel="Count of Devices and IMEIs" yAxes={uniqueImportTrendData} colorArray={this.getColorArray(32)} granularity={granularity} info={dRSImportTrend} showLegend="true" heightProp={this.getElementHeight(document.getElementsByName('drsImportTrendKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsImportTrendKey'} />
                     </div>
+                    <div name='drsCOCTypeKey' key="drsCOCTypeKey" className={deletedObj.drsCOCTypeKey === true && 'hidden'}>
+                      <Linechart cardClass="card-success" title="DRS Trend of COC Types" loading={drsCOCTypeLoading} data={drsCOCTypeData} xAxis="x_axis" yAxisLabel="Count of IMEIs" yAxes={uniqueCOCTypeData} colorArray={this.getColorArray(32)} granularity={granularity} info={dRSCOCTypeInfo} showLegend="true" heightProp={this.getElementHeight(document.getElementsByName('drsCOCTypeKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsCOCTypeKey'} />
+                    </div>
                     <div name='drsTopBrandsKey' key="drsTopBrandsKey" className={deletedObj.drsTopBrandsKey === true && 'hidden'}>
                       <HorizontalBarSegregateChart cardClass="card-primary" title="Brands by IMEIs" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis={["imeis"]} yAxis="brand" colorArray={this.getColorArray(56)} granularity={granularity} info={dRSTop10overAllBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsKey'}/>
                     </div>
+                    <div name='drsCOCTypeRATKey' key="drsCOCTypeRATKey" className={deletedObj.drsCOCTypeRATKey === true && 'hidden'}>
+                      <Barchart cardClass="card-primary" title="COC Types w.r.t Radio technology" loading={drsCOCTypeRATLoading} data={drsCOCTypeRATData} xAxis="e" yAxisLabel="Count of IMEIs" yAxes={["2G", "3G", "4G", "Others"]} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={dRSCOCTypeRATInfo} heightProp={this.getElementHeight(document.getElementsByName('drsCOCTypeRATKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsCOCTypeRATKey'}/>
+                    </div>
                     <div name='drsTopBrandsByRatKey' key="drsTopBrandsByRatKey" className={deletedObj.drsTopBrandsByRatKey === true && 'hidden'}>
-                      <TwoLevelPiechart cardClass="card-success" title="Top Brands of 2G/3G/4G" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} value="value" colorArray={[ BoxesColors, this.getColorArray(56)]} granularity={granularity} innerRadiusProp={110} paddingProp={0} info={dRSTop2G3G4GBrands} dataToDownload={TopBrandsByRatDataToDownload} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'} />
+                      <Barchart cardClass="card-success" title="Top Brands of 2G/3G/4G" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} xAxis="rat" isSegregate={true} yAxes={uniqueTopBrandsByRatData} colorArray={this.getColorArray(32)} showLegend="false" granularity={granularity} innerRadiusProp={110} paddingProp={0} info={dRSTop2G3G4GBrands} dataToDownload={TopBrandsByRatDataToDownload} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'} />
                     </div>
                     <div name='drsComboGrossKey' key="drsComboGrossKey" className={deletedObj.drsComboGrossKey === true && 'hidden'}>
-                      <Composedchart cardClass="card-primary" title="Gross Add IMEIs" loading={drsComboGrossLoading} data={drsComboGrossData} xAxis="x_axis" yAxes={uniqueComboGrossData} yAxisComposit="gross_add_imeis" yAxisLabel="Count of IMEIs" colorArray={this.getColorArray(57)} showLegend="true" granularity={granularity} info={grossAddIMEIsVsDRSVsNotification} heightProp={this.getElementHeight(document.getElementsByName('drsComboGrossKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsComboGrossKey'} />
+                      <Composedchart cardClass="card-primary" title="DRS IMEIs Bifurcation" loading={drsComboGrossLoading} data={drsComboGrossData} xAxis="x_axis" yAxes={uniqueComboGrossData} yAxisComposit="total_registered" yAxisLabel="Count of IMEIs" colorArray={this.getColorArray(57)} showLegend="true" granularity={granularity} info={grossAddIMEIsVsDRSVsNotification} heightProp={this.getElementHeight(document.getElementsByName('drsComboGrossKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsComboGrossKey'} />
                     </div>
                   </ResponsiveReactGridLayout>
                 </div>
@@ -492,8 +534,10 @@ Trends.defaultProps = {
   breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 },
   initialLayout: [
     { i: 'drsImportTrendKey', x: 0, y: 25, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'drsTopBrandsKey', x: 50, y: 50, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'drsTopBrandsByRatKey', x: 0, y: 0, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50, isResizable: false },
+    { i: 'drsCOCTypeKey', x: 0, y: 25, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'drsCOCTypeRATKey', x: 50, y: 50, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'drsTopBrandsKey', x: 50, y: 25, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'drsTopBrandsByRatKey', x: 0, y: 0, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'drsComboGrossKey', x: 0, y: 150, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) }
   ]
 };

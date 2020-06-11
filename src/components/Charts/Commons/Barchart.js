@@ -103,6 +103,7 @@ class Barchart extends PureComponent {
     );
   }
 
+  noFormation = (xAxis) => xAxis
 
   getPath = (x, y, width, height) => `M${x},${y + height}
   C${x + width / 3},${y + height} ${x + width / 2},${y + height / 3} ${x + width / 2}, ${y}
@@ -123,8 +124,15 @@ class Barchart extends PureComponent {
   }
 
   render() {
-    const { title, loading, data, xAxis, yAxes, chartMargin, legendLayout, legendIconType, legendVerticalAlign, customName, legendAlign, cGrid, legendStyle, barSize, colorArray, granularity, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, showLegend, removeChart, chartGridId, heightProp, isTriangle } = this.props;
-    let xAxisFormat = granularity === "daily" ? formatXAxisDateDaily : granularity === "yearly" ? formatXAxisDateYearly : formatXAxisDate;
+    const { title, loading, data, xAxis, yAxes, chartMargin, legendLayout, isSegregate, legendIconType, legendVerticalAlign, customName, legendAlign, cGrid, legendStyle, barSize, colorArray, granularity, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, showLegend, removeChart, chartGridId, heightProp, isTriangle } = this.props;
+    let xAxisFormat;
+    if(isSegregate) {
+      xAxisFormat = this.noFormation;
+    }
+    else {
+      xAxisFormat = granularity === "daily" ? formatXAxisDateDaily : granularity === "yearly" ? formatXAxisDateYearly : formatXAxisDate;
+    }
+
     let toolTipId = "";
     if (info) {
       toolTipId = `infoTooltipBarChart_${info.Explanation.replace(/[^a-zA-Z0-9]/g, "")}`;
@@ -168,7 +176,7 @@ class Barchart extends PureComponent {
                   />
                 }
                 {yAxes.map((model, i) => {
-                  if (model === 'x_axis') {
+                  if (model === 'x_axis' || model === 'rat') {
                     return null;
                   }
                   return yAxes.length > 2 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]} /> : 
@@ -199,5 +207,6 @@ Barchart.defaultProps = {
   yAxesLabelStyle: { textAnchor: 'middle', fontSize: '11px', fontWeight: '500' },
   showLegend: true,
   heightProp: '100%',
-  isTriangle: false
+  isTriangle: false,
+  isSegregate: false
 }

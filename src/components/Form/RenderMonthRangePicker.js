@@ -73,7 +73,7 @@ export default class RenderMonthRangePicker extends PureComponent {
   {
     if(this.props.value === "")
     {
-    this.setState({startDate: new Date(moment().subtract(1,'month').format(Date_Format))}, () => this.handleChange());
+    this.setState({startDate: new Date(moment().subtract(1,'year').format(Date_Format))}, () => this.handleChange());
     this.setState({endDate: new Date()}, () => this.handleChange());
     if(!this.props.isRangerPicker)
     {

@@ -37,7 +37,7 @@ import SearchFilters from "../../components/Form/SearchFilters";
 import { SearchInfo } from "../../components/Help/SearchInfo";
 import { multiColorStack, multiColors, blueColors, stackBarTwentyColors, stackBarTetrade, BoxesColors, statusColors, progressBarColors } from '../../utilities/chart_colors';
 import HeaderCards from '../../components/Cards/HeaderCards';
-import { coreOperatorWiseIMEIs, coreOperatorWiseMSISDNs, coreNetworkSeenIMEIsByTechnology2G3G4G, coreValidInvalidNetworkSeenIMEIs, coreGrossAddIMEIs, coreGrossAddIMEIsByTechnology, coreBlocking, coreUnBlocking } from '../../utilities/reportsInfo';
+import { coreOperatorWiseIMEIs, coreOperatorWiseMSISDNs, coreNetworkSeenIMEIsByTechnology2G3G4G, coreValidInvalidNetworkSeenIMEIs, coreGrossAddIMEIs, coreGrossAddIMEIsByTechnology, coreBlocking, coreUnBlocking, coreMNORATBreakupInfo } from '../../utilities/reportsInfo';
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import _ from 'lodash';
@@ -74,6 +74,10 @@ class Trends extends PureComponent {
       coreBlockingLoading: false,
       coreUnBlockingData: null,
       coreUnBlockingLoading: false,
+      coreMNORATBreakupData: null,
+      uniqueMNORATBreakupData: [],
+      coreMNORATBreakupLoading: false,
+
       apiFetched: false,
       searchQuery: {},
       granularity: "",
@@ -90,7 +94,7 @@ class Trends extends PureComponent {
       layouts: { lg: props.initialLayout },
       layout: [],
       rowHeight: window.innerWidth < 1300 ? 3.7 : 10.6,
-      deletedObj: { coreOperatorWiseImeisKey: false, coreOperatorWiseMsisdnsKey: false, coreImeisOnNetworkKey: false, coreValidInvalidKey: false, coreGrossAddImeiKey: false, coreGrossAddImeiByTechKey: false, coreBlockingKey: false, coreUnBlockingKey: false }
+      deletedObj: { coreOperatorWiseImeisKey: false, coreOperatorWiseMsisdnsKey: false, coreImeisOnNetworkKey: false, coreValidInvalidKey: false, coreGrossAddImeiKey: false, coreGrossAddImeiByTechKey: false, coreMNORATBreakupKey:  false, coreBlockingKey: false, coreUnBlockingKey: false }
     }
     this.getGraphDataFromServer = this.getGraphDataFromServer.bind(this);
     this.saveSearchQuery = this.saveSearchQuery.bind(this);
@@ -235,6 +239,7 @@ class Trends extends PureComponent {
       deletedObj.coreValidInvalidKey = false;
       deletedObj.coreGrossAddImeiKey = false;
       deletedObj.coreGrossAddImeiByTechKey = false;
+      deletedObj.coreMNORATBreakupKey = false;
       deletedObj.coreBlockingKey = false;
       deletedObj.coreUnBlockingKey = false;
       this.setState({ deletedObj: deletedObj, layouts: { lg: this.props.initialLayout } });
@@ -283,7 +288,7 @@ class Trends extends PureComponent {
   // this method set initial state of the component and being called for search component
 
   saveSearchQuery(values) {
-    this.setState({ searchQuery: values, coreOperatorWiseImeisLoading: true, coreOperatorWiseMsisdnsLoading: true, coreImeisOnNetworkLoading: true, coreValidInvalidLoading: true, coreGrossAddImeiLoading: true, coreGrossAddImeiByTechLoading: true, coreBlockingLoading: true, coreUnBlockingLoading: true, coreBlockingData: [], coreUnBlockingData: [], coreGrossAddImeiByTechData: [], coreGrossAddImeiData: [], coreValidInvalidData: [], coreImeisOnNetworkData: [], coreOperatorWiseMsisdnsData: [], coreOperatorWiseImeisData: [], apiFetched: true, granularity: values.granularity }, () => {
+    this.setState({ searchQuery: values, coreOperatorWiseImeisLoading: true, coreOperatorWiseMsisdnsLoading: true, coreImeisOnNetworkLoading: true, coreValidInvalidLoading: true, coreGrossAddImeiLoading: true, coreGrossAddImeiByTechLoading: true, coreBlockingLoading: true, coreUnBlockingLoading: true, coreMNORATBreakupLoading: true, coreMNORATBreakupData: [], coreBlockingData: [], coreUnBlockingData: [], coreGrossAddImeiByTechData: [], coreGrossAddImeiData: [], coreValidInvalidData: [], coreImeisOnNetworkData: [], coreOperatorWiseMsisdnsData: [], coreOperatorWiseImeisData: [], apiFetched: true, granularity: values.granularity }, () => {
       this.updateTokenHOC(this.getGraphDataFromServer);
     })
   }
@@ -466,10 +471,40 @@ class Trends extends PureComponent {
       .catch(error => {
         errors(this, error);
       })
+
+   //Here API is being called to get MNO breakup By Technology (2G/3G/4G). In response we are setting the state with the recieved data
+
+    instance.get('/pta-core-04-rat-wise-seen-imeis' + this.getCallParamsGetMethods(), config)
+    .then(response => {
+      if (response.data.message) {
+        this.setState({ coreImeisOnNetworkLoading: false });
+      } else {
+        let cleanData = yAxisKeysCleaning(response.data.results)
+        let uniqueData = getUniqueKeys(cleanData);
+        this.setState({ coreImeisOnNetworkData: cleanData, uniqueImeisOnNetworkData: uniqueData, coreImeisOnNetworkLoading: false });
+      }
+    })
+    .catch(error => {
+      errors(this, error);
+    })
+    
+    instance.get('/pta-core-11-mno-rat-breakup' + this.getCallParamsGetMethods(), config)
+      .then(response => {
+        if (response.data.message) {
+          this.setState({ coreMNORATBreakupLoading: false });
+        } else {
+          let cleanData = yAxisKeysCleaning(response.data.results);
+          let uniqueData = getUniqueKeys(cleanData);
+          this.setState({ coreMNORATBreakupData: cleanData, uniqueMNORATBreakupData: uniqueData, coreMNORATBreakupLoading: false });
+        }
+      })
+      .catch(error => {
+        errors(this, error);
+      })
   }
 
   render() {
-    const { apiFetched, coreUnBlockingData, coreUnBlockingLoading, coreBlockingData, coreBlockingLoading, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, coreGrossAddImeiByTechLoading, uniqueGrossAddImeiByTechData, coreGrossAddImeiByTechData, coreGrossAddImeiData, uniqueGrossAddImeiData, coreGrossAddImeiLoading, coreValidInvalidLoading, uniqueValidInvalidData, coreValidInvalidData, coreImeisOnNetworkData, uniqueImeisOnNetworkData, coreImeisOnNetworkLoading, uniqueOperatorWiseImeisData, coreOperatorWiseImeisData, coreOperatorWiseMsisdnsData, uniqueOperatorWiseMsisdnsData, coreOperatorWiseMsisdnsLoading, coreOperatorWiseImeisLoading, granularity, totalImies, deletedObj } = this.state;
+    const { apiFetched, coreUnBlockingData, coreMNORATBreakupData, uniqueMNORATBreakupData, coreMNORATBreakupLoading, coreUnBlockingLoading, coreBlockingData, coreBlockingLoading, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, coreGrossAddImeiByTechLoading, uniqueGrossAddImeiByTechData, coreGrossAddImeiByTechData, coreGrossAddImeiData, uniqueGrossAddImeiData, coreGrossAddImeiLoading, coreValidInvalidLoading, uniqueValidInvalidData, coreValidInvalidData, coreImeisOnNetworkData, uniqueImeisOnNetworkData, coreImeisOnNetworkLoading, uniqueOperatorWiseImeisData, coreOperatorWiseImeisData, coreOperatorWiseMsisdnsData, uniqueOperatorWiseMsisdnsData, coreOperatorWiseMsisdnsLoading, coreOperatorWiseImeisLoading, granularity, totalImies, deletedObj } = this.state;
     return (
       <Container fluid>
         <div className="search-box animated fadeIn">
@@ -582,6 +617,9 @@ class Trends extends PureComponent {
                     <div name='coreGrossAddImeiByTechKey' key="coreGrossAddImeiByTechKey" className={deletedObj.coreGrossAddImeiByTechKey === true && 'hidden'}>
                       <Linechart cardClass="card-warning" title="Gross Add By Technology" loading={coreGrossAddImeiByTechLoading} data={coreGrossAddImeiByTechData} xAxis="x_axis" yAxisLabel="Count of IMEIs" yAxes={uniqueGrossAddImeiByTechData} colorArray={this.getColorArray(32)} granularity={granularity} info={coreGrossAddIMEIsByTechnology} showLegend="false" heightProp={this.getElementHeight(document.getElementsByName('coreGrossAddImeiByTechKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreGrossAddImeiByTechKey'} />
                     </div>
+                    <div name='coreMNORATBreakupKey' key="coreMNORATBreakupKey" className={deletedObj.coreMNORATBreakupKey === true && 'hidden'}>
+                      <Barchart cardClass="card-primary" title="Operators IMEIs breakup w.r.t Radio Technology" loading={coreMNORATBreakupLoading} data={coreMNORATBreakupData} yAxisLabel="Count of IMEIs" xAxis="x_axis" yAxes={uniqueMNORATBreakupData} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={coreMNORATBreakupInfo} heightProp={this.getElementHeight(document.getElementsByName('coreMNORATBreakupKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreMNORATBreakupKey'}/>
+                    </div>
                     <div name='coreBlockingKey' key="coreBlockingKey" className={deletedObj.coreBlockingKey === true && 'hidden'}>
                       <HorizontalBarSegregateChart cardClass="card-primary" title="Blocked by Reasons" loading={coreBlockingLoading} data={coreBlockingData} xAxis={["imeis"]} yAxis="reason" colorArray={this.getColorArray(56)} granularity={granularity} info={coreBlocking} yAxisWidth={140} heightProp={this.getElementHeight(document.getElementsByName('coreBlockingKey')[0])} removeChart={this.onRemoveItem} chartGridId={'coreBlockingKey'}/>
                     </div>
@@ -611,6 +649,7 @@ Trends.defaultProps = {
     { i: 'coreValidInvalidKey', x: 0, y: 90, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'coreGrossAddImeiKey', x: 0, y: 120, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'coreGrossAddImeiByTechKey', x: 0, y: 0, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
+    { i: 'coreMNORATBreakupKey', x: 0, y: 175, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'coreBlockingKey', x: 0, y: 180, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50, isResizable: false },
     { i: 'coreUnBlockingKey', x: 0, y: 190, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50, isResizable: false },
   ]

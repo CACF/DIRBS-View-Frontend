@@ -89,7 +89,7 @@ class Composedchart extends PureComponent {
           {
             payload.map((entry, index) => {
               const { dataKey, color } = entry
-              let legend = dataKey === "notfication_list_imeis" ? "Notification" : dataKey === "gross_add_imeis" ? "Gross Add" : dataKey === "local_assembly_etc" ? "Manual Entries (Local Assembly etc.)" : dataKey === "drs_local_assembly" ? "DRS Local Assembly IMEIs" : dataKey === "drs_active_imeis_new" ? "DRS IMEIs (Individual & Commercial)" : null;
+              let legend = dataKey === "commercial" ? "Commercial" : dataKey === "total_registered" ? "Total Registered" : dataKey === "manual_entries" ? "Manual Entries" : dataKey === "local_assembly" ? "DRS Local Assembly IMEIs" : dataKey === "individual" ? "DRS Individual IMEIs" : null;
               return (
                 <li className="legend-item" key={index}>
                   <Surface width={10} height={10} viewbox="0 0 10 10">
@@ -158,7 +158,7 @@ class Composedchart extends PureComponent {
                 <CartesianGrid strokeDasharray={cGrid} />
                 <XAxis dataKey={xAxis} tickFormatter={xAxisFormat} style={{ fontSize: "11px", fontWeight: "600" }} />
                 <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} tickFormatter={yAxisFormatter} style={{ fontSize: "11px", fontWeight: "600" }} type="number" domain={[0, dataMax => (Math.round(dataMax * 1.1))]} />
-                <Tooltip labelFormatter={xAxisFormat} contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value), name === "notfication_list_imeis" ? "Notification" : name === "gross_add_imeis" ? "Gross Add" : name === "local_assembly_etc" ? "Manual Entries (Local Assembly etc.)" : name === "drs_local_assembly" ? "DRS Local Assembly IMEIs" : name === "drs_active_imeis_new" ? "DRS IMEIs (Individual & Commercial)" : null]}/>
+                <Tooltip labelFormatter={xAxisFormat} contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value), name === "commercial" ? "Commercial" : name === "total_registered" ? "Total Registered" : name === "manual_entries" ? "Manual Entries" : name === "local_assembly" ? "DRS Local Assembly IMEIs" : name === "individual" ? "DRS Individual IMEIs" : null]}/>
                 {showLegend === "false" ? null
                   :
                   <Legend
@@ -170,10 +170,10 @@ class Composedchart extends PureComponent {
                   />
                 }
                 {yAxes.map((model, i) => {
-                  if (model === 'x_axis') {
+                  if (model === 'x_axis' || model === 'total_registered') {
                     return null;
                   }
-                  if (model === "local_assembly_etc" || model === "drs_active_imeis_new" || model === "drs_local_assembly" || model === "notfication_list_imeis"){
+                  else {
                     return yAxes.length > 2 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]} /> : 
                     <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={isTriangle ? this.getLable : false} dataKey={model} fill={colorArray[i]} />
                   }

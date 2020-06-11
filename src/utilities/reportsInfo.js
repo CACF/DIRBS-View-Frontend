@@ -73,6 +73,12 @@ export const coreBlocking = {
     "Y-Axis": "Count of IMEIs."
 }
 
+export const coreMNORATBreakupInfo = {
+    "Explanation": "Shows the breakup of MNOs IMEIs segregated by radio access technology.",
+    "X-Axis": "Consists of dates according to selected granularity.",
+    "Y-Axis": "Count of IMEIs."
+}
+
 
 /******************* DRS *******************/
 
@@ -83,7 +89,7 @@ export const dRSImportTrend = {
 }
 
 export const grossAddIMEIsVsDRSVsNotification = {
-    "Explanation": "Shows the division of Gross Add Newly seen IMEIs w.r.t Active IMEIs of DRS, Local Assembly and Notification List.",
+    "Explanation": "Shows the DRS IMEIs Bifurcation.",
     "X-Axis": "Consists of dates according to selected granularity.",
     "Y-Axis": "Count of IMEIs."
 }
@@ -96,8 +102,20 @@ export const dRSTop10overAllBrands = {
 
 export const dRSTop2G3G4GBrands = {
     "Explanation": "Shows the top imported Brands in DRS based on Radio Access technology (2G/3G/4G).",
-    "1st-Ring": "Names of RATs.",
-    "2nd-Ring": "Names of Brands."
+    "X-Axis": "Names of RATs.",
+    "Y-Axis": "Names of Brands."
+}
+
+export const dRSCOCTypeInfo = {
+    "Explanation": "Shows the trend of DRS IMEIs segregated into COC Types.",
+    "X-Axis": "Consists of dates according to selected granularity",
+    "Y-Axis": "Count of IMEIs"
+}
+
+export const dRSCOCTypeRATInfo = {
+    "Explanation": "Shows the division of IMEIs w.r.t COC types further segregated into Radio Technologies",
+    "X-Axis": "Names of COC Types",
+    "Y-Axis": "Count of IMEIs"
 }
 
 

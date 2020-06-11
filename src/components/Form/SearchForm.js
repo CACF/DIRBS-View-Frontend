@@ -31,6 +31,7 @@ import RenderMonthRangePicker from './RenderMonthRangePicker';
 import renderError from './RenderError';
 import { Field, withFormik } from 'formik';
 import {instance} from "./../../utilities/helpers";
+import ReactDOM from 'react-dom';
 
 class SearchForm extends PureComponent {
     constructor(props) {
@@ -47,6 +48,10 @@ class SearchForm extends PureComponent {
     componentDidMount()
     {
       this.populateMNODropDown();
+      setTimeout(() => { 
+        this.props.handleSubmit();
+        this.submitButonClicked(); 
+      }, 0);
     }
 
     submitButonClicked = () => {
@@ -112,7 +117,7 @@ class SearchForm extends PureComponent {
         setFieldTouched
       } = this.props;
       return (
-        <Form onSubmit={handleSubmit} className="dv-filterbx">
+        <Form onSubmit={handleSubmit} ref="formToSubmit" className="dv-filterbx">
             {this.props.isRange && 
               <div className="dv-granularity" title="Select Granularity">
                 <Label>Granularity</Label>
@@ -169,7 +174,7 @@ class SearchForm extends PureComponent {
   }
 
   const EnhancedForm = withFormik({
-  mapPropsToValues: () => ({ "granularity": "monthly", "date_range": "", "trend_qty":"5", "mno": "all" }),
+  mapPropsToValues: () => ({ "granularity": "yearly", "date_range": "", "trend_qty":"5", "mno": "all" }),
 
   // Custom sync validation
   validate: (values, bag) => {
