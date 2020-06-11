@@ -120,7 +120,7 @@ class Barchart extends PureComponent {
 
   getLable = (props) => {
     const {x , y, height, index, viewbox, width, value} = props;
-    return <text x={x + 5} y={y + 23} index={index} width={width} height={height} viewbox={viewbox} textAnchor="start">{value.toLocaleString()}</text>
+    return <text x={x + 5} y={y + 23} index={index} width={width} height={height} viewbox={viewbox} textAnchor="start">{yAxisFormatter(value)}</text>
   }
 
   render() {
@@ -180,7 +180,7 @@ class Barchart extends PureComponent {
                     return null;
                   }
                   return yAxes.length > 2 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]} /> : 
-                  <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={isTriangle ? this.getLable : false} dataKey={model} fill={colorArray[i]} />
+                  <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={this.getLable} dataKey={model} fill={colorArray[i]} />
                 })}
               </BarChart>
             </ResponsiveContainer>
