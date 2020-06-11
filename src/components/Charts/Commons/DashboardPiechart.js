@@ -30,7 +30,7 @@ import { Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, Label, Surfa
 import CardLoading from '../../Loaders/CardLoading';
 import randomColor from "randomcolor";
 import { Scrollbars } from 'react-custom-scrollbars';
-import {numberWithCommas} from '../../../utilities/helpers';
+import {numberWithCommas, yAxisFormatter} from '../../../utilities/helpers';
 let dataArray = [];
 
 /**
@@ -160,7 +160,7 @@ class Piechart extends PureComponent {
               <PieChart 
                 label={true}
               > 
-                 <Tooltip labelStyle={{fontWeight: "bold"}} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [numberWithCommas(value) , name]}/>
+                 <Tooltip labelStyle={{fontWeight: "bold"}} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [yAxisFormatter(value) , name]}/>
                  <Label value="any" color="#fff"/>
                  { showLegend && 
                 <Legend 

@@ -55,6 +55,7 @@ class Trends extends PureComponent {
       lsdsTrendInImeisData: null,
       lsdsTrendInImeisLoading: false,
       lsdsTypeBreakData: null,
+      uniqueTypeBreakData: [],
       lsdsTypeBreakLoading: false,
       lsdsByTechnologyData: null,
       lsdsByTechnologyLoading: false,
@@ -328,8 +329,8 @@ class Trends extends PureComponent {
         if (response.data.message) {
           this.setState({ lsdsTypeBreakLoading: false });
         } else {
-          this.setState({ lsdsTypeBreakData: response.data.device_types, lsdsTypeBreakLoading: false, granularity: searchQuery.granularity });
-          // this.setState({ lsdsTypeBreakData: response.data.device_types.map((e) => ({ name: Object.keys(e)[0], value: e[Object.keys(e)] })), lsdsTypeBreakLoading: false, granularity: searchQuery.granularity });
+          let uniqueData = getUniqueKeys(response.data.device_types);
+          this.setState({ lsdsTypeBreakData: response.data.device_types, uniqueTypeBreakData: uniqueData, lsdsTypeBreakLoading: false, granularity: searchQuery.granularity });
         }
       })
       .catch(error => {
@@ -364,7 +365,7 @@ class Trends extends PureComponent {
   }
 
   render() {
-    const { apiFetched, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, lsdsTypeBreakData, lsdsTypeBreakLoading, lsdsByTechnologyOverTimeData, lsdsByTechnologyOverTimeLoading, uniquelsdsByTechnologyOverTimeData, lsdsByTechnologyData, uniquelsdsByTechnologyData, lsdsByTechnologyLoading, lsdsTrendInImeisData, lsdsTrendInImeisLoading, lsdsTotalReportedDevicesData, lsdsIncidentTypeData, lsdsCaseStatusData, lsdsTopStolenBrandsData, lsdsTopStolenModelsData, lsdsTotalReportedDevicesLoading, lsdsIncidentTypeLoading, lsdsCaseStatusLoading, lsdsTopStolenBrandsLoading, lsdsTopStolenModelsLoading, uniqueBrands, uniqueModels, uniqueStatus, uniqueIncidents, granularity, stolen, lost, pending, blocked, recovered, totalReportedDevices, deletedObj } = this.state;
+    const { apiFetched, uniqueTypeBreakData, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, lsdsTypeBreakData, lsdsTypeBreakLoading, lsdsByTechnologyOverTimeData, lsdsByTechnologyOverTimeLoading, uniquelsdsByTechnologyOverTimeData, lsdsByTechnologyData, uniquelsdsByTechnologyData, lsdsByTechnologyLoading, lsdsTrendInImeisData, lsdsTrendInImeisLoading, lsdsTotalReportedDevicesData, lsdsIncidentTypeData, lsdsCaseStatusData, lsdsTopStolenBrandsData, lsdsTopStolenModelsData, lsdsTotalReportedDevicesLoading, lsdsIncidentTypeLoading, lsdsCaseStatusLoading, lsdsTopStolenBrandsLoading, lsdsTopStolenModelsLoading, uniqueBrands, uniqueModels, uniqueStatus, uniqueIncidents, granularity, stolen, lost, pending, blocked, recovered, totalReportedDevices, deletedObj } = this.state;
     return (
       <Container fluid>
         <div className="search-box animated fadeIn">
@@ -462,7 +463,8 @@ class Trends extends PureComponent {
                       <Linechart cardClass="card-warning" title="Stolen Trend" loading={lsdsTrendInImeisLoading} data={lsdsTrendInImeisData} xAxis="x_axis" yAxisLabel="Count of IMEIS" yAxes={["imeis"]} colorArray={this.getColorArray(32)} granularity={granularity} info={stolenTrendofImeis} showLegend="false" customName="Count" heightProp={this.getElementHeight(document.getElementsByName('lsdsTrendInImeisKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTrendInImeisKey'} />
                     </div>
                     <div name='lsdsTypeBreakKey' key="lsdsTypeBreakKey" className={deletedObj.lsdsTypeBreakKey === true && 'hidden'}>
-                      <Piechart cardClass="card-success" title="Devices Type Breakup" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} value="value" colorArray={BoxesColors} granularity={granularity} innerRadiusProp={70} paddingProp={2} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'} />
+                      {/* <Piechart cardClass="card-success" title="Devices Type Breakup" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} value="value" colorArray={BoxesColors} granularity={granularity} innerRadiusProp={70} paddingProp={2} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'} /> */}
+                      <Barchart cardClass="card-success" title="Devices Type Breakup" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} xAxis="rat" yAxisLabel="Count of IMEIs" yAxes={uniqueTypeBreakData} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'}/>
                     </div>
                     <div name='lsdsByTechnologyKey' key="lsdsByTechnologyKey" className={deletedObj.lsdsByTechnologyKey === true && 'hidden'}>
                       <HorizontalBarSegregateChart cardClass="card-info" title="Overall Technology BreakUp (2G/3G/4G)" loading={lsdsByTechnologyLoading} data={lsdsByTechnologyData} xAxis={["IMEIs"]} yAxis="RAT" colorArray={this.getColorArray(56)} granularity={granularity} info={stolenBreakUpByTechnology2G3G4G} heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyKey'} />

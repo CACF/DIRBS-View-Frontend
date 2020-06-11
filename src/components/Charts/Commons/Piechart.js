@@ -34,7 +34,7 @@ import CardLoading from '../../Loaders/CardLoading';
 import randomColor from "randomcolor";
 import InfoModel from './../../Tooltips/InfoTooltip';
 import { Scrollbars } from 'react-custom-scrollbars';
-import {numberWithCommas} from '../../../utilities/helpers';
+import {numberWithCommas, yAxisFormatter} from '../../../utilities/helpers';
 import domtoimage from 'dom-to-image';
 import { CSVLink } from "react-csv";
 let dataArray = [];
@@ -210,7 +210,7 @@ else {
                 width={300}
                 height={300}
               > 
-                 <Tooltip contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} formatter={(value, name) => [numberWithCommas(value) , name]}/>
+                 <Tooltip contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} formatter={(value, name) => [yAxisFormatter(value) , name]}/>
                  <Label value="any" color="#fff"/>            
                   {/* { showLegend && <Legend 
                   content={this.scrollableLegend}

@@ -91,7 +91,7 @@ export const dRSImportTrend = {
 export const grossAddIMEIsVsDRSVsNotification = {
     "Explanation": "Shows the DRS IMEIs Bifurcation.",
     "X-Axis": "Consists of dates according to selected granularity.",
-    "Y-Axis": "Count of IMEIs."
+    "Y-Axis": "Count of Devices."
 }
 
 export const dRSTop10overAllBrands = {
@@ -129,7 +129,8 @@ export const stolenTrendofImeis = {
 
 export const stolenDeviceTypeBreakup = {
     "Explanation": "Shows the breakup of Stolen IMEIs in terms of Device Type.",
-    "Main-Ring": "Names of types of devices."
+    "X-Axis": "Names of types of devices.",
+    "Y-Axis": "Count of IMEIs."
 }
 
 export const stolenBreakUpByTechnology2G3G4G = {

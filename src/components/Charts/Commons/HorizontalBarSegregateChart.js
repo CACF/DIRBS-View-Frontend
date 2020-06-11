@@ -142,7 +142,7 @@ class HorizontalBarSegregateChart extends PureComponent {
                   <CartesianGrid strokeDasharray={cGrid}/>
                   <XAxis type="number" tickFormatter={yAxisFormatter}  style={{fontSize: "11px", fontWeight: "600"}} domain={[0, dataMax => (Math.round(dataMax * 1.1))]}/>
                   <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} width={yAxisWidth} type="category"  dataKey={yAxis} style={{fontSize: "11px", fontWeight: "600"}} />
-                  <Tooltip formatter={(value, name) => [numberWithCommas(value) , name]} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} />
+                  <Tooltip formatter={(value, name) => [yAxisFormatter(value) , name]} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} />
                   {xAxis.map((elem, i) => {
                     if(elem === 'rat') {
                       return null;

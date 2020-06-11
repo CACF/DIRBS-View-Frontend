@@ -174,7 +174,7 @@ class SearchForm extends PureComponent {
   }
 
   const EnhancedForm = withFormik({
-  mapPropsToValues: () => ({ "granularity": "yearly", "date_range": "", "trend_qty":"5", "mno": "all" }),
+  mapPropsToValues: () => ({ "granularity": "monthly", "date_range": "", "trend_qty":"5", "mno": "all" }),
 
   // Custom sync validation
   validate: (values, bag) => {
