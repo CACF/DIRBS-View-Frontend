@@ -72,6 +72,7 @@ class Trends extends PureComponent {
       drsCOCTypeRATData: null,
       uniqueCOCTypeRATData: [],
       drsCOCTypeRATLoading: false,
+      drsCOCTypeRATRawData: [],
 
       totalImies: '',
       totalDrsImies: '',
@@ -396,7 +397,7 @@ class Trends extends PureComponent {
         } else {
           let cleanData = yAxisKeysCleaning(response.data);
           //let uniqueData = getUniqueKeys(cleanData);
-          this.setState({ drsCOCTypeRATData: cleanData, drsCOCTypeRATLoading: false });
+          this.setState({ drsCOCTypeRATData: cleanData, drsCOCTypeRATLoading: false, drsCOCTypeRATRawData: response.data });
         }
       })
       .catch(error => {
@@ -405,7 +406,7 @@ class Trends extends PureComponent {
 
   }
   render() {
-    const { apiFetched, drsCOCTypeRATData, drsCOCTypeRATLoading, drsCOCTypeData, uniqueCOCTypeData, drsCOCTypeLoading, drsComboGrossData, uniqueTopBrandsByRatData, uniqueComboGrossData, drsComboGrossLoading, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, drsTopBrandsByRatData, TopBrandsByRatDataToDownload, drsTopBrandsByRatLoading, drsTopBrandsData, drsTopBrandsLoading, drsImportTrendData, uniqueImportTrendData, drsImportTrendLoading, granularity, deletedObj } = this.state;
+    const { apiFetched, drsCOCTypeRATData, drsCOCTypeRATLoading, drsCOCTypeRATRawData, drsCOCTypeData, uniqueCOCTypeData, drsCOCTypeLoading, drsComboGrossData, uniqueTopBrandsByRatData, uniqueComboGrossData, drsComboGrossLoading, totalImies, totalDrsImies, totalPairedImies, totalStolenImies, totalDvsImies, totalBlocking, drsTopBrandsByRatData, TopBrandsByRatDataToDownload, drsTopBrandsByRatLoading, drsTopBrandsData, drsTopBrandsLoading, drsImportTrendData, uniqueImportTrendData, drsImportTrendLoading, granularity, deletedObj } = this.state;
     return (
       <Container fluid>
         <div className="search-box animated fadeIn">
@@ -508,10 +509,10 @@ class Trends extends PureComponent {
                       <HorizontalBarSegregateChart cardClass="card-primary" title="Brands by IMEIs" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis={["imeis"]} yAxis="brand" colorArray={this.getColorArray(56)} granularity={granularity} info={dRSTop10overAllBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsKey'}/>
                     </div>
                     <div name='drsCOCTypeRATKey' key="drsCOCTypeRATKey" className={deletedObj.drsCOCTypeRATKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="COC Types w.r.t Radio technology" loading={drsCOCTypeRATLoading} data={drsCOCTypeRATData} xAxis="e" yAxisLabel="Count of IMEIs" yAxes={["2G", "3G", "4G", "Others"]} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={dRSCOCTypeRATInfo} heightProp={this.getElementHeight(document.getElementsByName('drsCOCTypeRATKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsCOCTypeRATKey'}/>
+                      <Barchart cardClass="card-primary" title="COC Types by Radio technology" loading={drsCOCTypeRATLoading} dataToDownload={drsCOCTypeRATRawData} data={drsCOCTypeRATData} xAxis="e" yAxisLabel="Count of IMEIs" yAxes={["2G", "3G", "4G", "Others"]} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={dRSCOCTypeRATInfo} heightProp={this.getElementHeight(document.getElementsByName('drsCOCTypeRATKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsCOCTypeRATKey'}/>
                     </div>
                     <div name='drsTopBrandsByRatKey' key="drsTopBrandsByRatKey" className={deletedObj.drsTopBrandsByRatKey === true && 'hidden'}>
-                      <Barchart cardClass="card-success" title="Top Brands of 2G/3G/4G" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} xAxis="rat" isSegregate={true} yAxes={uniqueTopBrandsByRatData} colorArray={this.getColorArray(57)} showLegend="false" granularity={granularity} innerRadiusProp={110} paddingProp={0} info={dRSTop2G3G4GBrands} dataToDownload={TopBrandsByRatDataToDownload} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'} />
+                      <Barchart cardClass="card-success" title="Top Brands of 2G/3G/4G" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} xAxis="rat" isSegregate={true} yAxes={uniqueTopBrandsByRatData} colorArray={this.getColorArray(57)} showLegend="true" granularity={granularity} innerRadiusProp={110} paddingProp={0} info={dRSTop2G3G4GBrands} dataToDownload={TopBrandsByRatDataToDownload} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'} />
                     </div>
                     <div name='drsComboGrossKey' key="drsComboGrossKey" className={deletedObj.drsComboGrossKey === true && 'hidden'}>
                       <Composedchart cardClass="card-primary" title="DRS Devices Bifurcation" loading={drsComboGrossLoading} data={drsComboGrossData} xAxis="x_axis" yAxes={uniqueComboGrossData} yAxisComposit="total_registered" yAxisLabel="Count of Devices" colorArray={this.getColorArray(57)} showLegend="true" granularity={granularity} info={grossAddIMEIsVsDRSVsNotification} heightProp={this.getElementHeight(document.getElementsByName('drsComboGrossKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsComboGrossKey'} />

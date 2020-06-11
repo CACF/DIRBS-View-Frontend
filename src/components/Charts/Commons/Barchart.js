@@ -124,7 +124,7 @@ class Barchart extends PureComponent {
   }
 
   render() {
-    const { title, loading, data, xAxis, yAxes, chartMargin, legendLayout, isSegregate, legendIconType, legendVerticalAlign, customName, legendAlign, cGrid, legendStyle, barSize, colorArray, granularity, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, showLegend, removeChart, chartGridId, heightProp, isTriangle } = this.props;
+    const { title, loading, data, xAxis, yAxes, dataToDownload, chartMargin, legendLayout, isSegregate, legendIconType, legendVerticalAlign, customName, legendAlign, cGrid, legendStyle, barSize, colorArray, granularity, yAxisLabel, yAxisLabelAngel, yAxisLabelPosition, yAxesLabelStyle, info, cardClass, showLegend, removeChart, chartGridId, heightProp, isTriangle } = this.props;
     let xAxisFormat;
     if(isSegregate) {
       xAxisFormat = this.noFormation;
@@ -143,7 +143,7 @@ class Barchart extends PureComponent {
           {title}
           {info &&
             <React.Fragment>
-              <CSVLink data={data} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
+              <CSVLink data={dataToDownload === null ? data: dataToDownload} filename={title + ".csv"}><i className="fa fa-file-excel-o"></i></CSVLink>
               <i className={this.state.downloadImgLoading ? 'fa fa-circle-o-notch fa-spin fa-fw' : 'fa fa-cloud-download'} onClick={(e) => this.generateImg(e, title)}></i>
               <i className="fa fa-trash-o" onClick={() => { removeChart(chartGridId) }}></i>
               <i className="fa fa-info-circle" style={{ color: this.state.infoButtonColor }} id={toolTipId} aria-hidden="true" onClick={this.toggleInfo}>
@@ -180,7 +180,7 @@ class Barchart extends PureComponent {
                     return null;
                   }
                   return yAxes.length > 2 ? <Bar name={customName} key={i} barSize={barSize} dataKey={model} animationDuration={3000} stackId="a" fill={colorArray[i]} /> : 
-                  <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={this.getLable} dataKey={model} fill={colorArray[i]} />
+                  <Bar name={customName} key={i} barSize={barSize} animationDuration={3000} shape={isTriangle && this.TriangleBar} label={isTriangle ? this.getLable : false} dataKey={model} fill={colorArray[i]} />
                 })}
               </BarChart>
             </ResponsiveContainer>
@@ -208,5 +208,6 @@ Barchart.defaultProps = {
   showLegend: true,
   heightProp: '100%',
   isTriangle: false,
-  isSegregate: false
+  isSegregate: false,
+  dataToDownload: null
 }
