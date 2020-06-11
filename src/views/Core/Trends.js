@@ -650,8 +650,8 @@ Trends.defaultProps = {
     { i: 'coreGrossAddImeiKey', x: 0, y: 120, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'coreGrossAddImeiByTechKey', x: 0, y: 0, w: 100, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
     { i: 'coreMNORATBreakupKey', x: 0, y: 175, w: 50, h: (50 / 100 * 56.6), minW: 33, minH: 20, maxW: 100, maxH: (75 / 100 * 56.6) },
-    { i: 'coreBlockingKey', x: 0, y: 180, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50, isResizable: false },
-    { i: 'coreUnBlockingKey', x: 0, y: 190, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50, isResizable: false },
+    { i: 'coreBlockingKey', x: 0, y: 180, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50 },
+    { i: 'coreUnBlockingKey', x: 0, y: 190, w: 100, h: 50, minW: 100, minH: 50, maxW: 100, maxH: 50 },
   ]
 };
 
