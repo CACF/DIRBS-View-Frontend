@@ -36,7 +36,7 @@ import Piechart from './../../components/Charts/Commons/Piechart';
 import HorizontalBarSegregateChart from './../../components/Charts/Commons/HorizontalBarSegregateChart';
 import SearchFilters from "./../../components/Form/SearchFilters";
 import { SearchInfo } from "./../../components/Help/SearchInfo";
-import { stackBarTwentyColors, multiColorStack, BoxesColors } from './../../utilities/chart_colors';
+import { stackBarTwentyColors, multiColorStack, BoxesColors, colorThemeShades } from './../../utilities/chart_colors';
 import HeaderCards from '../../components/Cards/HeaderCards';
 import { stolenTrendofImeis, stolenDeviceTypeBreakup, stolenBreakUpByTechnology2G3G4G, stolenBreakUpByTechnology2G3G4GOverTIME } from './../../utilities/reportsInfo';
 import svgSymbol from './../../images/svg_symbol.svg';
@@ -461,17 +461,17 @@ class Trends extends PureComponent {
                     onWidthChange={this.onWidthChangeMethod}
                   >
                     <div name='lsdsTrendInImeisKey' key="lsdsTrendInImeisKey" className={deletedObj.lsdsTrendInImeisKey === true && 'hidden'}>
-                      <Linechart cardClass="card-warning" title="Stolen Trend" loading={lsdsTrendInImeisLoading} data={lsdsTrendInImeisData} xAxis="x_axis" yAxisLabel="Count of IMEIS" yAxes={["imeis"]} colorArray={this.getColorArray(32)} granularity={granularity} info={stolenTrendofImeis} showLegend="false" customName="Count" heightProp={this.getElementHeight(document.getElementsByName('lsdsTrendInImeisKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTrendInImeisKey'} />
+                      <Linechart cardClass="card-warning" title="Stolen Trend" loading={lsdsTrendInImeisLoading} data={lsdsTrendInImeisData} xAxis="x_axis" yAxisLabel="Count of IMEIS" yAxes={["imeis"]} colorArray={colorThemeShades.slice(2)} granularity={granularity} info={stolenTrendofImeis} showLegend="false" customName="Count" heightProp={this.getElementHeight(document.getElementsByName('lsdsTrendInImeisKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTrendInImeisKey'} />
                     </div>
                     <div name='lsdsTypeBreakKey' key="lsdsTypeBreakKey" className={deletedObj.lsdsTypeBreakKey === true && 'hidden'}>
                       {/* <Piechart cardClass="card-success" title="Devices Type Breakup" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} value="value" colorArray={BoxesColors} granularity={granularity} innerRadiusProp={70} paddingProp={2} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'} /> */}
-                      <Barchart cardClass="card-success" title="Categories of Stolen IMEIs" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} xAxis="rat" yAxisLabel="Count of IMEIs" yAxes={uniqueTypeBreakData} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'}/>
+                      <Barchart cardClass="card-success" title="Categories of Stolen IMEIs" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} xAxis="rat" yAxisLabel="Count of IMEIs" yAxes={uniqueTypeBreakData} isSegregate={true} colorArray={colorThemeShades} granularity={granularity} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'}/>
                     </div>
                     <div name='lsdsByTechnologyKey' key="lsdsByTechnologyKey" className={deletedObj.lsdsByTechnologyKey === true && 'hidden'}>
-                      <HorizontalBarSegregateChart cardClass="card-info" title="Overall Stolen IMEIs By Technology" loading={lsdsByTechnologyLoading} data={lsdsByTechnologyData} xAxis={["IMEIs"]} yAxis="RAT" colorArray={this.getColorArray(56)} granularity={granularity} info={stolenBreakUpByTechnology2G3G4G} heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyKey'} />
+                      <HorizontalBarSegregateChart cardClass="card-info" title="Overall Stolen IMEIs By Technology" loading={lsdsByTechnologyLoading} data={lsdsByTechnologyData} xAxis={["IMEIs"]} yAxis="RAT" colorArray={colorThemeShades.slice(2)} granularity={granularity} info={stolenBreakUpByTechnology2G3G4G} heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyKey'} />
                     </div>
                     <div name='lsdsByTechnologyOverTimeKey' key="lsdsByTechnologyOverTimeKey" className={deletedObj.lsdsByTechnologyOverTimeKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="Stolen IMEIs Trend By Technology" heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyOverTimeKey')[0])} loading={lsdsByTechnologyOverTimeLoading} data={lsdsByTechnologyOverTimeData} yAxisLabel="Count of IMEIS" yAxes={uniquelsdsByTechnologyOverTimeData} xAxis="x_axis" colorArray={this.getColorArray(57)} granularity={granularity} info={stolenBreakUpByTechnology2G3G4GOverTIME} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyOverTimeKey'} />
+                      <Barchart cardClass="card-primary" title="Stolen IMEIs Trend By Technology" heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyOverTimeKey')[0])} loading={lsdsByTechnologyOverTimeLoading} data={lsdsByTechnologyOverTimeData} yAxisLabel="Count of IMEIS" yAxes={uniquelsdsByTechnologyOverTimeData} xAxis="x_axis" colorArray={colorThemeShades} granularity={granularity} info={stolenBreakUpByTechnology2G3G4GOverTIME} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyOverTimeKey'} />
                     </div>
                   </ResponsiveReactGridLayout>
                 </div>

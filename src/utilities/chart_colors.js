@@ -25,8 +25,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import { operatorOne, operatorTwo, operatorThree, operatorFour, operatorFive, operatorSix } from './helpers';
 
 export const colorThemeShades = [
-    "#00415a", "#00719c", "#009bd6", "#59d4ff", "#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d55", "#d0743b", "#ff8c00", "#d53600", "#700e01"
+    "#00415a", "#00719c", "#009bd6", "#59d4ff", "#98abc5", "#8a89a6", "#7b6888", "#6b486b",   "#66e4b2", "#32db98", "#00d27f", "#00a865", "#007e4c"
 ]
+// export const colorThemeShades = [
+//     "#00415a", "#00719c", "#009bd6", "#59d4ff", "#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d55", "#d0743b", "#ff8c00", "#d53600", "#700e01"
+// ]
 // export const colorThemeShades = [
 //     "#00415a", "#00719c", "#009bd6", "#3badfc", "#59d4ff",      "#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d55", "#d0743b", "#ff8c00", "#d53600", "#700e01"
 // ]

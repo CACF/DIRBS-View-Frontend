@@ -89,7 +89,7 @@ class Composedchart extends PureComponent {
           {
             payload.map((entry, index) => {
               const { dataKey, color } = entry
-              let legend = dataKey === "commercial" ? "Commercial" : dataKey === "total_registered" ? "Total Registered" : dataKey === "manual_entries" ? "Others" : dataKey === "local_assembly" ? "DRS Local Assembly" : dataKey === "individual" ? "DRS Individual" : null;
+              let legend = dataKey === "commercial" ? "Commercial" : dataKey === "total_registered" ? "Total Registered" : dataKey === "manual_entries" ? "Others" : dataKey === "local_assembly" ? "Local Assembly" : dataKey === "individual" ? "Individual" : null;
               return (
                 <li className="legend-item" key={index}>
                   <Surface width={10} height={10} viewbox="0 0 10 10">
@@ -158,7 +158,7 @@ class Composedchart extends PureComponent {
                 <CartesianGrid strokeDasharray={cGrid} />
                 <XAxis dataKey={xAxis} tickFormatter={xAxisFormat} style={{ fontSize: "11px", fontWeight: "600" }} />
                 <YAxis label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} tickFormatter={yAxisFormatter} style={{ fontSize: "11px", fontWeight: "600" }} type="number" domain={[0, dataMax => (Math.round(dataMax * 1.1))]} />
-                <Tooltip labelFormatter={xAxisFormat} contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [yAxisFormatter(value), name === "commercial" ? "Commercial" : name === "total_registered" ? "Total Registered" : name === "manual_entries" ? "Others" : name === "local_assembly" ? "DRS Local Assembly" : name === "individual" ? "DRS Individual" : null]}/>
+                <Tooltip labelFormatter={xAxisFormat} contentStyle={{ borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0' }} formatter={(value, name) => [yAxisFormatter(value), name === "commercial" ? "Commercial" : name === "total_registered" ? "Total Registered" : name === "manual_entries" ? "Others" : name === "local_assembly" ? "Local Assembly" : name === "individual" ? "Individual" : null]}/>
                 {showLegend === "false" ? null
                   :
                   <Legend
