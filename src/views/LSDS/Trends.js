@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import React, { PureComponent } from 'react';
 import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import DateSearchForm from './../../components/Form/DateSearchForm';
-import { unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisKeysCleaning, getUserRole, getUserType, removeDevicesLabel, scrollOsetTopPlus, fixFilOsetHeightMinus } from "./../../utilities/helpers";
+import { unique_437_colors, getAuthHeader, instance, errors, getUniqueKeys, yAxisKeysCleaning, getUserRole, getUserType, removeDevicesLabel, yAxisKeysReplacing, scrollOsetTopPlus, fixFilOsetHeightMinus } from "./../../utilities/helpers";
 import Barchart from './../../components/Charts/Commons/Barchart';
 import Linechart from './../../components/Charts/Commons/Linechart';
 import Areachart from './../../components/Charts/Commons/AreaChart';
@@ -329,8 +329,9 @@ class Trends extends PureComponent {
         if (response.data.message) {
           this.setState({ lsdsTypeBreakLoading: false });
         } else {
-          let uniqueData = getUniqueKeys(response.data.device_types);
-          this.setState({ lsdsTypeBreakData: response.data.device_types, uniqueTypeBreakData: uniqueData, lsdsTypeBreakLoading: false, granularity: searchQuery.granularity });
+          let cleanData = yAxisKeysReplacing(response.data.device_types)
+          let uniqueData = getUniqueKeys(cleanData);
+          this.setState({ lsdsTypeBreakData: cleanData, uniqueTypeBreakData: uniqueData, lsdsTypeBreakLoading: false, granularity: searchQuery.granularity });
         }
       })
       .catch(error => {
@@ -464,13 +465,13 @@ class Trends extends PureComponent {
                     </div>
                     <div name='lsdsTypeBreakKey' key="lsdsTypeBreakKey" className={deletedObj.lsdsTypeBreakKey === true && 'hidden'}>
                       {/* <Piechart cardClass="card-success" title="Devices Type Breakup" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} value="value" colorArray={BoxesColors} granularity={granularity} innerRadiusProp={70} paddingProp={2} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'} /> */}
-                      <Barchart cardClass="card-success" title="Categories of Stolen Devices" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} xAxis="rat" yAxisLabel="Count of IMEIs" yAxes={uniqueTypeBreakData} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'}/>
+                      <Barchart cardClass="card-success" title="Categories of Stolen IMEIs" loading={lsdsTypeBreakLoading} data={lsdsTypeBreakData} xAxis="rat" yAxisLabel="Count of IMEIs" yAxes={uniqueTypeBreakData} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={stolenDeviceTypeBreakup} heightProp={this.getElementHeight(document.getElementsByName('lsdsTypeBreakKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsTypeBreakKey'}/>
                     </div>
                     <div name='lsdsByTechnologyKey' key="lsdsByTechnologyKey" className={deletedObj.lsdsByTechnologyKey === true && 'hidden'}>
-                      <HorizontalBarSegregateChart cardClass="card-info" title="Overall Stolen Devices By Technology" loading={lsdsByTechnologyLoading} data={lsdsByTechnologyData} xAxis={["IMEIs"]} yAxis="RAT" colorArray={this.getColorArray(56)} granularity={granularity} info={stolenBreakUpByTechnology2G3G4G} heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyKey'} />
+                      <HorizontalBarSegregateChart cardClass="card-info" title="Overall Stolen IMEIs By Technology" loading={lsdsByTechnologyLoading} data={lsdsByTechnologyData} xAxis={["IMEIs"]} yAxis="RAT" colorArray={this.getColorArray(56)} granularity={granularity} info={stolenBreakUpByTechnology2G3G4G} heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyKey')[0])} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyKey'} />
                     </div>
                     <div name='lsdsByTechnologyOverTimeKey' key="lsdsByTechnologyOverTimeKey" className={deletedObj.lsdsByTechnologyOverTimeKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="Stolen Devices Trend By Technology" heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyOverTimeKey')[0])} loading={lsdsByTechnologyOverTimeLoading} data={lsdsByTechnologyOverTimeData} yAxisLabel="Count of IMEIS" yAxes={uniquelsdsByTechnologyOverTimeData} xAxis="x_axis" colorArray={this.getColorArray(57)} granularity={granularity} info={stolenBreakUpByTechnology2G3G4GOverTIME} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyOverTimeKey'} />
+                      <Barchart cardClass="card-primary" title="Stolen IMEIs Trend By Technology" heightProp={this.getElementHeight(document.getElementsByName('lsdsByTechnologyOverTimeKey')[0])} loading={lsdsByTechnologyOverTimeLoading} data={lsdsByTechnologyOverTimeData} yAxisLabel="Count of IMEIS" yAxes={uniquelsdsByTechnologyOverTimeData} xAxis="x_axis" colorArray={this.getColorArray(57)} granularity={granularity} info={stolenBreakUpByTechnology2G3G4GOverTIME} removeChart={this.onRemoveItem} chartGridId={'lsdsByTechnologyOverTimeKey'} />
                     </div>
                   </ResponsiveReactGridLayout>
                 </div>

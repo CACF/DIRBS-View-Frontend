@@ -30,7 +30,7 @@ import Base64 from 'base-64';
 import moment from 'moment';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { orangeColors, blueColors, purpleShades, greenColors} from './chart_colors'
+import { orangeColors, blueColors, purpleShades, greenColors } from './chart_colors'
 
 import {
   BASE_URL,
@@ -314,13 +314,13 @@ export function isPage401(groups) {
 }
 
 
-export function SweetAlert(params){
+export function SweetAlert(params) {
   let title = params.title
   let message = params.message
   let type = params.type
 
-  if(MySwal.isVisible()){
-  }else{
+  if (MySwal.isVisible()) {
+  } else {
     MySwal.fire({
       title: <p>{title}</p>,
       text: message,
@@ -330,7 +330,7 @@ export function SweetAlert(params){
   }
 }
 
-export function errors (context, error) {
+export function errors(context, error) {
   if (typeof error !== undefined) {
     if (error.response.status === undefined) {
       SweetAlert({
@@ -466,23 +466,19 @@ export const yAxisKeysCleaning = (data) => {
   data.map((items, index) => {
     newDataObj = {};
     Object.keys(items).map((item, index) => {
-      if (item === 'x_axis' || item ==='rat') {
+      if (item === 'x_axis' || item === 'rat') {
         newDataObj[(item)] = items[item];
       }
-      else if (item === "y_axis_fiveg" || item === "y_axis_five_g")
-      {
+      else if (item === "y_axis_fiveg" || item === "y_axis_five_g") {
         newDataObj["5G"] = items[item];
       }
-      else if (item === "y_axis_fourg" || item === "y_axis_four_g")
-      {
+      else if (item === "y_axis_fourg" || item === "y_axis_four_g") {
         newDataObj["4G"] = items[item];
       }
-      else if (item === "y_axis_threeg" || item === "y_axis_three_g")
-      {
+      else if (item === "y_axis_threeg" || item === "y_axis_three_g") {
         newDataObj["3G"] = items[item];
       }
-      else if (item === "y_axis_twog" || item === "y_axis_two_g")
-      {
+      else if (item === "y_axis_twog" || item === "y_axis_two_g") {
         newDataObj["2G"] = items[item];
       }
       else {
@@ -496,6 +492,49 @@ export const yAxisKeysCleaning = (data) => {
   return newData;
 }
 
+/**
+ * This functions replaces key
+ *
+ * @param data
+ * @returns {Object}
+ */
+export const yAxisKeysReplacing = (data) => {
+  let newData = [];
+  let newDataObj = {};
+  data.map((items, index) => {
+    newDataObj = {};
+    Object.keys(items).map((item, index) => {
+      if (item === "Mobile Phone/Feature phone") {
+        newDataObj["Feature phone"] = items[item];
+      }
+      else {
+        newDataObj[(item.substring(7))] = items[item];
+      }
+      return null;
+    });
+    newData.push(newDataObj);
+    return null;
+  });
+  return newData;
+}
+
+// /**
+//  * This functions returns color array with same shades
+//  *
+//  * @param data
+//  * @returns [Array]
+//  */
+// export const getColorShades = (data) => {
+//   let newData = [];
+//   let newDataObj = {};
+//   var max = Math.max(r, Math.max(g, b));
+
+//   var step = 255 / (max * 10)
+//     (r * step, g * step, b * step)
+//     (r * step * 2, g * step * 2, b * step * 2)
+//     (r * step * 3, g * step * 3, b * step * 3)
+//   return newData;
+// }
 
 /**
  * here we transform our json data to 2 arrays for table headings and table content
@@ -603,8 +642,7 @@ export const reorderData = (data, orderSequence, replaceArr = null) => {
     var found = false;
     data = data.filter(function (item) {
       if (!found && item[0] === key) {
-        if(replaceArr !== null)
-        {
+        if (replaceArr !== null) {
           item[0] = replaceArr[i]
         }
         result.push(item);
@@ -623,25 +661,25 @@ export const reorderData = (data, orderSequence, replaceArr = null) => {
  * @param data
  * @returns [Array]
  */
-export const replaceCharacters = (techData) =>{
+export const replaceCharacters = (techData) => {
   var newTechData = [];
   techData.map((techArr, aIndex) => {
-      newTechData[aIndex] = [];
-      techArr.map((tech, tIndex) => {
-          var newValue = '';
-          if(typeof tech !== "number") {
-            newValue = tech.replace(/-/g, '/');
-          }
-          else{
-            newValue = tech;
-          }
-          newTechData[aIndex][tIndex] = newValue;
-          return null;
-      })
+    newTechData[aIndex] = [];
+    techArr.map((tech, tIndex) => {
+      var newValue = '';
+      if (typeof tech !== "number") {
+        newValue = tech.replace(/-/g, '/');
+      }
+      else {
+        newValue = tech;
+      }
+      newTechData[aIndex][tIndex] = newValue;
       return null;
+    })
+    return null;
   })
   return newTechData;
- }
+}
 
 
 /**
@@ -650,30 +688,26 @@ export const replaceCharacters = (techData) =>{
  * @param data
  * @returns [Array]
  */
-export const ConditionalBreakdownFormat = (data) =>{
+export const ConditionalBreakdownFormat = (data) => {
   let conditions = data.conditions;
   let parentData = data.results;
   let mainArr = [];
   let useObj = {};
   parentData.map((cObj, cIndex) => {
     Object.keys(cObj).map((iKey, iIndex) => {
-      if(iKey === "classification_condition")
-      {
-      conditions.map((c, i)=>
-      {
-        useObj[c] = cObj[iKey].includes(c);
-        return null;
-      });
-    }
-    else
-    {
-      useObj[iKey] = cObj[iKey]
-    }
-    if(iIndex === 0)
-    {
-      useObj['Blocking'] = "Blocked";
-    }
-    return null;
+      if (iKey === "classification_condition") {
+        conditions.map((c, i) => {
+          useObj[c] = cObj[iKey].includes(c);
+          return null;
+        });
+      }
+      else {
+        useObj[iKey] = cObj[iKey]
+      }
+      if (iIndex === 0) {
+        useObj['Blocking'] = "Blocked";
+      }
+      return null;
     });
     mainArr.push(useObj);
     useObj = {};
@@ -681,16 +715,16 @@ export const ConditionalBreakdownFormat = (data) =>{
   });
 
   return mainArr;
- }
+}
 
- /* export const removeDevicesLabel = ( data ) => {
-   let arr = []
-   data.map( (item, index) =>{
-      arr.push(item.replace(/_devices/g, ''))
-   })
-   return arr;
- }
- */
+/* export const removeDevicesLabel = ( data ) => {
+  let arr = []
+  data.map( (item, index) =>{
+     arr.push(item.replace(/_devices/g, ''))
+  })
+  return arr;
+}
+*/
 
 /**
  * This add commas in Kilo of numbers
@@ -698,16 +732,14 @@ export const ConditionalBreakdownFormat = (data) =>{
  * @param x [int]
  * @returns [string]
  */
-export const numberWithCommas = (x) =>{
-  if(!isNaN(x))
-  {
+export const numberWithCommas = (x) => {
+  if (!isNaN(x)) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
-  else
-  {
+  else {
     return x;
   }
- }
+}
 
 /**
  * This method replaces _ with space and Captalize first letter
@@ -715,10 +747,10 @@ export const numberWithCommas = (x) =>{
  * @param x [string]
  * @returns [string]
  */
-export const formateBackEndString = (str) =>{
-    let strToFormat = str.replace(/_/g, ' ');
-    return strToFormat.charAt(0).toUpperCase() + strToFormat.slice(1);
- }
+export const formateBackEndString = (str) => {
+  let strToFormat = str.replace(/_/g, ' ');
+  return strToFormat.charAt(0).toUpperCase() + strToFormat.slice(1);
+}
 
 /**
  * This method return array of colors according to operators
@@ -726,24 +758,22 @@ export const formateBackEndString = (str) =>{
  * @param  [Data], [colorArray]
  * @returns [string]
  */
-export const getMappedColors = (data, colorsArr) =>{
+export const getMappedColors = (data, colorsArr) => {
   let resultArray = [];
   data.map((elem, i) => {
     colorsArr.map((colorEle, j) => {
-      if(formateBackEndString(Object.keys(elem)[0]).indexOf(formateBackEndString(colorEle.name)) >= 0 )
-      {
+      if (formateBackEndString(Object.keys(elem)[0]).indexOf(formateBackEndString(colorEle.name)) >= 0) {
         resultArray.push(colorEle.color);
       }
-      else
-      {
+      else {
         return false;
       }
       return null;
-      });
-      return null;
+    });
+    return null;
   });
   return resultArray;
- }
+}
 
 export const scrollOsetTopPlus = 72;
 export const fixFilOsetHeightMinus = 30;
@@ -761,30 +791,30 @@ export const operatorSix = 'rgb(255, 178, 71)';
  * @param  [Data]
  * @returns [string]
  */
-export const getTwoLevelPieChartData = (data) =>{
+export const getTwoLevelPieChartData = (data) => {
   let resultObj = {};
   let newArrGOne = [];
   let newArrGTwo = [];
-  let colorMasterArray = [orangeColors, blueColors,greenColors, purpleShades];
+  let colorMasterArray = [orangeColors, blueColors, greenColors, purpleShades];
   data.map((elem, i) => {
     let objOne = {};
-    let valueSum = 0;  
+    let valueSum = 0;
     Object.keys(elem).map((item, j) => {
-      if(item==="rat"){
-       objOne.name = elem[item];
-       objOne.fill = colorMasterArray[i][0]
-      }else {
-       valueSum += elem[item];
-       newArrGTwo.push({name: item, value: elem[item], fill: colorMasterArray[i][j - 1]})
+      if (item === "rat") {
+        objOne.name = elem[item];
+        objOne.fill = colorMasterArray[i][0]
+      } else {
+        valueSum += elem[item];
+        newArrGTwo.push({ name: item, value: elem[item], fill: colorMasterArray[i][j - 1] })
       }
     })
-    objOne.value = valueSum      
-    newArrGOne.push(objOne)     
+    objOne.value = valueSum
+    newArrGOne.push(objOne)
   })
   resultObj.firstDataGroup = newArrGOne;
   resultObj.secondDataGroup = newArrGTwo;
   return resultObj;
- }
+}
 
 /**
  * This method return object of array of data for two leve pie charts
@@ -792,16 +822,16 @@ export const getTwoLevelPieChartData = (data) =>{
  * @param  [Data]
  * @returns [string]
  */
-export const removeTotalImeis = (data) =>{
+export const removeTotalImeis = (data) => {
   let resultObj = [];
   data.map((elem, i) => {
     let objOne = {};
     Object.keys(elem).map((item, j) => {
-      if(item !=="y_axis_imeis"){
-       objOne[item] = elem[item];
+      if (item !== "y_axis_imeis") {
+        objOne[item] = elem[item];
       }
     })
-    resultObj.push(objOne)     
+    resultObj.push(objOne)
   })
   return resultObj;
- }
+}

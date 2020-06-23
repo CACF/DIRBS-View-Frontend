@@ -36,9 +36,9 @@ import Linechart from '../../components/Charts/Commons/Linechart';
 import Composedchart from '../../components/Charts/Commons/Composedchart';
 import SearchFilters from "./../../components/Form/SearchFilters";
 import { SearchInfo } from "./../../components/Help/SearchInfo";
-import { blueColors, stackBarTwentyColors, stackBarTetrade, multiColorStack, multiColors, BoxesColors } from './../../utilities/chart_colors';
+import { blueColors, stackBarTwentyColors, stackBarTetrade, multiColorStack, multiColors, BoxesColors, colorThemeShades } from './../../utilities/chart_colors';
 import HeaderCards from './../../components/Cards/HeaderCards';
-import { dRSImportTrend, grossAddIMEIsVsDRSVsNotification, dRSTop10overAllBrands, dRSTop2G3G4GBrands, dRSCOCTypeInfo,dRSCOCTypeRATInfo } from './../../utilities/reportsInfo';
+import { dRSImportTrend, grossAddIMEIsVsDRSVsNotification, dRSTop10overAllBrands, dRSTop2G3G4GBrands, dRSCOCTypeInfo, dRSCOCTypeRATInfo } from './../../utilities/reportsInfo';
 import svgSymbol from './../../images/svg_symbol.svg';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import HorizontalBarSegregateChart from './../../components/Charts/Commons/HorizontalBarSegregateChart';
@@ -79,7 +79,7 @@ class Trends extends PureComponent {
       totalPairedImies: '',
       totalStolenImies: '',
       totalDvsImies: '',
-      totalBlocking:  '',
+      totalBlocking: '',
       apiFetched: false,
       searchQuery: {},
       granularity: "",
@@ -90,7 +90,7 @@ class Trends extends PureComponent {
       layouts: { lg: props.initialLayout },
       layout: [],
       rowHeight: window.innerWidth < 1300 ? 3.7 : 10.6,
-      deletedObj: { drsImportTrendKey: false, drsCOCTypeKey: false, drsCOCTypeRATKey:false, drsTopBrandsKey: false, drsTopBrandsByRatKey: false, drsComboGrossKey: false }
+      deletedObj: { drsImportTrendKey: false, drsCOCTypeKey: false, drsCOCTypeRATKey: false, drsTopBrandsKey: false, drsTopBrandsByRatKey: false, drsComboGrossKey: false }
     }
     this.getGraphDataFromServer = this.getGraphDataFromServer.bind(this);
     this.saveSearchQuery = this.saveSearchQuery.bind(this);
@@ -506,10 +506,10 @@ class Trends extends PureComponent {
                       <Linechart cardClass="card-success" title="COC Types Trend in DRS" loading={drsCOCTypeLoading} data={drsCOCTypeData} xAxis="x_axis" yAxisLabel="Count of IMEIs" yAxes={uniqueCOCTypeData} colorArray={this.getColorArray(32)} granularity={granularity} info={dRSCOCTypeInfo} showLegend="true" heightProp={this.getElementHeight(document.getElementsByName('drsCOCTypeKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsCOCTypeKey'} />
                     </div>
                     <div name='drsTopBrandsKey' key="drsTopBrandsKey" className={deletedObj.drsTopBrandsKey === true && 'hidden'}>
-                      <HorizontalBarSegregateChart cardClass="card-primary" title="Top Brands Registered in DRS Overall" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis={["imeis"]} yAxis="brand" colorArray={this.getColorArray(56)} granularity={granularity} info={dRSTop10overAllBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsKey'}/>
+                      <HorizontalBarSegregateChart cardClass="card-primary" title="Top Brands Registered in DRS Overall" loading={drsTopBrandsLoading} data={drsTopBrandsData} xAxis={["imeis"]} yAxis="brand" colorArray={this.getColorArray(56)} granularity={granularity} info={dRSTop10overAllBrands} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsKey'} />
                     </div>
                     <div name='drsCOCTypeRATKey' key="drsCOCTypeRATKey" className={deletedObj.drsCOCTypeRATKey === true && 'hidden'}>
-                      <Barchart cardClass="card-primary" title="COC Types by technology" loading={drsCOCTypeRATLoading} dataToDownload={drsCOCTypeRATRawData} data={drsCOCTypeRATData} xAxis="e" yAxisLabel="Count of IMEIs" yAxes={["2G", "3G", "4G", "Others"]} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={dRSCOCTypeRATInfo} heightProp={this.getElementHeight(document.getElementsByName('drsCOCTypeRATKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsCOCTypeRATKey'}/>
+                      <Barchart cardClass="card-primary" title="COC Types by technology" loading={drsCOCTypeRATLoading} dataToDownload={drsCOCTypeRATRawData} data={drsCOCTypeRATData} xAxis="e" yAxisLabel="Count of IMEIs" yAxes={["2G", "3G", "4G", "Others"]} isSegregate={true} colorArray={this.getColorArray(56)} granularity={granularity} info={dRSCOCTypeRATInfo} heightProp={this.getElementHeight(document.getElementsByName('drsCOCTypeRATKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsCOCTypeRATKey'} />
                     </div>
                     <div name='drsTopBrandsByRatKey' key="drsTopBrandsByRatKey" className={deletedObj.drsTopBrandsByRatKey === true && 'hidden'}>
                       <Barchart cardClass="card-success" title=" Top Brands Registered In DRS By Technology" loading={drsTopBrandsByRatLoading} data={drsTopBrandsByRatData} xAxis="rat" isSegregate={true} yAxes={uniqueTopBrandsByRatData} colorArray={this.getColorArray(57)} showLegend="true" granularity={granularity} innerRadiusProp={110} paddingProp={0} info={dRSTop2G3G4GBrands} dataToDownload={TopBrandsByRatDataToDownload} heightProp={this.getElementHeight(document.getElementsByName('drsTopBrandsByRatKey')[0])} removeChart={this.onRemoveItem} chartGridId={'drsTopBrandsByRatKey'} />

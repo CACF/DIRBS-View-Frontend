@@ -24,6 +24,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 import { operatorOne, operatorTwo, operatorThree, operatorFour, operatorFive, operatorSix } from './helpers';
 
+export const colorThemeShades = [
+    "#00415a", "#00719c", "#009bd6", "#59d4ff", "#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d55", "#d0743b", "#ff8c00", "#d53600", "#700e01"
+]
+// export const colorThemeShades = [
+//     "#00415a", "#00719c", "#009bd6", "#3badfc", "#59d4ff",      "#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d55", "#d0743b", "#ff8c00", "#d53600", "#700e01"
+// ]
+
 export const individualBarColors = [
     "#0BDDDE", "#0093C7"
 ]
