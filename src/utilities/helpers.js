@@ -508,7 +508,7 @@ export const yAxisKeysReplacing = (data) => {
         newDataObj["Feature phone"] = items[item];
       }
       else {
-        newDataObj[(item.substring(7))] = items[item];
+        newDataObj[item] = items[item];
       }
       return null;
     });
