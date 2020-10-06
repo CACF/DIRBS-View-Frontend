@@ -206,7 +206,7 @@ formateData = (dataToFormate) => {
                 width={300}
                 height={300}
               > 
-                 <Tooltip contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} formatter={(value, name) => [numberWithCommas(value) , name]}/>
+                 <Tooltip contentStyle={{borderRadius: '0.5rem', border: '#d71921 1px solid', borderTopWidth: '4px', padding: '0'}} formatter={(value, name) => [numberWithCommas(value) , name]}/>
                  <Label value="any" color="#fff"/>            
                   {/* { showLegend && <Legend 
                   content={this.scrollableLegend}

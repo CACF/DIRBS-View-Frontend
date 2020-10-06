@@ -137,7 +137,7 @@ class Linechart extends PureComponent {
                   <CartesianGrid strokeDasharray="3 3"/>
                   <XAxis dataKey={xAxis} tickFormatter={xAxisFormat} style={{fontSize: "11px", fontWeight: "600"}}/>
                   <YAxis width={yAxisLabelWidth} label={{ value: yAxisLabel, angle: yAxisLabelAngel, position: yAxisLabelPosition, style: yAxesLabelStyle }} tickFormatter={yAxisFormatterNoDecimal} style={{fontSize: "11px", fontWeight: "600"}}/>
-                  <Tooltip labelFormatter={xAxisFormat} contentStyle={{borderRadius: '0.5rem', border: '#0093c9 1px solid', borderTopWidth: '4px', padding: '0'}} formatter={(value, name) => [numberWithCommas(value) , name]}/>
+                  <Tooltip labelFormatter={xAxisFormat} contentStyle={{borderRadius: '0.5rem', border: '#d71921 1px solid', borderTopWidth: '4px', padding: '0'}} formatter={(value, name) => [numberWithCommas(value) , name]}/>
                   { !showLegend ? null
                   :
                   <Legend 
